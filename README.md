@@ -21,7 +21,7 @@ A controller is recommended. Keyboard and mouse also work.
 Pick your hero on the title screen with the D-pad (left and right).
 
 - **The Sun**: a knight with sword and shield. His ult is Holy Fire. Hold heavy in it to charge, all the way up to Might of God.
-- **The Moon**: a Hwarang with a sword and a horn bow on heavy. His ult is Moonlight. Hold the draw in it through Crescent, Half Moon, Full Moon and Moonfall.
+- **The Moon**: a Hwarang with a sword and a horn bow on heavy. His ult is Moonlight. Hold the draw in it through Crescent, Half Moon, Full Moon and Moonfall. From Full Moon on you can glide around while you hold it.
 
 ## Controls
 

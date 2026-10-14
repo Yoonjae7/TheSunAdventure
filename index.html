@@ -825,6 +825,10 @@ const Snd = (() => {
       bell(98, 0.06, 0.02);
       tone({ f: 2640, f2: 2600, dur: 1.6, vol: 0.05, type: 'sine', a: 0.003, delay: 0.05 });
     },
+    sheathSlide() {
+      noise({ dur: 0.85, vol: 0.12, type: 'highpass', f: 2600, f2: 5200, a: 0.12 });
+      noise({ dur: 0.8, vol: 0.06, type: 'bandpass', f: 1400, f2: 900, q: 2, a: 0.1 });
+    },
     sheathClick() {
       noise({ dur: 0.025, vol: 0.6, type: 'bandpass', f: 3600, q: 3, a: 0.0005 });
       tone({ f: 1900, f2: 1500, dur: 0.07, vol: 0.12, type: 'square', lp: 4000, a: 0.0005 });
@@ -875,6 +879,13 @@ const Snd = (() => {
         choir([38, 45, 50, 57, 62, 66, 69], 6, 0.05, 0.2);
         noise({ dur: 2.4, vol: 0.3, type: 'bandpass', f: 200, f2: 3000, q: 0.6, a: 1.2 });
       }
+    },
+    // a dragon of moonlight going into him: a deep boom, a snarl cut short, a bright ring
+    dragonHit(sc = 1) {
+      tone({ f: 120 / Math.sqrt(sc), f2: 34, dur: 0.9, vol: 0.4, a: 0.004 });
+      noise({ dur: 0.5, vol: 0.32, type: 'lowpass', f: 900, f2: 140, a: 0.003 });
+      noise({ dur: 0.35, vol: 0.12, type: 'bandpass', f: 1400, f2: 600, q: 3, a: 0.01 });
+      bell(86 - Math.round(sc * 3), 0.05, 0.03);
     },
     // the dragon: a long rising breath of wind and a voice like a struck bell
     dragonRoar() {
@@ -2573,6 +2584,16 @@ const HW = {
   bark: new THREE.MeshStandardMaterial({ color: lin(0x8a5a36), roughness: 0.8 }),
   bone: new THREE.MeshStandardMaterial({ color: lin(0xe8dcc0), roughness: 0.5 }),
 };
+// the hwando's curve: the blade leaves the guard along an arc of radius rho, bowing to the side its edge is on. The scabbard
+// is built along the same arc, as the blade lies in it (SHEATH_Z down from its mouth, turned end for end), so it always holds it.
+const BLADE = { rho: 8, z0: 0.11, len: 0.98 };
+const bladeAt = (d, out) => out.set(-(BLADE.rho - BLADE.rho * Math.cos(d / BLADE.rho)), 0, BLADE.z0 + BLADE.rho * Math.sin(d / BLADE.rho));
+const SHEATH_Z = 0.15, SHEATH_D0 = -0.012;
+const SCAB_MOUTH = SHEATH_Z - (BLADE.z0 + BLADE.rho * Math.sin(SHEATH_D0 / BLADE.rho));     // where the mouth is, along the scabbard
+// the blade's own steel, cut off at the scabbard's mouth while it slides in (the plane is far away the rest of the time)
+const BLADE_CLIP = new THREE.Plane(new V3(0, 1, 0), 1e5);
+HW.blade = HW.steel.clone(); HW.blade.clippingPlanes = [BLADE_CLIP];
+HW.bladeEdge = HW.edge.clone(); HW.bladeEdge.clippingPlanes = [BLADE_CLIP];
 const SKIRT_GEO = new THREE.CylinderGeometry(0.2, 0.25, 0.26, 20, 1, true);
 const ROBE_BACK = new THREE.CylinderGeometry(0.235, 0.35, 0.76, 16, 1, true, Math.PI * 0.55, Math.PI * 0.9);
 const ROBE_FRONT_L = new THREE.CylinderGeometry(0.235, 0.35, 0.76, 8, 1, true, Math.PI * 0.03, Math.PI * 0.5);
@@ -2624,10 +2645,16 @@ function dressMoon(R) {
     cyl(q, HW.leather, 0.065, 0.55, 0.065, 0, 0, 0);
     cyl(q, HW.gold, 0.07, 0.03, 0.07, 0, 0.27, 0);
     for (let i = 0; i < 5; i++) blk(q, i % 2 ? HW.red : HW.white, 0.012, 0.09, 0.03, (i - 2) * 0.022, 0.33, (i % 3 - 1) * 0.02);
-    // the scabbard at his left hip, the hwando's home
-    const sc = R.scabbard = pivot(hips, 0.2, -0.04, 0.05); sc.rotation.set(-0.4, 0, -0.1);    // hilt forward and up, tip back and down
-    part(sc, GEO.cyl, HW.black, 0.027, 0.95, 0.036, 0, 0, -0.42, Math.PI / 2, 0, 0);
-    part(sc, GEO.cyl, HW.gold, 0.03, 0.04, 0.04, 0, 0, 0.04, Math.PI / 2, 0, 0);
+    // the scabbard at his left hip, the hwando's home: hilt forward and up, tip back and down, the curve bowed upward.
+    // Built in the blade's frame as the blade lies in it, along the same curve and bigger all round.
+    const sc = R.scabbard = pivot(hips, 0.2, -0.04, 0.05); sc.rotation.set(-0.4, 0, -0.1 - Math.PI / 2);
+    const inner = pivot(sc, 0, 0, SHEATH_Z); inner.rotation.y = Math.PI;
+    const along = (d, fn) => { const at = bladeAt(d, new V3()), g = pivot(inner, at.x, 0, at.z); g.rotation.y = -d / BLADE.rho; fn(g); };
+    const NS = 8, d1 = BLADE.len + 0.05, L = (d1 - SHEATH_D0) / NS;
+    for (let k = 0; k < NS; k++) along(SHEATH_D0 + (k + 0.5) * L, g => part(g, GEO.cyl, HW.black, lerp(0.041, 0.033, k / (NS - 1)), L + 0.014, 0.019, 0, 0, 0, Math.PI / 2, 0, 0));
+    along(0.004, g => part(g, GEO.cyl, HW.gold, 0.046, 0.032, 0.025, 0, 0, 0, Math.PI / 2, 0, 0));      // the mouth
+    along(0.2, g => part(g, GEO.cyl, HW.gold, 0.044, 0.018, 0.023, 0, 0, 0, Math.PI / 2, 0, 0));        // a band for the cord
+    along(d1, g => ell(g, HW.gold, 0.035, 0.02, 0.032, 0, 0, 0));                                       // the chape
   });
   tagAll('moonPlain', () => {
     // a red headband with long ties, an indigo jacket with a white collar, a red sash
@@ -2678,11 +2705,16 @@ function dressMoon(R) {
     ell(sw, HW.gold, 0.026, 0.026, 0.026, 0, 0, -0.14);
     cyl(sw, HW.red, 0.012, 0.12, 0.012, 0, -0.06, -0.15);
     part(sw, GEO.cyl, HW.gold, 0.058, 0.012, 0.058, 0, 0, 0.09, Math.PI / 2, 0, 0);
-    for (let i = 0; i < 3; i++) {
-      const z = 0.28 + i * 0.32, bend = 0.01 + i * 0.022;
-      blk(sw, HW.steel, 0.055 - i * 0.006, 0.012, 0.34, -bend, 0, z, 0, -0.035 * i, 0);
-      blk(sw, HW.edge, 0.008, 0.013, 0.34, -bend + 0.028 - i * 0.003, 0, z, 0, -0.035 * i, 0);
+    // the blade along its curve, the edge on the outside of it, narrowing to a point
+    const NB = 7, sl = BLADE.len / NB;
+    for (let k = 0; k < NB; k++) {
+      const d = (k + 0.5) * sl, at = bladeAt(d, new V3()), g = pivot(sw, at.x, 0, at.z), w = lerp(0.055, 0.042, d / BLADE.len);
+      g.rotation.y = -d / BLADE.rho;
+      blk(g, HW.blade, w, 0.012, sl + 0.012, 0, 0, 0);
+      blk(g, HW.bladeEdge, 0.008, 0.013, sl + 0.012, w / 2 + 0.001, 0, 0);
     }
+    const tp = bladeAt(BLADE.len, new V3()), kp = pivot(sw, tp.x, 0, tp.z); kp.rotation.y = -BLADE.len / BLADE.rho;
+    part(kp, GEO.cone, HW.blade, 0.025, 0.075, 0.0065, 0, 0, 0.0375, Math.PI / 2, 0, 0);
   });
   tagAll('moonSheathed', () => {
     const sc = R.scabbard;
@@ -5297,7 +5329,7 @@ function updatePlayer(dt) {
 
   // walk cycle overlay
   const spd = Math.hypot(p.vel.x, p.vel.z);
-  const walking = p.state === 'free' || p.state === 'flask' || p.state === 'draw' || p.state === 'shoot' || (p.state === 'charge' && (charge.float || 0) < 0.3);   // no stepping in mid-air
+  const walking = p.state === 'free' || p.state === 'flask' || ((p.state === 'draw' || p.state === 'shoot') && !(bow.hover > 0.1)) || (p.state === 'charge' && (charge.float || 0) < 0.3);   // no stepping in mid-air
   p.spd = damp(p.spd, walking ? spd : 0, 10, dt);
   const w = clamp(p.spd / 5, 0, 1);
   if (w > 0.03) {
@@ -5342,6 +5374,7 @@ function updatePlayer(dt) {
   p.bowTurn = damp(p.bowTurn || 0, p.state === 'draw' || p.state === 'shoot' ? BOW_YAW : 0, 9, dt);
   if (Math.abs(p.bowTurn) < 0.002) p.bowTurn = 0;
   rig.root.rotation.y = p.yaw + p.bowTurn;
+  if (p.state === 'execute' && G.exec && G.exec.iai) iaiHands();
   if (p.state !== 'flask') rig.flask.visible = false;
 
   updateTrail(dt);
@@ -5794,7 +5827,7 @@ function doBeheading(quiet) {
     finish.hold = 0.24; finish.spurtIn = 0.26; finish.flying = true; finish.fountain = 0; finish.landed = false;
     finish.pool = true; finish.poolT = -0.35; finish.poolX = hx; finish.poolZ = hz; finish.poolR = clamp(BOSS_R * 0.9, 0.9, 1.9);
     bloodSpray(hx, hy, hz, 8, { speed: 0.8, up: 0.5 });
-    if (!quiet) bladeBlood.visible = true;
+    if (!quiet) { bladeBlood.position.set(0, 0, 0.86); bladeBlood.rotation.set(0, 0, 0); bladeBlood.visible = true; }
     b.beheaded = true;
   } else {
     sparks(hx, hy, hz, 40, { speed: 7, color: [1, 0.95, 0.75] });
@@ -8151,17 +8184,42 @@ haloG.visible = false; scene.add(haloG);
 // the Half Moon: a 청룡 of moonlight coiled round him. A long scaled body with belly plates and a crest of spines, four legs
 // with four claws each (the right fore holds the pearl), a long-snouted head with its jaws open, antlers, whiskers that
 // stream back, a beard and a mane, and a fan of fins at the tail. The body and whiskers are tubes written every frame.
-const dragonMat = makeSpiritMat(0x4aa4ff, 0.3, true);
-const dragonPartMat = makeSpiritMat(0x58b2ff, 0.32, false);
-const dragonFinMat = makeSpiritMat(0x78c6ff, 0.26, false); dragonFinMat.side = THREE.DoubleSide;
-const dragonEyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
-const dragonGlowMat = new THREE.SpriteMaterial({ map: wingGlowTex, color: 0x9fdcff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
-const pearlMat = new THREE.MeshBasicMaterial({ color: 0xeef6ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+// At Moonfall four more come down out of the sky: white, indigo, pale blue and gold, bigger and further out, some high round
+// the beam and some low over the floor. When he lets go, every one of them goes into the boss with the arrow. A dragon's body
+// follows the path its head has taken (kept relative to him, so the coil goes where he goes); each one's parts are baked
+// into a few meshes, so five of them cost little more than one did.
 const TAPER = new THREE.ConeGeometry(1, 1, 8); TAPER.translate(0, 0.5, 0);      // a cone that grows from its base, for horns and strands
-const DRAGON_N = 72, DRAGON_M = 14, SPINE_K = 30, WHISK_N = 14;
-const dragon = { g: new THREE.Group(), spine: [], rad: [], fr: [], glows: [], head: new THREE.Group(), jaw: null, mane: [], legs: [], whiskers: [],
-  tail: new THREE.Group(), pearl: null, pearlGlow: null, eyes: [] };
-for (let i = 0; i < DRAGON_N; i++) { dragon.spine.push(new V3()); dragon.rad.push(0); dragon.fr.push({ T: new V3(), N: new V3(), B: new V3() }); }
+const DRAGON_N = 72, DRAGON_M = 14, SPINE_K = 30, WHISK_N = 14, TRAIL_CAP = 480;
+function dragonMats(body, part, fin, glow) {
+  const add = { transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false };
+  const M = { body: makeSpiritMat(body, 0.3, true), part: makeSpiritMat(part, 0.32, false), fin: makeSpiritMat(fin, 0.26, false),
+    eye: new THREE.MeshBasicMaterial(Object.assign({ color: 0xffffff }, add)), glow: new THREE.SpriteMaterial(Object.assign({ map: wingGlowTex, color: glow }, add)),
+    pearl: new THREE.MeshBasicMaterial(Object.assign({ color: 0xeef6ff }, add)) };
+  M.fin.side = THREE.DoubleSide;
+  return M;
+}
+// one geometry out of every mesh under g that keep() takes, in g's own frame (the meshes are taken out)
+function bakeParts(g, keep) {
+  g.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(g.matrixWorld).invert(), mm = new THREE.Matrix4(), nm = new THREE.Matrix3(), v = new V3(), n = new V3();
+  const pos = [], nor = [], idx = [], used = [];
+  let base = 0;
+  g.traverse(o => {
+    if (!o.isMesh || !keep(o)) return;
+    mm.multiplyMatrices(inv, o.matrixWorld); nm.getNormalMatrix(mm);
+    const geo = o.geometry === GEO.sphere ? LOW_SPHERE : o.geometry, P = geo.attributes.position, N = geo.attributes.normal;
+    for (let i = 0; i < P.count; i++) {
+      v.fromBufferAttribute(P, i).applyMatrix4(mm); pos.push(v.x, v.y, v.z);
+      n.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); nor.push(n.x, n.y, n.z);
+    }
+    if (geo.index) for (let i = 0; i < geo.index.count; i++) idx.push(base + geo.index.getX(i)); else for (let i = 0; i < P.count; i++) idx.push(base + i);
+    base += P.count; used.push(o);
+  });
+  for (const o of used) o.parent.remove(o);
+  const out = new THREE.BufferGeometry();
+  out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); out.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); out.setIndex(idx);
+  return out;
+}
 // a tube written every frame: rings x (sides + 1), with uvs along and round it
 function liveTube(rings, sides, mat) {
   const g = new THREE.BufferGeometry(), V = rings * (sides + 1), idx = [], uv = new Float32Array(V * 2);
@@ -8194,88 +8252,110 @@ function writeTube(t, pts, rad, count) {
   t.g.attributes.position.needsUpdate = true; t.g.attributes.normal.needsUpdate = true;
   t.g.setDrawRange(0, Math.max(0, count - 1) * S * 6);
 }
-const dragonBody = liveTube(DRAGON_N, DRAGON_M, dragonMat);
-dragon.g.add(dragonBody.m);
-// the crest: a row of swept-back spines along the top of the body
-const spineGeo = new THREE.BufferGeometry();
-spineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPINE_K * 9), 3));
-spineGeo.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(SPINE_K * 9), 3));
-const dragonSpines = new THREE.Mesh(spineGeo, dragonFinMat);
-dragon.g.add(dragonSpines);
 // four legs, four claws each; the right fore holds the pearl
 const LEG_AT = [[0.17, 1, 0], [0.17, -1, 1.7], [0.56, 1, 3.1], [0.56, -1, 4.6]];
-for (const [s, side, ph] of LEG_AT) {
-  const hip = new THREE.Group(), M = dragonPartMat;
-  const thigh = pivot(hip, 0, 0, 0);
-  ell(thigh, M, 0.12, 0.27, 0.12, 0, -0.22, 0);
-  const knee = pivot(thigh, 0, -0.44, 0);
-  ell(knee, M, 0.085, 0.22, 0.085, 0, -0.18, 0);
-  const foot = pivot(knee, 0, -0.38, 0);
-  ell(foot, M, 0.1, 0.06, 0.12, 0, -0.02, 0.04);
-  for (let c = 0; c < 4; c++) { const a = (c - 1.5) * 0.42; part(foot, TAPER, M, 0.024, 0.17, 0.024, Math.sin(a) * 0.08, -0.04, 0.1 + Math.cos(a) * 0.03, 1.75, a, 0); }
-  if (side > 0 && s < 0.3) {
-    const pearl = new THREE.Mesh(LOW_SPHERE, pearlMat); pearl.scale.setScalar(0.11); pearl.position.set(0, -0.1, 0.2); foot.add(pearl);
-    const glow = new THREE.Sprite(dragonGlowMat); glow.scale.setScalar(0.9); pearl.add(glow);
-    dragon.pearl = pearl; dragon.pearlGlow = glow;
+function makeDragon(M, sc, orb) {
+  const d = { g: new THREE.Group(), M, sc, orb, len: 13.3 * sc, spine: [], rad: [], fr: [], head: new THREE.Group(), jaw: null, legs: [], whiskers: [],
+    tail: new THREE.Group(), glows: [], pearl: null, pearlGlow: null, k: 0, state: 'off', wait: 0, lead: 0, blend: 1, roar: 0,
+    hp: new V3(), hv: new V3(), E: new V3(), inDir: new V3(), tr: { x: new Float32Array(TRAIL_CAP), y: new Float32Array(TRAIL_CAP), z: new Float32Array(TRAIL_CAP), head: -1, n: 0 } };
+  for (let i = 0; i < DRAGON_N; i++) { d.spine.push(new V3()); d.rad.push(0); d.fr.push({ T: new V3(), N: new V3(), B: new V3() }); }
+  const P = M.part;
+  d.body = liveTube(DRAGON_N, DRAGON_M, M.body); d.g.add(d.body.m);
+  // the crest: a row of swept-back spines along the top of the body
+  d.spineGeo = new THREE.BufferGeometry();
+  d.spineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPINE_K * 9), 3));
+  d.spineGeo.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(SPINE_K * 9), 3));
+  d.g.add(new THREE.Mesh(d.spineGeo, M.fin));
+  for (const [s, side, ph] of LEG_AT) {
+    const hip = new THREE.Group();
+    const thigh = pivot(hip, 0, 0, 0);
+    ell(thigh, P, 0.12, 0.27, 0.12, 0, -0.22, 0);
+    const knee = pivot(thigh, 0, -0.44, 0);
+    ell(knee, P, 0.085, 0.22, 0.085, 0, -0.18, 0);
+    const foot = pivot(knee, 0, -0.38, 0);
+    ell(foot, P, 0.1, 0.06, 0.12, 0, -0.02, 0.04);
+    for (let c = 0; c < 4; c++) { const a = (c - 1.5) * 0.42; part(foot, TAPER, P, 0.024, 0.17, 0.024, Math.sin(a) * 0.08, -0.04, 0.1 + Math.cos(a) * 0.03, 1.75, a, 0); }
+    foot.add(new THREE.Mesh(bakeParts(foot, o => o.material === P), P));
+    if (side > 0 && s < 0.3) {
+      const pearl = new THREE.Mesh(LOW_SPHERE, M.pearl); pearl.scale.setScalar(0.11); pearl.position.set(0, -0.1, 0.2); foot.add(pearl);
+      const glow = new THREE.Sprite(M.glow); glow.scale.setScalar(0.9); pearl.add(glow);
+      d.pearl = pearl; d.pearlGlow = glow;
+    }
+    hip.scale.setScalar(sc);
+    d.g.add(hip);
+    d.legs.push({ hip, thigh, knee, foot, s, side, ph });
   }
-  dragon.g.add(hip);
-  dragon.legs.push({ hip, thigh, knee, foot, s, side, ph });
-}
-// the head
-{
-  const h = dragon.head, M = dragonPartMat;
-  ell(h, M, 0.25, 0.21, 0.3, 0, 0.03, 0);                                          // the skull
-  ell(h, M, 0.2, 0.15, 0.22, 0, 0.0, 0.28);                                         // the face
-  ell(h, M, 0.15, 0.11, 0.34, 0, -0.01, 0.52);                                      // the long upper jaw
-  ell(h, M, 0.13, 0.1, 0.1, 0, 0.03, 0.8);                                          // the nose
-  for (const s of [1, -1]) {
-    ell(h, M, 0.055, 0.045, 0.07, s * 0.07, 0.07, 0.84);                            // nostrils
-    ell(h, M, 0.09, 0.05, 0.15, s * 0.13, 0.14, 0.2, 0, s * 0.25, 0);               // brows
-    const eye = ell(h, dragonEyeMat, 0.045, 0.035, 0.035, s * 0.15, 0.1, 0.27); dragon.eyes.push(eye);
-    const eg = new THREE.Sprite(dragonGlowMat); eg.scale.setScalar(0.32); eg.position.set(s * 0.16, 0.1, 0.28); h.add(eg);
-    for (let k = 0; k < 4; k++) part(h, TAPER, M, 0.017, 0.07, 0.017, s * (0.1 - k * 0.006), -0.08, 0.42 + k * 0.1, Math.PI, 0, 0);   // teeth
-    part(h, TAPER, M, 0.026, 0.14, 0.026, s * 0.09, -0.09, 0.72, Math.PI, 0, 0);                                                   // fangs
-    // antlers: a beam swept back and up, two tines off it
-    const ant = pivot(h, s * 0.12, 0.19, -0.06); ant.rotation.set(-0.95, s * 0.3, s * 0.18);
-    part(ant, TAPER, M, 0.05, 0.72, 0.05, 0, 0, 0);
-    part(ant, TAPER, M, 0.032, 0.32, 0.032, 0, 0.3, 0.01, 0.95, 0, 0);
-    part(ant, TAPER, M, 0.028, 0.26, 0.028, 0, 0.52, 0, 0.75, 0, s * 0.45);
+  // the head
+  {
+    const h = d.head;
+    ell(h, P, 0.25, 0.21, 0.3, 0, 0.03, 0);                                          // the skull
+    ell(h, P, 0.2, 0.15, 0.22, 0, 0.0, 0.28);                                         // the face
+    ell(h, P, 0.15, 0.11, 0.34, 0, -0.01, 0.52);                                      // the long upper jaw
+    ell(h, P, 0.13, 0.1, 0.1, 0, 0.03, 0.8);                                          // the nose
+    for (const s of [1, -1]) {
+      ell(h, P, 0.055, 0.045, 0.07, s * 0.07, 0.07, 0.84);                            // nostrils
+      ell(h, P, 0.09, 0.05, 0.15, s * 0.13, 0.14, 0.2, 0, s * 0.25, 0);               // brows
+      ell(h, M.eye, 0.045, 0.035, 0.035, s * 0.15, 0.1, 0.27);
+      const eg = new THREE.Sprite(M.glow); eg.scale.setScalar(0.32); eg.position.set(s * 0.16, 0.1, 0.28); h.add(eg);
+      for (let k = 0; k < 4; k++) part(h, TAPER, P, 0.017, 0.07, 0.017, s * (0.1 - k * 0.006), -0.08, 0.42 + k * 0.1, Math.PI, 0, 0);   // teeth
+      part(h, TAPER, P, 0.026, 0.14, 0.026, s * 0.09, -0.09, 0.72, Math.PI, 0, 0);                                                   // fangs
+      // antlers: a beam swept back and up, two tines off it
+      const ant = pivot(h, s * 0.12, 0.19, -0.06); ant.rotation.set(-0.95, s * 0.3, s * 0.18);
+      part(ant, TAPER, P, 0.05, 0.72, 0.05, 0, 0, 0);
+      part(ant, TAPER, P, 0.032, 0.32, 0.032, 0, 0.3, 0.01, 0.95, 0, 0);
+      part(ant, TAPER, P, 0.028, 0.26, 0.028, 0, 0.52, 0, 0.75, 0, s * 0.45);
+    }
+    // the lower jaw, open, with its own teeth and a beard streaming back under it
+    d.jaw = pivot(h, 0, -0.1, 0.12);
+    ell(d.jaw, P, 0.13, 0.06, 0.33, 0, -0.03, 0.3);
+    for (const s of [1, -1]) for (let k = 0; k < 3; k++) part(d.jaw, TAPER, P, 0.016, 0.06, 0.016, s * 0.08, 0.02, 0.34 + k * 0.1, 0, 0, 0);
+    for (let k = 0; k < 5; k++) part(d.jaw, TAPER, P, 0.03, 0.36 - Math.abs(k - 2) * 0.04, 0.03, (k - 2) * 0.045, -0.06, 0.18 - Math.abs(k - 2) * 0.03, 2.55, 0, (k - 2) * 0.12);
+    // the mane: flames of light along the back of the head and down the neck
+    for (let k = 0; k < 9; k++) {
+      const mp = pivot(h, 0, 0.17 - k * 0.012, -0.1 - k * 0.075); mp.rotation.set(-2.25 + k * 0.05, 0, (k % 2 ? 1 : -1) * 0.35);
+      part(mp, TAPER, P, 0.055, 0.44 - k * 0.025, 0.02, 0, 0, 0);
+    }
+    // all that does not move as one mesh, and the jaw as another
+    d.jaw.add(new THREE.Mesh(bakeParts(d.jaw, o => o.material === P), P));
+    const inJaw = new Set(); d.jaw.traverse(o => inJaw.add(o));
+    h.add(new THREE.Mesh(bakeParts(h, o => o.material === P && !inJaw.has(o)), P));
+    h.scale.setScalar(sc);
+    d.g.add(h);
   }
-  // the lower jaw, open, with its own teeth and a beard streaming back under it
-  dragon.jaw = pivot(h, 0, -0.1, 0.12);
-  ell(dragon.jaw, M, 0.13, 0.06, 0.33, 0, -0.03, 0.3);
-  for (const s of [1, -1]) for (let k = 0; k < 3; k++) part(dragon.jaw, TAPER, M, 0.016, 0.06, 0.016, s * 0.08, 0.02, 0.34 + k * 0.1, 0, 0, 0);
-  for (let k = 0; k < 5; k++) part(dragon.jaw, TAPER, M, 0.03, 0.36 - Math.abs(k - 2) * 0.04, 0.03, (k - 2) * 0.045, -0.06, 0.18 - Math.abs(k - 2) * 0.03, 2.55, 0, (k - 2) * 0.12);
-  // the mane: flames of light along the back of the head and down the neck
-  for (let k = 0; k < 9; k++) {
-    const mp = pivot(h, 0, 0.17 - k * 0.012, -0.1 - k * 0.075);
-    part(mp, TAPER, M, 0.055, 0.44 - k * 0.025, 0.02, 0, 0, 0);
-    mp.userData.base = -2.25 + k * 0.05; mp.userData.tilt = (k % 2 ? 1 : -1) * 0.35;
-    dragon.mane.push(mp);
+  // whiskers: two long barbels, written every frame
+  for (let w = 0; w < 2; w++) {
+    const t = liveTube(WHISK_N, 5, P);
+    d.g.add(t.m);
+    d.whiskers.push({ t, pts: Array.from({ length: WHISK_N }, () => new V3()), rad: Array.from({ length: WHISK_N }, (_, k) => lerp(0.024, 0.004, k / (WHISK_N - 1)) * sc) });
   }
-  dragon.g.add(h);
-}
-// whiskers: two long barbels, written every frame
-for (let w = 0; w < 2; w++) {
-  const t = liveTube(WHISK_N, 5, dragonPartMat);
-  dragon.g.add(t.m);
-  dragon.whiskers.push({ t, pts: Array.from({ length: WHISK_N }, () => new V3()), rad: Array.from({ length: WHISK_N }, (_, k) => lerp(0.024, 0.004, k / (WHISK_N - 1))) });
-}
-// the tail: a fan of fins
-for (let k = 0; k < 5; k++) {
-  const a = (k - 2) * 0.32;
-  part(dragon.tail, TAPER, dragonFinMat, 0.07, 0.75 - Math.abs(k - 2) * 0.12, 0.012, 0, 0, 0, -Math.PI / 2 + Math.abs(k - 2) * 0.1, a, 0);
-}
-dragon.g.add(dragon.tail);
-for (let i = 0; i < DRAGON_N; i += 8) { const sp = new THREE.Sprite(dragonGlowMat); sp.renderOrder = 8; dragon.g.add(sp); dragon.glows.push({ s: sp, i }); }
-// every lit part gets its depth pass
-{
+  // the tail: a fan of fins
+  for (let k = 0; k < 5; k++) {
+    const a = (k - 2) * 0.32;
+    part(d.tail, TAPER, M.fin, 0.07, 0.75 - Math.abs(k - 2) * 0.12, 0.012, 0, 0, 0, -Math.PI / 2 + Math.abs(k - 2) * 0.1, a, 0);
+  }
+  d.tail.add(new THREE.Mesh(bakeParts(d.tail, o => o.material === M.fin), M.fin));
+  d.tail.scale.setScalar(sc);
+  d.g.add(d.tail);
+  for (let i = 0; i < DRAGON_N; i += 8) { const sp = new THREE.Sprite(M.glow); sp.renderOrder = 8; d.g.add(sp); d.glows.push({ s: sp, i }); }
+  // every lit part gets its depth pass
   const lit = [], other = [];
-  dragon.g.traverse(o => { if (o.isMesh) (o.material === dragonMat || o.material === dragonPartMat || o.material === dragonFinMat ? lit : other).push(o); });
+  d.g.traverse(o => { if (o.isMesh) (o.material === M.body || o.material === P || o.material === M.fin ? lit : other).push(o); });
   for (const o of lit) addDepthTwin(o);
   for (const o of other) { o.castShadow = false; o.frustumCulled = false; o.renderOrder = 8; }
+  d.g.visible = false; scene.add(d.g);
+  return d;
 }
-dragon.g.visible = false; scene.add(dragon.g);
+// the Half Moon's: azure, close round him
+const dragon = makeDragon(dragonMats(0x4aa4ff, 0x58b2ff, 0x78c6ff, 0x9fdcff), 1, { R: 2.9, rw: 0.35, ph: 0, w: 0.9, h: 3.5, hw: 1.1, hf: 0.8 });
+// Moonfall's four: white, wide and high, the other way round; indigo, low over the floor; pale blue, high round the beam;
+// gold, the greatest, furthest out
+const court = [
+  [[0xb8cfff, 0xcad9ff, 0xe4edff, 0xe0eaff], 1.45, { R: 7.2, rw: 0.6, ph: 0.4, w: -0.42, h: 5.6, hw: 1.4, hf: 0.55 }],
+  [[0x5257ff, 0x6a6eff, 0x9a9dff, 0xa9aaff], 1.15, { R: 5.0, rw: 0.5, ph: 2.3, w: 0.58, h: 1.9, hw: 0.55, hf: 0.9 }],
+  [[0x46d8ff, 0x66e2ff, 0x9aefff, 0xa6f3ff], 1.2, { R: 3.6, rw: 0.4, ph: 4.4, w: 0.72, h: 8.2, hw: 1.8, hf: 0.45 }],
+  [[0xffbe55, 0xffcd72, 0xffe2a2, 0xffe2a8], 1.8, { R: 9.2, rw: 0.8, ph: 1.2, w: -0.3, h: 3.6, hw: 2.1, hf: 0.38 }],
+].map(([c, sc, orb]) => makeDragon(dragonMats(...c), sc, orb));
+const dragons = [dragon, ...court];
 // and a beam of moonlight down on him out of the sky
 const moonPillar = makeBeam();
 moonPillar.material.uniforms.uColor.value.setRGB(0.72, 0.84, 1.0);
@@ -8345,12 +8425,18 @@ function updateDrawState(dt, tgt, m, facingLock, lockYaw) {
   if (tier !== bow.tier) { bow.tier = tier; drawTierUp(tier); }
   if (p.ultOn && !bow.hum && bow.t > 1) { bow.hum = true; Snd.humStart(); Snd.chargeStart(); }
   if (bow.hum) Snd.humSet(clamp(bow.t / MOON_TIERS[3], 0, 1), tier);
-  // slow steps, turning to keep him on the arrow; from the Full Moon on, the ancestors hold him where he stands
-  const sp = tier >= 3 ? 0 : 1.4 * (p.slowT > 0 ? 0.55 : 1), go = m.l > 0.05 ? 1 : 0;
-  p.vel.x = damp(p.vel.x, m.x * sp * go, 8, dt); p.vel.z = damp(p.vel.z, m.z * sp * go, 8, dt);
+  // slow steps at first; from the Full Moon on the moonlight carries him: he glides a hand's breadth off the ground, the
+  // arrow kept on the boss, and everything that came with him comes along
+  const glide = p.ultOn && tier >= 3, sp = glide ? (tier >= 4 ? 4.2 : 3.0) : 1.4 * (p.slowT > 0 ? 0.55 : 1), go = m.l > 0.05 ? 1 : 0;
+  p.vel.x = damp(p.vel.x, m.x * sp * go, glide ? 5 : 8, dt); p.vel.z = damp(p.vel.z, m.z * sp * go, glide ? 5 : 8, dt);
+  const b = boss, bdx = b.pos.x - p.pos.x, bdz = b.pos.z - p.pos.z;
   let want = p.yaw;
-  if (facingLock) want = lockYaw; else if (m.l > 0.15) want = Math.atan2(m.x, m.z);
+  if (facingLock) want = lockYaw;
+  else if (glide && b.state !== 'dead' && b.state !== 'dying' && Math.hypot(bdx, bdz) < 45) want = Math.atan2(bdx, bdz);
+  else if (m.l > 0.15) want = Math.atan2(m.x, m.z);
   p.yaw += clamp(angDiff(p.yaw, want), -4 * dt, 4 * dt); p.yaw0 = p.yaw;
+  bow.hover = damp(bow.hover || 0, glide ? (tier >= 4 ? 0.55 : 0.3) + 0.05 * Math.sin(G.t * 2.3) : 0, 3, dt);
+  p.air = bow.hover;
   const k = drawK(bow.t), A = k < 1 ? P_BOW_NOCK : P_BOW_FULL, B = k < 1 ? P_BOW_FULL : P_BOW_DEEP, u = smooth(k < 1 ? k : k - 1);
   for (const key of PK) tgt[key] = A[key] + (B[key] - A[key]) * u;
   const sh = [0.003, 0.012, 0.02, 0.01, 0.006][tier];    // the strain shows; the ancestors steady it
@@ -8362,9 +8448,10 @@ function updateShootState(dt, tgt, m) {
   const p = player;
   const u = smooth(clamp(p.t / 0.12, 0, 1));
   for (const key of PK) tgt[key] = P_BOW_DEEP[key] + (P_BOW_LOOSE[key] - P_BOW_DEEP[key]) * u;
+  bow.hover = damp(bow.hover || 0, 0, bow.great ? 1.0 : 8, dt); p.air = bow.hover;    // down out of the glide
   if (bow.great) { p.vel.set(0, 0, 0); return; }        // he holds the loose while it all comes down; the scene lets him go
   p.vel.x = damp(p.vel.x, m.x * 1.2, 8, dt); p.vel.z = damp(p.vel.z, m.z * 1.2, 8, dt);
-  if (p.t >= (bow.tapShot ? 0.42 : 0.34)) { p.state = 'free'; p.t = 0; bow.out = 0.9; if (p.buf && tryAction(p.buf)) p.buf = ''; }
+  if (p.t >= (bow.tapShot ? 0.42 : 0.34)) { p.state = 'free'; p.t = 0; bow.out = 0.9; bow.hover = 0; p.air = 0; if (p.buf && tryAction(p.buf)) p.buf = ''; }
 }
 
 function releaseDraw() {
@@ -8491,7 +8578,7 @@ function looseGreat(tier) {
   const n = big ? 11 : 7;
   for (let i = 1; i <= n; i++) shotRing(_sP.copy(_sO).addScaledVector(_sDir, tEnd * i / (n + 1)), _sDir, big ? 1.7 : 1.1, 0.55 + i * 0.05);
   muzzle(_sO, _sDir, big ? 3 : 2);
-  if (big) armyLoose(entry);
+  if (big) { armyLoose(entry); dragonsDive(entry); }
   bow.soulsGo = 1.8; bow.flare = 1;
   bow.moonInT = -1; bow.moonIn = 0; bow.moonCore = 0;     // the moon is spent
   G.flash = 1; G.hitStop = Math.max(G.hitStop, big ? 0.3 : 0.22); G.slow = Math.max(G.slow, big ? 1.0 : 0.7);
@@ -8555,7 +8642,7 @@ function updateMoonfall(dt) {
   if (M.finale) { if (M.t >= camEnd) G.moonfall = null; return; }
   if (M.t >= camEnd) {
     G.moonfall = null; bow.great = 0;
-    if (p.state === 'shoot') { p.state = 'free'; p.t = 0; bow.out = 0.9; }
+    if (p.state === 'shoot') { p.state = 'free'; p.t = 0; bow.out = 0.9; bow.hover = 0; p.air = 0; }
     p.iframes = 0.8;
     $('cine').classList.remove('on');
     if (b.state === 'down') b.t = 0;                     // the full seven seconds to take his head
@@ -8671,7 +8758,12 @@ function drawTierUp(n) {
   G.fovKick = Math.max(G.fovKick, 0.5 + n * 0.25); G.shake = Math.min(1.5, G.shake + 0.2 + n * 0.12); G.flash = Math.max(G.flash, 0.15 + n * 0.1);
   popText(MOON_NAMES[n]);
   if (n === 1) { bow.burst = 1; bow.haloT = 0; if (!bow.told) { bow.told = true; showToast('The bow wakes. Keep holding it.', 2.6); } }
-  if (n === 2) { bow.dragonT = 0; dust(p.pos.x, p.pos.z, 20, 1.5, { speed: 6 }); }
+  if (n === 2) { bow.dragonT = 0; dust(p.pos.x, p.pos.z, 20, 1.5, { speed: 6 }); callDragon(dragon, 0, 18 + p.air, 0, 0); }
+  if (n === 4) {                                         // four more, down out of the sky from the moon's side of it
+    const mx = bigMoon.position.x - p.pos.x, mz = bigMoon.position.z - p.pos.z, ml = Math.hypot(mx, mz) || 1, ux = mx / ml, uz = mz / ml;
+    court.forEach((d, i) => { const side = (i - 1.5) * 6, out = 15 + i * 2.5; callDragon(d, ux * out - uz * side, 17 + i * 2.2, uz * out + ux * side, 0.15 + i * 0.32); });
+    Snd.dragonRoar(); setTimeout(() => Snd.dragonRoar(), 700);
+  }
   if (n === 3) summonSouls();
   if (n === 4) { summonArmy(); bow.moonInT = 0; showToast('Moonfall. Let go.', 3); }
 }
@@ -8699,7 +8791,7 @@ function aimFrame(x, z, out) {
 function placeSouls() {
   const p = player;
   for (const so of souls) {
-    aimFrame(so.at.x, so.at.z, so.m.position); so.m.position.y = so.rise;
+    aimFrame(so.at.x, so.at.z, so.m.position); so.m.position.y = so.rise + (bow.hover || 0);
     so.m.rotation.set(0, p.yaw + so.at.yaw, 0);
   }
 }
@@ -8735,7 +8827,7 @@ function updateSouls(dt) {
       s.rise = -1.9 * (1 - smooth(up));
       if (up < 1 && Math.random() < 0.6) fxSpark.emit(s.m.position.x + rand(-0.4, 0.4), 0.1, s.m.position.z + rand(-0.4, 0.4), 0, rand(2, 4), 0, rand(0.5, 0.9), rand(0.06, 0.1), 0.75, 0.86, 1, -0.3, 0.5);
     }
-    s.m.position.y = s.rise;
+    s.m.position.y = s.rise + (bow.hover || 0);
   }
 }
 // put the bow down: the meter goes; the hum stops; the stages fade on their own
@@ -8748,49 +8840,130 @@ function endDraw(keep) {
 /* ───── every frame ───── */
 const _tf = new V3(), _tu = new V3(), _tp = new V3(), _tv = new V3(), _dh = new V3(), _dtv = new V3(), _dl = new V3();
 const backOut = u => { const c1 = 1.70158, c3 = c1 + 1, v = u - 1; return 1 + c3 * v * v * v + c1 * v * v; };
-// it circles high round him, above the ancestors, dipping and rising as it goes
-function dragonPoint(s, t, out) {
-  const p = player, a = t * 0.9 - s * 4.6, r = 2.9 + 0.35 * Math.sin(t * 1.3 + s * 6);
-  const y = 3.5 + 1.1 * Math.sin(t * 0.8 - s * 2.6) * (1 - 0.3 * s) - 0.5 * s;
-  return out.set(p.pos.x + Math.cos(a) * r, Math.max(0.3, y) + p.air, p.pos.z + Math.sin(a) * r);
-}
 // the body's thickness: a neck, a deep chest, a long taper to the tail
 function dragonRad(s) { return s < 0.08 ? lerp(0.2, 0.3, s / 0.08) : 0.3 * Math.pow(1 - (s - 0.08) / 0.92, 0.8) + 0.02; }
-const _dM = new THREE.Matrix4(), _dX = new V3(), _dZ = new V3(), _dv = new V3(), _dw = new V3();
-function updateDragon(dt) {
-  const k = bow.dragon, vis = k > 0.01;
-  dragon.g.visible = vis;
-  if (!vis) return;
-  const grow = clamp(bow.dragonT / 1.3, 0, 1), T = G.t, n = Math.max(2, Math.round(DRAGON_N * grow));
-  for (const m of [dragonMat, dragonPartMat, dragonFinMat]) { m.uniforms.uOpacity.value = k; m.uniforms.uTime.value = T; }
-  dragonEyeMat.opacity = k; dragonGlowMat.opacity = 0.24 * k; pearlMat.opacity = k;
-  for (let i = 0; i < DRAGON_N; i++) {
-    const s = i / (DRAGON_N - 1);
-    dragonPoint(s, T, dragon.spine[i]);
-    dragon.rad[i] = dragonRad(s) * (i < n ? 1 : 0.001);
+const _dM = new THREE.Matrix4(), _dX = new V3(), _dZ = new V3(), _dv = new V3(), _dA = new V3(), _dB = new V3(), _dC = new V3();
+// where its round takes its head at time t, relative to him: circling, dipping and rising, never down through the floor
+function orbitAt(d, t, out) {
+  const o = d.orb, a = o.ph + t * o.w, r = o.R + o.rw * Math.sin(t * 1.3 + o.ph);
+  return out.set(Math.cos(a) * r, Math.max(0.5, o.h + o.hw * Math.sin(t * o.hf + o.ph * 2)) + player.air, Math.sin(a) * r);
+}
+// one comes: from a point in the sky (relative to him), after a wait
+function callDragon(d, fx, fy, fz, wait) {
+  Object.assign(d, { state: 'come', wait, k: 0, blend: 0, lead: 0, roar: 1.2 });
+  d.hp.set(fx, fy, fz); d.hv.set(0, -10, 0); d.tr.n = 0; d.tr.head = -1;
+}
+// at the loose, every one that is out goes into him with the arrow, one after another
+function dragonsDive(entry) {
+  const p = player; let i = 0;
+  for (const d of dragons) {
+    if (d.state !== 'orbit' && d.state !== 'come') continue;
+    if (d.state === 'come' && d.wait > 0) { d.state = 'off'; d.g.visible = false; continue; }     // not here yet: it never comes
+    d.state = 'dive'; d.wait = 0.05 + 0.1 * i++; d.E.set(entry.x - p.pos.x, entry.y, entry.z - p.pos.z); d.roar = 1;
   }
-  writeTube(dragonBody, dragon.spine, dragon.rad, n);
+}
+// where it struck: light out of the wound in its colour, a ring across the floor, the ground jumps
+function dragonStrike(d) {
+  const p = player, col = d.M.glow.color.getHex();
+  _dC.set(d.E.x + p.pos.x, d.E.y, d.E.z + p.pos.z);
+  blast(_dC, 1.4 + d.sc * 0.9, 0.45, col);
+  moonMotes(_dC, 36, 7);
+  addRing(boss.pos.x, boss.pos.z, { r0: 0.5, rMax: 7 + d.sc * 4, speed: 16, color: col, opacity: 0.85 });
+  G.shake = Math.min(1.5, G.shake + 0.3); G.flash = Math.max(G.flash, 0.18); G.fovKick = Math.max(G.fovKick, 0.5);
+  Haptics.pulse(0.45, 0.9, 140);
+  Snd.dragonHit(d.sc);
+  if (bossRig.root.visible && boss.state !== 'dead') whiteFlash(bossRig, 0.04);
+}
+// the head: coming down out of the sky to its round; on its round; diving; and on through him
+function moveDragonHead(d, dt) {
+  const T = G.t;
+  if (d.state === 'come') {
+    if (d.wait > 0) { d.wait -= dt; return false; }
+    orbitAt(d, T + 0.5, _dA);
+    _dB.subVectors(_dA, d.hp); const dist = _dB.length(), spd = Math.min(20 + 6 * d.sc, dist * 2.6 + 4);
+    _dB.multiplyScalar(spd / (dist || 1));
+    d.hv.lerp(_dB, 1 - Math.exp(-(2.2 + 9 / (dist + 0.6)) * dt));
+    d.hp.addScaledVector(d.hv, dt);
+    if (dist < 0.9) { d.state = 'orbit'; d.blend = 0; d.lead = 0.5; }
+  } else if (d.state === 'orbit' || d.state === 'fade' || (d.state === 'dive' && d.wait > 0)) {
+    if (d.state === 'dive') d.wait -= dt;
+    orbitAt(d, T + d.lead, _dA);
+    d.blend = Math.min(1, d.blend + dt * 2);
+    _dC.copy(d.hp);
+    if (d.blend >= 1) d.hp.copy(_dA); else d.hp.lerp(_dA, 1 - Math.exp(-6 * dt));
+    d.hv.subVectors(d.hp, _dC).divideScalar(Math.max(1e-4, dt));
+  } else if (d.state === 'dive') {
+    _dB.subVectors(d.E, d.hp); const dist = _dB.length();
+    _dB.multiplyScalar(34 / (dist || 1));
+    d.hv.lerp(_dB, 1 - Math.exp(-7 * dt));
+    const stepLen = d.hv.length() * dt;
+    if (dist <= Math.max(0.6, stepLen * 1.1)) { d.hp.copy(d.E); d.inDir.copy(_dB).normalize(); d.state = 'in'; dragonStrike(d); }
+    else d.hp.addScaledVector(d.hv, dt);
+  } else if (d.state === 'in') d.hp.addScaledVector(d.inDir, 34 * dt);
+  return true;
+}
+// the head's path, kept as points relative to him
+function recordTrail(d) {
+  const T = d.tr, q = T.head;
+  if (q >= 0 && Math.abs(T.x[q] - d.hp.x) + Math.abs(T.y[q] - d.hp.y) + Math.abs(T.z[q] - d.hp.z) < 0.05 * d.sc) return;
+  T.head = (q + 1) % TRAIL_CAP; T.x[T.head] = d.hp.x; T.y[T.head] = d.hp.y; T.z[T.head] = d.hp.z; T.n = Math.min(TRAIL_CAP, T.n + 1);
+}
+// lay the body back along that path from the head, its whole length or as much as there is; returns how much there is
+function trailSpine(d) {
+  const T = d.tr, px = player.pos.x, pz = player.pos.z, step = d.len / (DRAGON_N - 1);
+  let ax = d.hp.x, ay = d.hp.y, az = d.hp.z, acc = 0, want = step, k = 1, q = T.head, left = T.n;
+  d.spine[0].set(ax + px, ay, az + pz);
+  while (k < DRAGON_N && left-- > 0) {
+    const bx = T.x[q], by = T.y[q], bz = T.z[q], seg = Math.hypot(bx - ax, by - ay, bz - az);
+    while (k < DRAGON_N && acc + seg >= want) { const u = seg > 1e-6 ? (want - acc) / seg : 0; d.spine[k++].set(lerp(ax, bx, u) + px, lerp(ay, by, u), lerp(az, bz, u) + pz); want += step; }
+    acc += seg; ax = bx; ay = by; az = bz; q = (q - 1 + TRAIL_CAP) % TRAIL_CAP;
+  }
+  const have = k;
+  for (; k < DRAGON_N; k++) d.spine[k].set(ax + px, ay, az + pz);
+  return have;
+}
+function updateDragon(d, dt) {
+  if (d.state === 'off') { if (d.g.visible) d.g.visible = false; d.k = 0; return; }
+  const out = moveDragonHead(d, dt);
+  d.k = damp(d.k, d.state === 'fade' || !out ? 0 : 1, d.state === 'fade' ? 1.8 : 3.5, dt);
+  if (d.state === 'fade' && d.k < 0.01) { d.state = 'off'; d.g.visible = false; return; }
+  if (!out) { d.g.visible = false; return; }
+  d.roar = Math.max(0, d.roar - dt);
+  recordTrail(d);
+  const n = trailSpine(d), T = G.t, sc = d.sc, M = d.M, k = d.k;
+  // whatever of it has gone into him is gone
+  let gone = 0;
+  if (d.state === 'in') {
+    const ex = d.E.x + player.pos.x, ez = d.E.z + player.pos.z, I = d.inDir;
+    while (gone < n && (d.spine[gone].x - ex) * I.x + (d.spine[gone].y - d.E.y) * I.y + (d.spine[gone].z - ez) * I.z > 0) gone++;
+    if (gone >= n - 1) { d.state = 'off'; d.g.visible = false; return; }
+  }
+  d.g.visible = true;
+  for (const m of [M.body, M.part, M.fin]) { m.uniforms.uOpacity.value = k; m.uniforms.uTime.value = T; }
+  M.eye.opacity = k; M.glow.opacity = 0.24 * k; M.pearl.opacity = k;
+  for (let i = 0; i < DRAGON_N; i++) d.rad[i] = i < gone || i >= n ? 0.001 : dragonRad(i / (DRAGON_N - 1)) * sc;
+  writeTube(d.body, d.spine, d.rad, n);
   for (let i = 0; i < DRAGON_N; i++) {
-    const a = dragon.spine[Math.max(0, i - 1)], b = dragon.spine[Math.min(DRAGON_N - 1, i + 1)], F = dragon.fr[i];
-    F.T.subVectors(b, a).normalize();
+    const a = d.spine[Math.max(0, i - 1)], b = d.spine[Math.min(DRAGON_N - 1, i + 1)], F = d.fr[i];
+    F.T.subVectors(b, a); if (F.T.lengthSq() < 1e-10) F.T.copy(d.hv).negate(); F.T.normalize();
     F.B.crossVectors(F.T, _lUp); if (F.B.lengthSq() < 1e-5) F.B.set(1, 0, 0); F.B.normalize();
     F.N.crossVectors(F.B, F.T);
   }
   // the crest of spines, swept back toward the tail
-  const SP = spineGeo.attributes.position.array, SN = spineGeo.attributes.normal.array;
+  const SP = d.spineGeo.attributes.position.array, SN = d.spineGeo.attributes.normal.array;
   for (let q = 0; q < SPINE_K; q++) {
-    const i = 3 + q * 2, F = dragon.fr[i], c = dragon.spine[i], r = dragon.rad[i], on = i < n;
-    const seg = c.distanceTo(dragon.spine[i + 1]), h = on ? 0.16 + 0.55 * r : 0;
+    const i = 3 + q * 2, F = d.fr[i], c = d.spine[i], r = d.rad[i], on = i < n && i >= gone;
+    const seg = c.distanceTo(d.spine[i + 1]), h = on ? 0.16 * sc + 0.55 * r : 0;
     _dv.copy(c).addScaledVector(F.N, r * 0.9);
     const pts = [[_dv.x - F.T.x * seg * 0.9, _dv.y - F.T.y * seg * 0.9, _dv.z - F.T.z * seg * 0.9], [_dv.x + F.T.x * seg * 0.5, _dv.y + F.T.y * seg * 0.5, _dv.z + F.T.z * seg * 0.5],
       [_dv.x + F.N.x * h + F.T.x * h * 0.7, _dv.y + F.N.y * h + F.T.y * h * 0.7, _dv.z + F.N.z * h + F.T.z * h * 0.7]];
     for (let v = 0; v < 3; v++) { const o = (q * 3 + v) * 3; SP[o] = pts[v][0]; SP[o + 1] = pts[v][1]; SP[o + 2] = pts[v][2]; SN[o] = F.B.x; SN[o + 1] = F.B.y; SN[o + 2] = F.B.z; }
   }
-  spineGeo.attributes.position.needsUpdate = true; spineGeo.attributes.normal.needsUpdate = true;
+  d.spineGeo.attributes.position.needsUpdate = true; d.spineGeo.attributes.normal.needsUpdate = true;
   // the legs, paddling at the air as it swims round him
-  for (const L of dragon.legs) {
-    const i = Math.round(L.s * (DRAGON_N - 1)), F = dragon.fr[i], c = dragon.spine[i], r = dragon.rad[i];
-    L.hip.visible = i < n;
+  for (const L of d.legs) {
+    const i = Math.round(L.s * (DRAGON_N - 1)), F = d.fr[i], c = d.spine[i], r = d.rad[i];
+    L.hip.visible = i < n && i >= gone;
     if (!L.hip.visible) continue;
     L.hip.position.copy(c).addScaledVector(F.B, L.side * r * 0.72).addScaledVector(F.N, -r * 0.35);
     _dZ.copy(F.T).negate(); _dX.crossVectors(F.N, _dZ);
@@ -8800,38 +8973,48 @@ function updateDragon(dt) {
     L.knee.rotation.x = -0.7 - 0.35 * Math.sin(w + 0.8);
     L.foot.rotation.x = 0.5 + 0.25 * Math.sin(w + 1.6);
   }
-  // the head leads, jaws working
-  dragonPoint(0, T, _dh); dragonPoint(0.025, T, _dtv);
-  _tv.subVectors(_dh, _dtv).normalize();
-  dragon.head.position.copy(_dh).addScaledVector(_tv, 0.12);
-  dragon.head.lookAt(_dl.copy(dragon.head.position).add(_tv));
-  dragon.jaw.rotation.x = 0.22 + 0.22 * Math.max(0, Math.sin(T * 1.3)) + 0.4 * clamp(1 - bow.dragonT / 1.2, 0, 1);   // a roar as it comes
-  dragon.mane.forEach((mp, q) => mp.rotation.set(mp.userData.base + 0.12 * Math.sin(T * 3 + q), 0, mp.userData.tilt + 0.08 * Math.sin(T * 2.3 + q * 1.3)));
-  dragon.head.updateMatrixWorld(true);
-  // whiskers stream back from the snout and ripple
-  dragon.whiskers.forEach((wk, side) => {
-    const sg = side ? -1 : 1;
-    dragon.head.localToWorld(wk.pts[0].set(sg * 0.12, -0.02, 0.78));
-    _dX.set(1, 0, 0).applyQuaternion(dragon.head.quaternion);
-    for (let q = 1; q < WHISK_N; q++) {
-      const prev = wk.pts[q - 1];
-      wk.pts[q].copy(prev).addScaledVector(_tv, -0.11).addScaledVector(_dX, sg * 0.03)
-        .addScaledVector(_lUp, Math.sin(T * 3.1 + q * 0.55 + side) * 0.035 - 0.012);
-    }
-    writeTube(wk.t, wk.pts, wk.rad, WHISK_N);
-  });
+  // the head leads, jaws working; wide open as it comes and as it dives
+  const headOn = gone === 0 && n > 2;
+  d.head.visible = headOn;
+  for (const wk of d.whiskers) wk.t.m.visible = headOn;
+  if (headOn) {
+    _tv.subVectors(d.spine[0], d.spine[Math.min(3, n - 1)]);
+    if (_tv.lengthSq() < 1e-8) _tv.copy(d.hv);
+    _tv.normalize();
+    d.head.position.copy(d.spine[0]).addScaledVector(_tv, 0.12 * sc);
+    d.head.lookAt(_dl.copy(d.head.position).add(_tv));
+    d.jaw.rotation.x = 0.22 + 0.22 * Math.max(0, Math.sin(T * 1.3)) + 0.45 * clamp(d.roar, 0, 1);
+    d.head.updateMatrixWorld(true);
+    // whiskers stream back from the snout and ripple
+    d.whiskers.forEach((wk, side) => {
+      const sg = side ? -1 : 1;
+      d.head.localToWorld(wk.pts[0].set(sg * 0.12, -0.02, 0.78));
+      _dX.set(1, 0, 0).applyQuaternion(d.head.quaternion);
+      for (let q = 1; q < WHISK_N; q++) {
+        wk.pts[q].copy(wk.pts[q - 1]).addScaledVector(_tv, -0.11 * sc).addScaledVector(_dX, sg * 0.03 * sc)
+          .addScaledVector(_lUp, (Math.sin(T * 3.1 + q * 0.55 + side) * 0.035 - 0.012) * sc);
+      }
+      writeTube(wk.t, wk.pts, wk.rad, WHISK_N);
+    });
+  }
   // the tail's fan
   const tl = DRAGON_N - 1;
-  dragon.tail.visible = n >= DRAGON_N;
-  dragon.tail.position.copy(dragon.spine[tl]);
-  dragon.tail.lookAt(dragon.spine[tl - 2]);
-  dragon.tail.rotation.z += Math.sin(T * 2.6) * 0.2;
-  for (const gl of dragon.glows) { gl.s.visible = gl.i < n; gl.s.position.copy(dragon.spine[gl.i]); gl.s.scale.setScalar(1.0 * (1 - gl.i / DRAGON_N * 0.6)); }
-  if (dragon.pearl) dragon.pearlGlow.scale.setScalar(0.8 + 0.15 * Math.sin(T * 6));
-  if (Math.random() < 0.8 * k) {
-    const c = dragon.spine[(Math.random() * n) | 0];
-    fxSpark.emit(c.x, c.y, c.z, rand(-0.3, 0.3), rand(-0.2, 0.5), rand(-0.3, 0.3), rand(0.4, 0.8), rand(0.05, 0.09), 0.7, 0.9, 1, -0.1, 0.8);
+  d.tail.visible = n >= DRAGON_N && gone < tl - 2;
+  d.tail.position.copy(d.spine[tl]);
+  d.tail.lookAt(d.spine[tl - 2]);
+  d.tail.rotation.z += Math.sin(T * 2.6) * 0.2;
+  for (const gl of d.glows) { gl.s.visible = gl.i < n && gl.i >= gone; gl.s.position.copy(d.spine[gl.i]); gl.s.scale.setScalar(sc * (1 - gl.i / DRAGON_N * 0.6)); }
+  if (d.pearl) d.pearlGlow.scale.setScalar(0.8 + 0.15 * Math.sin(T * 6));
+  if (Math.random() < 0.8 * k && n > gone + 1) {
+    const c = d.spine[gone + ((Math.random() * (n - gone)) | 0)], col = d.M.glow.color;
+    fxSpark.emit(c.x, c.y, c.z, rand(-0.3, 0.3), rand(-0.2, 0.5), rand(-0.3, 0.3), rand(0.4, 0.8), rand(0.05, 0.09) * sc, col.r, col.g, col.b, -0.1, 0.8);
   }
+}
+// all of them: each one leaves (fading where it is) when the moonlight it came with is gone
+function updateDragons(dt, drawing, tr) {
+  dragons.forEach((d, i) => { if ((d.state === 'come' || d.state === 'orbit') && !(drawing && tr >= (i ? 4 : 2))) d.state = 'fade'; });
+  for (const d of dragons) updateDragon(d, dt);
+  bow.dragon = dragon.k;
 }
 function updateTierFx(dt) {
   const p = player, drawing = p.state === 'draw' && p.ultOn && G.hero === 'moon', tr = drawing ? bow.tier : 0;
@@ -8854,9 +9037,8 @@ function updateTierFx(dt) {
     }
   }
   // the dragon, and the beam out of the sky with the dark drawing in round it
-  bow.dragon = damp(bow.dragon, drawing && tr >= 2 ? 1 : 0, tr >= 2 ? 3 : 1.8, dt);
   bow.dragonT += dt;
-  updateDragon(dt);
+  updateDragons(dt, drawing, tr);
   bow.beamK = damp(bow.beamK, drawing && tr >= 2 ? 1 : 0, 2.5, dt);
   moonPillar.visible = bow.beamK > 0.01;
   if (moonPillar.visible) {
@@ -9016,7 +9198,9 @@ function resetMoon() {
   for (const s of souls) s.m.visible = false;
   for (const s of army) s.m.visible = false;
   for (const m of holes) { if (m.parent !== scene) scene.attach(m); m.visible = false; }
-  haloG.visible = false; dragon.g.visible = false; moonPillar.visible = false; bigMoon.visible = false;
+  for (const d of dragons) { d.state = 'off'; d.k = 0; d.g.visible = false; }
+  bow.hover = 0;
+  haloG.visible = false; moonPillar.visible = false; bigMoon.visible = false;
   ghostMat.uniforms.uOpacity.value = 0; armyMat.uniforms.uOpacity.value = 0;
   moonDimEl.style.opacity = '0';
   if (bow.shown) { bow.shown = false; chargeEl.box.classList.remove('on'); }
@@ -9128,8 +9312,11 @@ function moonUltBurst() {
 // puts it away. On the click of the hilt against the scabbard, the head comes off. Five shots: low beside the run; from
 // below, on the line to the moon in the sky, so he rises into it in the slow; side-on and close for the cut, the lens
 // sliding round him; in front of him on the landing; close on the sword going home.
+// Putting it away: his left hand draws the scabbard out across his front with its mouth toward his right, he sets the tip
+// in the mouth, and the blade slides home along its own curve while both hands come back to his left hip. His hands are
+// put on the hilt and the scabbard's mouth every frame (iaiHands), and the steel is cut off at the mouth as it goes in.
 // beats, in seconds from takeoff
-const IAI = { cut: 0.42, cutEnd: 0.56, land: 0.95, rise: 1.55, rest: 1.95, flick: 2.05, sheathOn: 2.25, attach: 2.45, slide: 2.6, click: 3.35, home: 3.45, end: 4.6 };
+const IAI = { cut: 0.42, cutEnd: 0.56, land: 0.95, rise: 1.55, rest: 1.95, flick: 2.05, sheathOn: 2.25, attach: 2.45, slide: 2.62, click: 3.5, home: 3.6, end: 4.75 };
 // poses, solved numerically against the hilt and the scabbard (scripts/iaipose.js)
 const P_IAI_HOLD = mkPose(P_IDLE_MOON, { crouch: 0.38, lean: 0.42, cLean: 0.08, hx: -0.25, hy: 0, twist: 0.15, cTwist: 0.1, stepL: 0.3, stepR: -0.25, kneeL: 0, kneeR: 0, spread: 0.1,
   rax: 0.812, raz: -0.194, ray: 0.785, rae: 0.05, lax: 0.23, laz: 0.05, lay: 0.8, lae: 0.05 });
@@ -9144,17 +9331,41 @@ const P_IAI_REST = mkPose(P_IAI_HOLD, { crouch: 0.14, lean: 0.06, cLean: 0, hx: 
 const P_IAI_FLICK = mkPose(P_IAI_REST, { rax: 0.75, raz: 0.4, ray: -0.9, rae: 0.3, twist: -0.3 });
 const P_SHEATHE_A = mkPose(P_IAI_REST, { crouch: 0.18, lean: 0.1, cLean: 0.05, hx: 0.2, twist: 0.2, cTwist: 0.1,
   rax: 0.472, raz: 0.364, ray: -0.024, rae: 0.05, lax: 0.429, laz: 0.05, lay: 0.82, lae: 0.05 });
-const P_SHEATHE_B = mkPose(P_SHEATHE_A, { rax: 0.48, raz: 0.05, ray: 0.818, rae: 0.05, lax: 0.366, laz: 0.05, lay: 0.66, lae: 0.05 });
+const P_SHEATHE_B = mkPose(P_SHEATHE_A, { twist: 0.28, cTwist: 0.16, lean: 0.14, rax: 0.48, raz: 0.05, ray: 0.818, rae: 0.05, lax: 0.366, laz: 0.05, lay: 0.66, lae: 0.05 });
 const IAI_KEYS = compileKeys(P_IAI_HOLD, [
   [0, P_IAI_CROUCH], [0.1, P_IAI_TUCK, 'o'], [IAI.cut - 0.02, P_IAI_TUCK], [IAI.cut + 0.08, P_IAI_CUT, 'i'], [IAI.cutEnd, P_IAI_CUT],
   [IAI.land, P_IAI_LAND, 'i'], [IAI.rise, P_IAI_LAND], [IAI.rest, P_IAI_REST], [IAI.flick, P_IAI_FLICK, 'o'], [IAI.flick + 0.12, P_IAI_REST, 'i'],
   [IAI.attach, P_SHEATHE_A], [IAI.slide, P_SHEATHE_A], [IAI.click, P_SHEATHE_B], [IAI.home + 0.4, P_SHEATHE_B], [IAI.end, mkPose(P_IDLE_MOON, {})],
 ]);
-// the scabbard, at the hip as worn, and swung across the front of him for the sword to go home
+// the scabbard (in his hips' frame): at the hip as worn; drawn out across his front for the tip to go in; back by his left
+// hip as the hilt comes home. Each away from the hip is given by where its mouth is and which way it opens, curve up.
 const SCAB_WORN = { p: playerRig.scabbard.position.clone(), q: playerRig.scabbard.quaternion.clone() };
-const SCAB_SHEATHE = { p: new V3(0.14, -0.02, 0.16), q: new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -1.15, 0)) };
+function scabPose(mx, my, mz, dx, dy, dz) {
+  const d = new V3(dx, dy, dz).normalize(), up = new V3(0, 1, 0);
+  const x = up.addScaledVector(d, -up.dot(d)).normalize().negate(), y = new V3().crossVectors(d, x);
+  return { p: new V3(mx, my, mz).addScaledVector(d, -SCAB_MOUTH), q: new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, d)) };
+}
+const SCAB_A = scabPose(0.44, 0.26, 0.42, -1, 0.18, 0.1), SCAB_B = scabPose(0.19, 0.15, 0.34, -0.8, 0.3, 0.55);
 const SWORD_HOME = { parent: playerRig.sword.parent, p: playerRig.sword.position.clone(), q: playerRig.sword.quaternion.clone() };
-const SWORD_IN = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, Math.PI, 0));   // its blade down the scabbard
+// the sword in the scabbard's frame, drawn back out by dl along its own curve: a turn about the curve's centre
+const SHEATH_M = new THREE.Matrix4().makeRotationY(Math.PI).setPosition(0, 0, SHEATH_Z), DL_FULL = BLADE.len + 0.03;
+const _xa = new THREE.Matrix4(), _xb = new THREE.Matrix4(), _xs = new V3();
+function sheathXform(dl, outP, outQ) {
+  const r = BLADE.rho, z0 = BLADE.z0;
+  _xa.makeTranslation(-r, 0, z0).multiply(_xb.makeRotationY(dl / r));
+  _xa.multiply(_xb.makeTranslation(r, 0, -z0));
+  _xb.multiplyMatrices(SHEATH_M, _xa).decompose(outP, outQ, _xs);
+}
+// cut the steel off at the scabbard's mouth (or not at all)
+renderer.localClippingEnabled = true;
+const _cn = new V3(), _cm = new V3();
+function clipAtMouth(on) {
+  if (!on) { BLADE_CLIP.normal.set(0, 1, 0); BLADE_CLIP.constant = 1e5; return; }
+  const sc = playerRig.scabbard; sc.updateMatrixWorld(true);
+  sc.localToWorld(_cm.set(0, 0, SCAB_MOUTH));
+  _cn.set(0, 0, 1).transformDirection(sc.matrixWorld);
+  BLADE_CLIP.setFromNormalAndCoplanarPoint(_cn, _cm);
+}
 const _ia = new V3(), _ib = new V3(), _iq = new THREE.Quaternion(), _ip = { x: 0, z: 0, dx: 0, dz: 0 }, _im = new V3();
 
 function startIai() {
@@ -9259,20 +9470,24 @@ function updateIai(dt, tgt) {
     G.shake = Math.min(1.5, G.shake + 0.35);
   }
   if (!e.flicked && k >= IAI.flick) { e.flicked = true; bladeFlick(); Snd.chiburi(); }
-  // putting it away: the scabbard swings across him, the blade goes home along it, and the hilt clicks
+  // putting it away: the scabbard drawn out across him, the tip set in its mouth, the blade slid home along its curve
+  // while the scabbard comes back to his hip, and the hilt clicks against it
   const sc = playerRig.scabbard, sw = playerRig.sword;
   if (k >= IAI.sheathOn && !e.clicked) {
-    const a = smooth(clamp((k - IAI.sheathOn) / (IAI.attach - IAI.sheathOn), 0, 1));
-    sc.position.copy(SCAB_WORN.p).lerp(SCAB_SHEATHE.p, a); sc.quaternion.copy(SCAB_WORN.q).slerp(SCAB_SHEATHE.q, a);
-    if (k >= IAI.attach) {
-      if (!e.sheathing) { e.sheathing = true; p.swordAway = true; sc.updateMatrixWorld(true); sc.attach(sw); e.swP = sw.position.clone(); e.swQ = sw.quaternion.clone(); }
-      const al = smooth(clamp((k - IAI.attach) / (IAI.slide - IAI.attach), 0, 1));
-      const slide = smooth(clamp((k - IAI.slide) / (IAI.click - IAI.slide), 0, 1));
-      _ia.set(0, 0, lerp(0.62, 0.15, slide));
-      sw.position.copy(e.swP).lerp(_ia, al);
-      sw.quaternion.copy(e.swQ).slerp(SWORD_IN, al);
-      sw.scale.setScalar(1);
+    if (!e.sheathing) {
+      e.sheathing = true; p.swordAway = true; sc.updateMatrixWorld(true); sc.attach(sw); sw.scale.setScalar(1);
+      e.swP = sw.position.clone(); e.swQ = sw.quaternion.clone();
     }
+    const a = smooth(clamp((k - IAI.sheathOn) / (IAI.slide - 0.06 - IAI.sheathOn), 0, 1));            // out across his front
+    const b = smooth(clamp((k - IAI.sheathOn) / (IAI.slide - IAI.sheathOn), 0, 1));                   // the tip to the mouth
+    const u = clamp((k - IAI.slide) / (IAI.click - IAI.slide), 0, 1);
+    const g = u < 0.7 ? 0.85 * smooth(u / 0.7) : 0.85 + 0.15 * smooth((u - 0.7) / 0.3);              // steady, then slow at the end
+    if (u <= 0) { sc.position.copy(SCAB_WORN.p).lerp(SCAB_A.p, a); sc.quaternion.copy(SCAB_WORN.q).slerp(SCAB_A.q, a); }
+    else { sc.position.copy(SCAB_A.p).lerp(SCAB_B.p, g); sc.quaternion.copy(SCAB_A.q).slerp(SCAB_B.q, g); }
+    sheathXform(DL_FULL * (1 - g), _ia, _iq);
+    sw.position.copy(e.swP).lerp(_ia, b); sw.quaternion.copy(e.swQ).slerp(_iq, b);
+    clipAtMouth(u > 0);
+    if (u > 0 && !e.slid) { e.slid = true; Snd.sheathSlide(); }
   }
   if (!e.glinted && k >= IAI.click - 0.3) {                  // a moment before: a star of light at his neck, where the stroke went
     e.glinted = true;
@@ -9281,6 +9496,7 @@ function updateIai(dt, tgt) {
   }
   if (!e.clicked && k >= IAI.click) {
     e.clicked = true;
+    clipAtMouth(false);
     bossRig.head.getWorldPosition(_ib);
     cutLine(_ib.x, _ib.y - 0.1, _ib.z, Math.atan2(e.ux, e.uz));   // and the line of the cut shows, as the hilt meets the scabbard
     swordHome();
@@ -9290,8 +9506,8 @@ function updateIai(dt, tgt) {
     doBeheading(true);                                          // and only now does the head come off
   }
   if (e.clicked) {
-    const a = smooth(clamp((k - IAI.click) / (IAI.home - IAI.click + 0.25), 0, 1));
-    sc.position.copy(SCAB_SHEATHE.p).lerp(SCAB_WORN.p, a); sc.quaternion.copy(SCAB_SHEATHE.q).slerp(SCAB_WORN.q, a);
+    const a = smooth(clamp((k - IAI.click) / (IAI.home - IAI.click + 0.3), 0, 1));
+    sc.position.copy(SCAB_B.p).lerp(SCAB_WORN.p, a); sc.quaternion.copy(SCAB_B.q).slerp(SCAB_WORN.q, a);
   }
   if (k >= IAI.end) {
     p.state = 'free'; p.t = 0; p.iframes = 0.8; p.air = 0; p.wristWant = 0; G.exec = null;
@@ -9306,6 +9522,33 @@ function swordHome() {
   if (sw.parent !== SWORD_HOME.parent) SWORD_HOME.parent.add(sw);
   sw.position.copy(SWORD_HOME.p); sw.quaternion.copy(SWORD_HOME.q);
   player.swordAway = false;
+  clipAtMouth(false);
+}
+// while it goes home: his right hand on the hilt, his left at the scabbard's mouth. Each arm is turned, a little at a time,
+// until its wrist is where it should be; the answer is kept in his pose, so he eases out of it afterwards.
+const IK_LIM = [[-0.6, 3.1], [-0.6, 1.6], [-1.4, 1.5], [0.05, 2.5]], _ikw = new V3(), _ikt = new V3();
+function armTo(side, target, P, iters) {
+  const a = playerRig.arms[side], c = side ? 'r' : 'l', K = [c + 'ax', c + 'az', c + 'ay', c + 'ae'];
+  const put = () => { a.sh.rotation.set(-P[K[0]], -a.s * P[K[2]], a.s * P[K[1]]); a.el.rotation.x = -P[K[3]]; a.sh.updateMatrixWorld(true);
+    return a.wr.getWorldPosition(_ikw).distanceToSquared(target); };
+  let cur = put(), step = 0.12;
+  for (let it = 0; it < iters && step > 0.002; it++) {
+    let moved = false;
+    for (let j = 0; j < 4; j++) for (const dd of [step, -step]) {
+      const o = P[K[j]]; P[K[j]] = clamp(o + dd, IK_LIM[j][0], IK_LIM[j][1]);
+      const e = put(); if (e < cur - 1e-10) { cur = e; moved = true; } else P[K[j]] = o;
+    }
+    if (!moved) step *= 0.5;
+  }
+  put();
+  return Math.sqrt(cur);
+}
+function iaiHands() {
+  const e = G.exec, k = e.t - e.W, R = playerRig;
+  if (!e.sheathing || e.clicked) return;
+  R.root.updateMatrixWorld(true);
+  e.errR = armTo(1, R.sword.localToWorld(_ikt.set(0, 0, -0.03)), player.pose, 16);
+  if (k > IAI.sheathOn + 0.08) e.errL = armTo(0, R.scabbard.localToWorld(_ikt.set(0, 0, SCAB_MOUTH - 0.04)), player.pose, 16);
 }
 // the stroke: the blade out of the scabbard and round in one movement; a crescent of moonlight down through the neck
 function iaiStroke() {
@@ -9323,7 +9566,7 @@ function iaiStroke() {
   Snd.iaiSlash();
   Haptics.pulse(0.5, 1, 160);
   G.slow = Math.max(G.slow, 0.7); G.hitStop = Math.max(G.hitStop, 0.1); G.flash = Math.max(G.flash, 0.25); G.fovKick = Math.max(G.fovKick, 1.2);
-  if (G.blood) bladeBlood.visible = true;
+  if (G.blood) { bladeAt(0.72, bladeBlood.position); bladeBlood.rotation.set(0, -0.72 / BLADE.rho, 0); bladeBlood.visible = true; }
   whiteFlash(bossRig, 0.05);
 }
 // five shots, see the top
@@ -11888,6 +12131,14 @@ function placeCamera(snap, dt) {
   // keep the lens inside the walls, clear of the gate
   const r = Math.hypot(_want.x, _want.z), rmax = ARENA.wall - 2.3;
   if (r > rmax) { _want.x *= rmax / r; _want.z *= rmax / r; }
+  // and never inside one of the columns round the edge: slide in toward the middle until it is clear of the stone
+  for (const c of columns) {
+    const cx = c.col.position.x, cz = c.col.position.z, M = 2.3;
+    if (_want.y > c.h + 1 || Math.hypot(_want.x - cx, _want.z - cz) >= M) continue;
+    const rw = Math.hypot(_want.x, _want.z) || 1, ux = _want.x / rw, uz = _want.z / rw, Rc = Math.hypot(cx, cz);
+    const along = (cx * ux + cz * uz), off2 = Rc * Rc - along * along, s = along - Math.sqrt(Math.max(0, M * M - off2));
+    if (s < rw) { _want.x = ux * s; _want.z = uz * s; }
+  }
   const cin = finCam ? G.finale : (G.moonfall && G.moonfall.camOn ? G.moonfall : null) || G.exec || G.assault || G.cut || G.descent;
   const hardCut = !!(cin && cin.shot !== cin.lastShot);
   if (cin) cin.lastShot = cin.shot;
@@ -12319,7 +12570,7 @@ if (!MANUAL) requestAnimationFrame(loop);
 window.__saleem = { G, player, boss, cam, keys, tap, ATK, PATK, frame, press, release, shocks, camera, scene, renderer,
   beginGame, resetFight, wakeBoss, setOpponent, nextFight, downBoss, startExecution, finish, charge, angels, CHARGE_TIERS, startChargeP, aura, bladeFx, wrath, columns, slabs, megaRig, MATK, startMegaAttack, startCutscene, skipCutscene, startDescent, heaven, bolt, MIGHT, fxBlood, KNEEL, chanRig, CHA, projs, clouds, strikes, startChanAttack, fxFire, swordRibbon, arcPool, holyCross, crossLight, swordLight, crossMat, pillar, floorTex, moon, hemi, rimLight, torchLights, startAttack, damageBoss, hurtPlayer, applyPose, evalKeys, bossRig, playerRig, hud, TRUMPET, FT, FIN_DESC, DEMON, hell, catchBlade, returnToTitle, effOffset, megaEFF: EFF, DATK, startDemonAttack,
   Haptics, DS5, TRIG, holySword, horns, dWings, ritual, hellSky, heartGlow, wrathCracks: () => cracks, wrathRocks: () => rocks.filter(r => r.live && r.m.visible).length,
-  bow, souls, army, stuck, beams, bowG, setHero, setOutfit, activateUlt, hitReact, white, kb, MOON_TIERS, dragon, haloG, bigMoon, holes, IAI, startIai };
+  bow, souls, army, stuck, beams, bowG, setHero, setOutfit, activateUlt, hitReact, white, kb, MOON_TIERS, dragon, haloG, bigMoon, holes, IAI, startIai, dragons };
 })();
 </script>
 </body>
