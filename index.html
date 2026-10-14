@@ -835,6 +835,12 @@ const Snd = (() => {
       tone({ f: 160, f2: 90, dur: 0.12, vol: 0.32, a: 0.001 });
     },
     // the Hwarang's bow
+    // an arrow drawn up out of the quiver: shafts rattling against leather, the fletching hissing out
+    quiverPull() {
+      noise({ dur: 0.12, vol: 0.1, type: 'bandpass', f: 1800, q: 2, a: 0.004 });
+      noise({ dur: 0.22, vol: 0.09, type: 'highpass', f: 3200, f2: 6000, a: 0.03, delay: 0.12 });
+      tone({ f: 420, f2: 380, dur: 0.05, vol: 0.05, type: 'triangle', a: 0.002, delay: 0.1 });
+    },
     bowDraw() {
       noise({ dur: 0.04, vol: 0.18, type: 'highpass', f: 2600, a: 0.001 });
       noise({ dur: 0.5, vol: 0.12, type: 'bandpass', f: 360, f2: 820, q: 7, a: 0.05 });
@@ -879,6 +885,13 @@ const Snd = (() => {
         choir([38, 45, 50, 57, 62, 66, 69], 6, 0.05, 0.2);
         noise({ dur: 2.4, vol: 0.3, type: 'bandpass', f: 200, f2: 3000, q: 0.6, a: 1.2 });
       }
+    },
+    // the dragon sword going round: a great rushing of air, a growl under it, and the ring of the steel
+    dragonSlash(big) {
+      noise({ dur: big ? 0.55 : 0.42, vol: big ? 0.42 : 0.34, type: 'bandpass', f: 260, f2: big ? 2400 : 1900, q: 1.1, a: 0.02 });
+      noise({ dur: 0.2, vol: 0.16, type: 'highpass', f: 3500, a: 0.004, delay: 0.08 });
+      tone({ f: big ? 74 : 92, f2: big ? 52 : 70, dur: 0.5, vol: 0.14, type: 'sawtooth', lp: 420, a: 0.03 });
+      bell(big ? 81 : 86, 0.035, 0.06);
     },
     // a dragon of moonlight going into him: a deep boom, a snarl cut short, a bright ring
     dragonHit(sc = 1) {
@@ -2641,7 +2654,7 @@ function dressMoon(R) {
     }
     for (const a of R.arms) ell(a.wr, HW.skin, 0.05, 0.055, 0.05, 0, -0.025, 0);
     // a quiver of arrows across his back
-    const q = pivot(chest, 0.08, 0.02, -0.19); q.rotation.z = 0.45;
+    const q = R.quiver = pivot(chest, 0.08, 0.02, -0.19); q.rotation.z = 0.45;      // its mouth over his right shoulder
     cyl(q, HW.leather, 0.065, 0.55, 0.065, 0, 0, 0);
     cyl(q, HW.gold, 0.07, 0.03, 0.07, 0, 0.27, 0);
     for (let i = 0; i < 5; i++) blk(q, i % 2 ? HW.red : HW.white, 0.012, 0.09, 0.03, (i - 2) * 0.022, 0.33, (i % 3 - 1) * 0.02);
@@ -4846,6 +4859,39 @@ const PULT = {
   ],
 };
 for (const list of Object.values(PULT)) for (const d of list) { d.kc = compileKeys(P_IDLE_U, d.k); d.dur = d.wind + d.act + d.rec; }
+// the Moon in the moonlight: the dragon sword. Slow, wide, heavy sweeps, right to left and back, and every third an
+// overhead cleave; a dragon of light goes round in each one (dragonSwordFx). arcW: how far round him a sweep reaches.
+const PDRAGON = {
+  light: [
+    { wind: 0.34, act: 0.2, rec: 0.44, dmg: 64, poise: 40, lunge: 2.2, reach: 4.4, arcW: 1.9, dragon: 'A',
+      k: [[0, {}],
+        [0.32, { rax: 1.55, raz: 1.45, ray: -0.75, rae: 0.25, twist: -1.25, cTwist: -0.8, crouch: 0.42, lean: 0.05, stepL: 0.35, stepR: -0.5, lax: 0.5, laz: 0.9, lae: 0.6 }, 'o'],
+        [0.54, { rax: 1.45, raz: 0.15, ray: 1.55, rae: 0.15, twist: 1.3, cTwist: 0.85, lean: 0.35, crouch: 0.52, stepL: 1.0, stepR: -0.6, lax: 0.9, laz: 1.1 }, 'i'],
+        [0.98, {}]] },
+    { wind: 0.32, act: 0.2, rec: 0.44, dmg: 66, poise: 40, lunge: 2.2, reach: 4.4, arcW: 1.9, dragon: 'B',
+      k: [[0, {}],
+        [0.3, { rax: 1.45, raz: 0.1, ray: 1.45, rae: 0.35, twist: 1.1, cTwist: 0.7, crouch: 0.42, stepL: -0.35, stepR: 0.55, lax: 0.8, laz: 0.9 }, 'o'],
+        [0.52, { rax: 1.55, raz: 1.6, ray: -0.95, rae: 0.2, twist: -1.3, cTwist: -0.9, lean: 0.4, crouch: 0.52, stepL: 0.6, stepR: -1.0, lax: 0.6, laz: 1.2 }, 'i'],
+        [0.96, {}]] },
+    { wind: 0.5, act: 0.2, rec: 0.56, dmg: 100, poise: 72, lunge: 2.6, reach: 4.8, arcW: 0.8, jump: 0.5, dragon: 'C',
+      k: [[0, {}],
+        [0.48, { rax: 3.0, raz: 0.3, rae: 0.9, lean: -0.55, cLean: -0.3, crouch: 0.15, hx: -0.3, lax: 1.8, laz: 0.8 }, 'o'],
+        [0.7, { rax: 0.8, raz: 0.1, rae: 0.15, lean: 0.95, cLean: 0.4, crouch: 0.6, stepL: 0.9, stepR: -0.2, hx: 0.4 }, 'i'],
+        [1.26, {}]] },
+  ],
+};
+for (const d of PDRAGON.light) { d.kc = compileKeys(P_IDLE_U, d.k); d.dur = d.wind + d.act + d.rec; }
+// and how he takes it up when the moonlight comes: hand to the sheathed hilt, the draw, the blade held high while a dragon
+// winds up round him and goes into it, a full turn with it held out, and the guard
+const P_DS_HILT = mkPose(P_IDLE_U, { crouch: 0.3, lean: 0.22, cLean: 0.06, hx: -0.15, twist: 0.15, cTwist: 0.1, stepL: 0.3, stepR: -0.25, spread: 0.12,
+  rax: 0.812, raz: -0.194, ray: 0.785, rae: 0.05, lax: 0.23, laz: 0.05, lay: 0.8, lae: 0.05 });
+const P_DS_RAISE = mkPose(P_IDLE_U, { crouch: 0.1, lean: -0.22, cLean: -0.15, hx: -0.45, twist: 0, cTwist: 0, stepL: 0.2, stepR: -0.2, spread: 0.2,
+  rax: 3.0, raz: 0.15, ray: 0.1, rae: 0.25, lax: 1.3, laz: 1.4, lay: 0.2, lae: 0.35 });
+const P_DS_SPIN = mkPose(P_IDLE_U, { crouch: 0.45, lean: 0.18, cLean: 0.1, hx: 0.05, twist: 0.3, cTwist: 0.2, stepL: 0.6, stepR: -0.6, spread: 0.25,
+  rax: 1.5, raz: 1.45, ray: 0.15, rae: 0.1, lax: 1.35, laz: 1.4, lay: 0.1, lae: 0.25 });
+const DS_T = { hilt: 0.22, draw: 0.3, raise: 0.56, dragon: 0.32, dive: 0.95, spin: 1.08, spinEnd: 1.46, end: 1.86 };
+const DS_KEYS = compileKeys(P_IDLE_U, [[0, {}], [DS_T.hilt, P_DS_HILT, 'o'], [DS_T.draw, P_DS_HILT], [DS_T.raise, P_DS_RAISE, 'o'], [DS_T.spin - 0.04, P_DS_RAISE],
+  [DS_T.spin + 0.06, P_DS_SPIN, 'o'], [DS_T.spinEnd - 0.06, P_DS_SPIN], [DS_T.end, P_IDLE_U, 'i']]);
 
 const playerRig = buildPlayer();
 scene.add(playerRig.root);
@@ -4887,7 +4933,7 @@ function startRollP(dir) {
   Snd.roll();
 }
 function startAttackP(kind, n, def) {
-  const p = player, set = p.ultOn ? PULT : PATK, d = def || set[kind][n] || set[kind][0];
+  const p = player, set = p.ultOn ? (G.hero === 'moon' ? PDRAGON : PULT) : PATK, d = def || set[kind][n] || set[kind][0];
   if (!p.ultOn) p.st = Math.max(0, p.st - d.cost);
   p.stDelay = 0.75;
   p.state = 'attack'; p.t = 0; p.kind = kind; p.n = n; p.att = d; p.hitDone = false; p.swung = false; p.arcFired = false;
@@ -5103,6 +5149,7 @@ function deathTips() {
 
 /* ordinary strikes cut with plain steel: a cold air-slash, dust and sparks. Fire belongs to the holy form. */
 function spawnPlayerArc(d) {
+  if (d.dragon) { dragonSwordFx(d); return; }
   // (a holy swing whose fire ran out halfway through still ends as the holy swing it began as)
   if ((player.ultOn || !d.arc) && d.fx) { spawnUltFx(d); return; }
   if (!d.arc) return;
@@ -5161,7 +5208,7 @@ function updatePlayer(dt) {
   }
   const guardHeld = playing && alive && (keys.ShiftLeft || keys.ShiftRight || keys.PadGuard);
 
-  const m = G.cut ? NO_MOVE : moveInputVec();
+  const m = G.cut || G.state === 'title' ? NO_MOVE : moveInputVec();     // on the title the stick picks the hero; it does not walk him
   let maxSpd = 5.0 * (p.ultOn ? 1.3 : 1) * (p.slowT > 0 ? 0.55 : 1), accel = 14;
   let wantYaw = p.yaw;
   moveBasis(_F);
@@ -5205,7 +5252,7 @@ function updatePlayer(dt) {
       if (!p.arcFired && t >= act0) { p.arcFired = true; spawnPlayerArc(d); }
       if (!p.hitDone && t >= act0 && t <= act1) {
         const dx = boss.pos.x - p.pos.x, dz = boss.pos.z - p.pos.z, dist = Math.hypot(dx, dz);
-        const inArc = d.spin || d.aoe ? true : Math.abs(angDiff(p.yaw, Math.atan2(dx, dz))) < 1.15;
+        const inArc = d.spin || d.aoe ? true : Math.abs(angDiff(p.yaw, Math.atan2(dx, dz))) < (d.arcW || 1.15);
         if (boss.state !== 'dead' && dist - BOSS_R <= (d.aoe || d.reach) && inArc) {
           p.hitDone = true;
           const k = Math.max(0, dist - BOSS_R) / dist;
@@ -5230,7 +5277,7 @@ function updatePlayer(dt) {
       if (roll && (p.st > 0 || p.ultOn)) { if (tryAction('roll')) { p.buf = ''; break; } }
       if (next) {
         const b = p.buf;
-        if (b === 'attack' && (p.st > 0 || p.ultOn)) { const n = p.kind === 'light' ? (p.n + 1) % (p.ultOn ? 4 : 3) : 0; startAttackP('light', n); break; }
+        if (b === 'attack' && (p.st > 0 || p.ultOn)) { const n = p.kind === 'light' ? (p.n + 1) % (p.ultOn && G.hero !== 'moon' ? 4 : 3) : 0; startAttackP('light', n); break; }
         if (b === 'heavy' && (p.st > 0 || p.ultOn)) { if (G.hero === 'moon') startDrawP(); else if (p.ultOn) startChargeP(); else startAttackP('heavy', 0); break; }
         if (b === 'flask' && tryAction('flask')) { p.buf = ''; break; }
       }
@@ -5294,6 +5341,7 @@ function updatePlayer(dt) {
       break;
     case 'ult': {
       p.vel.x = damp(p.vel.x, 0, 10, dt); p.vel.z = damp(p.vel.z, 0, 10, dt);
+      if (G.hero === 'moon') { moonUltDraw(dt, tgt); break; }
       Object.assign(tgt, P_ULT);
       if (p.t > 0.95) { p.state = 'free'; p.t = 0; }
       break;
@@ -5375,6 +5423,7 @@ function updatePlayer(dt) {
   if (Math.abs(p.bowTurn) < 0.002) p.bowTurn = 0;
   rig.root.rotation.y = p.yaw + p.bowTurn;
   if (p.state === 'execute' && G.exec && G.exec.iai) iaiHands();
+  if (p.state === 'draw' && G.hero === 'moon') bowHands();
   if (p.state !== 'flask') rig.flask.visible = false;
 
   updateTrail(dt);
@@ -5873,6 +5922,7 @@ function bladeFlick() {
 
 function updateFinish(dt) {
   fxBlood.update(dt);
+  updateNeckSlash(dt);
   if (cutLineT > 0) {
     cutLineT -= dt;
     cutLineMat.opacity = clamp(cutLineT / 0.3, 0, 1);
@@ -6286,15 +6336,16 @@ function activateUlt() {
   const moon = G.hero === 'moon';
   if (moon) { Snd.moonUlt(); moonUltBurst(); } else Snd.ultimate();
   Haptics.pulse(0.9, 0.9, 520);
-  fireBurst(p.pos.x, 0.3, p.pos.z, 80, { holy: 1, speed: 8, size: 1.5, up: 5 });
+  fireBurst(p.pos.x, 0.3, p.pos.z, moon ? 36 : 80, { holy: 1, speed: 8, size: moon ? 1.1 : 1.5, up: 5 });
   addRing(p.pos.x, p.pos.z, { r0: 0.6, rMax: 17, speed: 24, color: 0xffe3a0, opacity: 0.95 });
   addRing(p.pos.x, p.pos.z, { r0: 0.4, rMax: 11, speed: 14, color: 0xffffff, opacity: 0.85 });
   addRing(p.pos.x, p.pos.z, { r0: 0.3, rMax: 7, speed: 9, color: 0xffb040, opacity: 0.8 });
-  pillarT = 1.2;
+  pillarT = moon ? 0.45 : 1.2;                          // (the Moon's is brief: his taking up the sword is what is seen)
   if (!moon) wingBurst();
-  G.flash = 0.55; G.fovKick = 1.6; G.shake = Math.min(1.5, G.shake + 0.8); G.slow = Math.max(G.slow, 0.5);
+  G.flash = moon ? 0.35 : 0.55; G.fovKick = 1.6; G.shake = Math.min(1.5, G.shake + 0.8); G.slow = Math.max(G.slow, 0.5);
   popText(moon ? 'Moonlight' : 'Holy fire');
   showToast(moon ? 'Draw the bow and hold it. Long enough, and the ancestors come.' : 'Hold heavy to charge the blade.', 3.2);
+  if (moon) { p.yaw0 = p.yaw; p.iaiSheath = true; p.bladeLit = false; p.dsDone = {}; return; }     // the Moon: the dragon sword is taken up (moonUltDraw)
   // the burst of the awakening shoves the boss
   if (boss.state !== 'dead' && boss.state !== 'dying' && Math.hypot(boss.pos.x - p.pos.x, boss.pos.z - p.pos.z) < 12) {
     damageBoss(40, 35, new V3(boss.pos.x, boss.lockY * 0.6, boss.pos.z));
@@ -6302,7 +6353,7 @@ function activateUlt() {
 }
 function endUlt(silent) {
   const p = player;
-  p.wingsEarned = false; p.holySword = false;
+  p.wingsEarned = false; p.holySword = false; p.bladeLit = false;
   if (p.state === 'charge') { endCharge(true); p.state = 'free'; p.t = 0; }
   p.ultOn = false; p.ultT = 0; p.ult = 0;
   if (!silent) {
@@ -8356,6 +8407,11 @@ const court = [
   [[0xffbe55, 0xffcd72, 0xffe2a2, 0xffe2a8], 1.8, { R: 9.2, rw: 0.8, ph: 1.2, w: -0.3, h: 3.6, hw: 2.1, hf: 0.38 }],
 ].map(([c, sc, orb]) => makeDragon(dragonMats(...c), sc, orb));
 const dragons = [dragon, ...court];
+// the dragon sword's: the one that winds up round him and into the blade when the moonlight comes, and in every swing
+// after, a dragon of light that goes round with the blade (two, turn about)
+const swordDragons = [[0x7fb4ff, 0x98c6ff, 0xc4ddff, 0xd6e6ff], [0xa9c2ff, 0xbcd0ff, 0xdde8ff, 0xe8f0ff]]
+  .map(c => makeDragon(dragonMats(...c), 0.5, { R: 0, rw: 0, ph: 0, w: 0, h: 0, hw: 0, hf: 0 }));
+let swordDragonI = 0;
 // and a beam of moonlight down on him out of the sky
 const moonPillar = makeBeam();
 moonPillar.material.uniforms.uColor.value.setRGB(0.72, 0.84, 1.0);
@@ -8398,6 +8454,10 @@ function aimPoint(out) {
 }
 // how far the string hand has gone: 0 nocked, 1 at the jaw, 2 behind the ear
 function drawK(t) { return t < 0.3 ? t / 0.3 : t < 1.4 ? 1 : Math.min(2, 1 + (t - 1.4) / 0.6); }
+// before any of that he takes the arrow: his right hand goes up over his shoulder to the quiver on his back, closes on a
+// fletching, draws the arrow up out of it, and brings it over and down onto the string. Then the draw proper begins.
+const NOCK_T = 0.42, QV = { reach: 0.13, grab: 0.12, pull: 0.22 };
+const drawnFor = () => Math.max(0, bow.t - NOCK_T);      // how long the arrow has been on the string
 
 function startDrawP() {
   const p = player;
@@ -8405,12 +8465,12 @@ function startDrawP() {
   p.stDelay = 0.6;
   p.state = 'draw'; p.t = 0; p.att = null; p.guarding = false; p.buf = ''; p.parryT = 0; p.air = 0;
   Object.assign(p.from, p.pose);
-  Object.assign(bow, { active: true, t: 0, tier: 0, creakT: 0.6, great: 0, haloT: 9, dragonT: 9, armyT: 9, moonInT: -1, moonIn: 0 });
+  Object.assign(bow, { active: true, t: 0, tier: 0, creakT: 0.6, great: 0, haloT: 9, dragonT: 9, armyT: 9, moonInT: -1, moonIn: 0, loose: false, nocked: false, qFrom: null });
   const dx = boss.pos.x - p.pos.x, dz = boss.pos.z - p.pos.z;
   if (boss.state !== 'dead' && boss.state !== 'dying' && Math.hypot(dx, dz) < 18) p.yaw = Math.atan2(dx, dz);
   p.yaw0 = p.yaw;
   drawTierHud(0);
-  Snd.bowDraw();
+  Snd.quiverPull();
   Haptics.chargeHint();
 }
 function updateDrawState(dt, tgt, m, facingLock, lockYaw) {
@@ -8418,8 +8478,11 @@ function updateDrawState(dt, tgt, m, facingLock, lockYaw) {
   if (p.buf === 'roll' && bow.tier < 3) { p.buf = ''; endDraw(); tryAction('roll'); return; }
   p.buf = '';                                           // everything else waits for the arrow
   const held = keys.KeyK || keys.MouseR;
-  if (!held) { releaseDraw(); return; }
-  bow.t += dt * (boss.demon ? 2 : 1);                   // in the last fight it gathers twice as fast
+  if (!held && bow.t >= NOCK_T) { releaseDraw(); return; }
+  if (!held) bow.loose = true;                          // let go before the arrow is on the string: it goes the moment it is
+  bow.t += dt * (boss.demon ? 2 : 1) * (bow.loose ? 2.6 : 1);   // in the last fight it gathers twice as fast
+  if (!bow.nocked && bow.t >= NOCK_T) { bow.nocked = true; Snd.bowDraw(); }
+  if (bow.loose && bow.t >= NOCK_T) { releaseDraw(); return; }
   let tier = 0;
   if (p.ultOn) while (tier < MOON_TIERS.length && bow.t >= MOON_TIERS[tier]) tier++;
   if (tier !== bow.tier) { bow.tier = tier; drawTierUp(tier); }
@@ -8437,7 +8500,7 @@ function updateDrawState(dt, tgt, m, facingLock, lockYaw) {
   p.yaw += clamp(angDiff(p.yaw, want), -4 * dt, 4 * dt); p.yaw0 = p.yaw;
   bow.hover = damp(bow.hover || 0, glide ? (tier >= 4 ? 0.55 : 0.3) + 0.05 * Math.sin(G.t * 2.3) : 0, 3, dt);
   p.air = bow.hover;
-  const k = drawK(bow.t), A = k < 1 ? P_BOW_NOCK : P_BOW_FULL, B = k < 1 ? P_BOW_FULL : P_BOW_DEEP, u = smooth(k < 1 ? k : k - 1);
+  const k = drawK(drawnFor()), A = k < 1 ? P_BOW_NOCK : P_BOW_FULL, B = k < 1 ? P_BOW_FULL : P_BOW_DEEP, u = smooth(k < 1 ? k : k - 1);
   for (const key of PK) tgt[key] = A[key] + (B[key] - A[key]) * u;
   const sh = [0.003, 0.012, 0.02, 0.01, 0.006][tier];    // the strain shows; the ancestors steady it
   tgt.rax += rand(-sh, sh); tgt.lax += rand(-sh, sh) * 0.6; tgt.hx += rand(-sh, sh) * 0.5; tgt.lean += rand(-sh, sh) * 0.4;
@@ -8511,7 +8574,7 @@ function rayEnd(o, d) {
 }
 // let go: there is no flight to watch. The flash, the line of light, and it is in him (or through him)
 function moonShot() {
-  const p = player, ult = p.ultOn, tier = ult ? bow.tier : 0, t = bow.t;
+  const p = player, ult = p.ultOn, tier = ult ? bow.tier : 0, t = drawnFor();
   bowFrame(true);
   _sDir.copy(_bF); _sO.copy(_bB).addScaledVector(_sDir, 0.3);
   if (tier >= 3) { looseGreat(tier); return; }
@@ -8740,6 +8803,43 @@ function updateHoles(dt) {
   }
 }
 
+/* ───── taking an arrow from the quiver ───── */
+const _qa = new V3(), _qb = new V3(), _qc = new V3(), _qh = new V3(), _qs = new V3(), _qt = new V3(), _qq = new THREE.Quaternion();
+// the arrow in his right hand on its way: held by the nock, tip down into the quiver as it comes out, turning as it comes
+// over his shoulder until it lies along the bow
+function quiverArrow() {
+  const R = playerRig, u = smooth(clamp((bow.t - QV.pull) / (NOCK_T - QV.pull), 0, 1));
+  R.arms[1].wr.getWorldPosition(_qa);
+  _qb.set(0, -1, 0).transformDirection(R.quiver.matrixWorld);           // down into the quiver
+  _qq.setFromUnitVectors(_ZA, _qb).slerp(bowG.quaternion, u);
+  nockArrow.quaternion.copy(_qq);
+  nockArrow.position.copy(_qa).addScaledVector(_qb, -0.03 * (1 - u));
+  nockArrow.scale.setScalar(1); nockArrow.userData.glow.visible = false;
+}
+// his right hand, while he takes it: up to the fletchings, up out of the quiver, then over his shoulder to the string
+function bowHands() {
+  if (bow.t >= NOCK_T) return;
+  const p = player, R = playerRig, t = bow.t, q = R.quiver;
+  R.root.updateMatrixWorld(true);
+  if (!bow.qFrom) { bow.qFrom = new V3(); R.arms[1].wr.getWorldPosition(bow.qFrom); }
+  q.localToWorld(_qh.set(0, 0.36, 0));                                   // the fletchings at the top of the quiver
+  q.localToWorld(_qs.set(0, 0.74, 0));                                   // drawn up out of it
+  if (t < QV.reach) _qt.copy(bow.qFrom).lerp(_qh, smooth(t / QV.reach));
+  else if (t < QV.pull) _qt.copy(_qh).lerp(_qs, smooth((t - QV.reach) / (QV.pull - QV.reach)));
+  else {
+    // over his shoulder toward the string; for the last of it his arm settles into the nocking pose the draw starts from
+    const u = smooth((t - QV.pull) / (NOCK_T - QV.pull)), w = smooth(clamp((u - 0.5) / 0.5, 0, 1));
+    bowFrame(true); bowG.localToWorld(_qc.set(0, 0, -0.45));
+    R.chest.localToWorld(_qb.set(-0.3, 0.6, 0.34));                     // above and in front of his right shoulder
+    _qt.copy(_qs).multiplyScalar((1 - u) * (1 - u)).addScaledVector(_qb, 2 * u * (1 - u)).addScaledVector(_qc, u * u);
+    if (w < 1) bow.qErr = armTo(1, _qt, p.pose, 16);
+    for (const k of ['rax', 'raz', 'ray', 'rae']) p.pose[k] = lerp(p.pose[k], P_BOW_NOCK[k], w);
+    const a = R.arms[1]; a.sh.rotation.set(-p.pose.rax, -a.s * p.pose.ray, a.s * p.pose.raz); a.el.rotation.x = -p.pose.rae; a.sh.updateMatrixWorld(true);
+    return;
+  }
+  bow.qErr = armTo(1, _qt, p.pose, 16);
+}
+
 /* ───── the stages: the meter, the moment each one comes ───── */
 function drawTierHud(n) {
   chargeEl.box.dataset.tier = 'b' + n;
@@ -8895,11 +8995,18 @@ function moveDragonHead(d, dt) {
   } else if (d.state === 'dive') {
     _dB.subVectors(d.E, d.hp); const dist = _dB.length();
     _dB.multiplyScalar(34 / (dist || 1));
-    d.hv.lerp(_dB, 1 - Math.exp(-7 * dt));
+    d.hv.lerp(_dB, 1 - Math.exp(-(7 + 30 / (dist + 0.5)) * dt));          // harder round the closer it gets
     const stepLen = d.hv.length() * dt;
-    if (dist <= Math.max(0.6, stepLen * 1.1)) { d.hp.copy(d.E); d.inDir.copy(_dB).normalize(); d.state = 'in'; dragonStrike(d); }
+    if (dist <= Math.max(0.6, stepLen * 1.1)) { d.hp.copy(d.E); d.inDir.copy(_dB).normalize(); d.state = 'in'; if (d.onStrike) d.onStrike(d); else dragonStrike(d); }
     else d.hp.addScaledVector(d.hv, dt);
   } else if (d.state === 'in') d.hp.addScaledVector(d.inDir, 34 * dt);
+  else if (d.state === 'swipe' || d.state === 'drive') {
+    _dC.copy(d.hp);
+    const driven = d.state === 'drive';
+    if (driven) d.drive(d, dt);
+    else { d.sw.t += dt; if (d.sw.t <= d.sw.dur) d.sw.at(d.sw.t / d.sw.dur, d.hp); else d.hp.addScaledVector(d.hv, dt); }
+    if (driven || d.sw.t <= d.sw.dur) d.hv.subVectors(d.hp, _dC).divideScalar(Math.max(1e-4, dt));
+  }
   return true;
 }
 // the head's path, kept as points relative to him
@@ -8924,9 +9031,10 @@ function trailSpine(d) {
 }
 function updateDragon(d, dt) {
   if (d.state === 'off') { if (d.g.visible) d.g.visible = false; d.k = 0; return; }
-  const out = moveDragonHead(d, dt);
-  d.k = damp(d.k, d.state === 'fade' || !out ? 0 : 1, d.state === 'fade' ? 1.8 : 3.5, dt);
-  if (d.state === 'fade' && d.k < 0.01) { d.state = 'off'; d.g.visible = false; return; }
+  const out = moveDragonHead(d, dt), swiped = d.state === 'swipe' && d.sw.t > d.sw.dur, fading = d.state === 'fade' || swiped;
+  if (d.state === 'swipe' && !swiped) d.k = 1;
+  else d.k = damp(d.k, fading || !out ? 0 : 1, swiped ? 7 : d.state === 'fade' ? 1.8 : 3.5, dt);
+  if (fading && d.k < 0.02) { d.state = 'off'; d.g.visible = false; return; }
   if (!out) { d.g.visible = false; return; }
   d.roar = Math.max(0, d.roar - dt);
   recordTrail(d);
@@ -9014,7 +9122,117 @@ function updateDragon(d, dt) {
 function updateDragons(dt, drawing, tr) {
   dragons.forEach((d, i) => { if ((d.state === 'come' || d.state === 'orbit') && !(drawing && tr >= (i ? 4 : 2))) d.state = 'fade'; });
   for (const d of dragons) updateDragon(d, dt);
+  for (const d of swordDragons) updateDragon(d, dt);
   bow.dragon = dragon.k;
+}
+/* ───── the dragon sword ───── */
+// a dragon of light goes round with the blade: its head along the swing, a little ahead of the steel, its body after it
+function dragonSwipe(d, kind) {
+  const yaw = player.yaw0;
+  d.sw = { t: 0, dur: kind === 'C' ? 0.3 : 0.24, at: null };
+  if (kind === 'C') d.sw.at = (u, out) => { const e = lerp(2.5, -0.55, u), r = 2.7; return out.set(Math.sin(yaw) * r * Math.cos(e), Math.max(0.15, 1.1 + r * Math.sin(e)) + player.air, Math.cos(yaw) * r * Math.cos(e)); };
+  else {
+    const a0 = yaw + (kind === 'A' ? -2.1 : 2.1), a1 = yaw + (kind === 'A' ? 2.3 : -2.3);
+    d.sw.at = (u, out) => { const a = lerp(a0, a1, u), r = 2.4 + 0.7 * Math.sin(Math.PI * u); return out.set(Math.sin(a) * r, 1.2 + 0.3 * Math.sin(Math.PI * u) + player.air, Math.cos(a) * r); };
+  }
+  Object.assign(d, { state: 'swipe', k: 1, roar: 1, onStrike: null });
+  d.sw.at(0, d.hp); d.hv.set(0, 0, 0); d.tr.n = 0; d.tr.head = -1;
+}
+// every swing of it: the dragon, a great crescent of moonlight, and (the cleave) the floor struck where it comes down
+function dragonSwordFx(d) {
+  const p = player, x = p.pos.x, z = p.pos.z, yaw = p.yaw0, kind = d.dragon;
+  swordDragonI = (swordDragonI + 1) % swordDragons.length;
+  dragonSwipe(swordDragons[swordDragonI], kind);
+  if (kind === 'C') {
+    slashArc(x, 1.6, z, yaw, Math.PI / 2, 5.6, 1, 0.45, 1.0, 0);
+    const fx = x + Math.sin(yaw) * 2.9, fz = z + Math.cos(yaw) * 2.9;
+    addRing(fx, fz, { r0: 0.4, rMax: 8, speed: 16, color: 0xbcd2ff, opacity: 0.9 });
+    addRing(fx, fz, { r0: 0.3, rMax: 4.5, speed: 10, color: 0xffffff, opacity: 0.8 });
+    dust(fx, fz, 18, 1.6, { speed: 5 }); moonMotes(_dC.set(fx, 0.3, fz), 34, 6);
+    G.shake = Math.min(1.5, G.shake + 0.55);
+  } else {
+    slashArc(x, 1.25, z, yaw, kind === 'A' ? -0.12 : Math.PI + 0.12, 5.4, 1, 0.42, 0.6, 0);
+    G.shake = Math.min(1.5, G.shake + 0.28);
+  }
+  Snd.dragonSlash(kind === 'C');
+  swordLight.color.setHex(0xbcd2ff); swordLight.intensity = Math.max(swordLight.intensity, 1.4);
+  G.fovKick = Math.max(G.fovKick, kind === 'C' ? 0.9 : 0.6);
+  Haptics.pulse(kind === 'C' ? 0.6 : 0.4, 0.8, kind === 'C' ? 200 : 130);
+}
+// taking it up, as the moonlight comes (the 'ult' state, for the Moon): the hand to the sheathed hilt, the draw, the blade
+// held high while a dragon winds up round him out of the scabbard and goes into it, a full turn with it held out, the guard
+const _uA = new V3();
+function moonUltDraw(dt, tgt) {
+  const p = player, t = p.t, D = p.dsDone || (p.dsDone = {}), sd = swordDragons[0];
+  evalKeys(tgt, DS_KEYS, t, p.from);
+  if (!D.draw && t >= DS_T.draw) {
+    D.draw = true; p.iaiSheath = false; Snd.iaiDraw();
+    slashArc(p.pos.x, 1.3, p.pos.z, p.yaw0 - 0.4, Math.PI / 2 + 0.5, 2.6, 1, 0.3, 0.2, 0);
+  }
+  if (!D.dragon && t >= DS_T.dragon) {
+    D.dragon = true; Snd.dragonRoar();
+    const a0 = p.yaw0 + 2.2;
+    Object.assign(sd, { state: 'drive', k: 0, roar: 1.2, onStrike: null, blend: 1 });
+    sd.tr.n = 0; sd.tr.head = -1;
+    sd.drive = d => {
+      const u = clamp((p.t - DS_T.dragon) / (DS_T.dive - DS_T.dragon), 0, 1), a = a0 + u * 2.6 * TAU;
+      d.hp.set(Math.sin(a) * lerp(1.5, 0.8, u), lerp(0.7, 4.3, u) + p.air, Math.cos(a) * lerp(1.5, 0.8, u));
+      if (u >= 1) {                                          // and down into the raised blade, tip first
+        playerRig.tip.getWorldPosition(_uA);
+        Object.assign(d, { state: 'dive', wait: 0 }); d.E.set(_uA.x - p.pos.x, _uA.y, _uA.z - p.pos.z);
+        d.onStrike = dd => {
+          p.bladeLit = true;
+          playerRig.tip.getWorldPosition(_uA); blast(_uA, 1.6, 0.4, 0xd8e6ff); moonMotes(_uA, 50, 5);
+          swordLight.color.setHex(0xcfe0ff); swordLight.intensity = Math.max(swordLight.intensity, 2.4);
+          Snd.dragonHit(0.6); Haptics.pulse(0.5, 0.8, 200); G.flash = Math.max(G.flash, 0.25);
+        };
+      }
+    };
+  }
+  // the turn: the blade held out at arm's length, all the way round, a ring of moonlight off it
+  if (t >= DS_T.spin && t < DS_T.spinEnd) {
+    p.yaw = p.yaw0 + smooth((t - DS_T.spin) / (DS_T.spinEnd - DS_T.spin)) * TAU;
+    if (!D.spin) {
+      D.spin = true;
+      for (let i = 0; i < 3; i++) slashArc(p.pos.x, 1.3, p.pos.z, p.yaw0 + i * TAU / 3, 0, 5.2, 1, 0.42, 0.4, 0);
+      addRing(p.pos.x, p.pos.z, { r0: 0.6, rMax: 13, speed: 20, color: 0xbcd2ff, opacity: 0.9 });
+      addRing(p.pos.x, p.pos.z, { r0: 0.4, rMax: 7, speed: 12, color: 0xffffff, opacity: 0.8 });
+      Snd.dragonSlash(true); G.shake = Math.min(1.5, G.shake + 0.5); G.fovKick = Math.max(G.fovKick, 1);
+      if (boss.state !== 'dead' && boss.state !== 'dying' && Math.hypot(boss.pos.x - p.pos.x, boss.pos.z - p.pos.z) < 7) {
+        damageBoss(40, 35, new V3(boss.pos.x, boss.lockY * 0.6, boss.pos.z));
+      }
+    }
+  } else if (t >= DS_T.spinEnd) p.yaw = p.yaw0;
+  if (t >= DS_T.end) { p.state = 'free'; p.t = 0; p.yaw = p.yaw0; p.bladeLit = true; }
+}
+// the blade, while it is the dragon sword: lit from inside, and a sheen of moonlight along it
+const bladeAuraMat = new THREE.MeshBasicMaterial({ map: (() => {
+  const c = cv(64, 256), g = c.getContext('2d'), gr = g.createLinearGradient(0, 0, 64, 0);
+  gr.addColorStop(0, 'rgba(120,160,255,0)'); gr.addColorStop(0.42, 'rgba(190,215,255,0.7)'); gr.addColorStop(0.5, 'rgba(255,255,255,1)');
+  gr.addColorStop(0.58, 'rgba(190,215,255,0.7)'); gr.addColorStop(1, 'rgba(120,160,255,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 256);
+  const fade = g.createLinearGradient(0, 0, 0, 256); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(0.12, 'rgba(0,0,0,0)'); fade.addColorStop(0.88, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+  g.globalCompositeOperation = 'destination-out'; g.fillStyle = fade; g.fillRect(0, 0, 64, 256);
+  return new THREE.CanvasTexture(c);
+})(), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, fog: false, clippingPlanes: [BLADE_CLIP] });
+const bladeAura = new THREE.Group();
+for (const rz of [0, Math.PI / 2]) {
+  const geo = new THREE.PlaneGeometry(0.2, 1.14); geo.rotateX(Math.PI / 2); geo.rotateZ(rz); geo.translate(-0.03, 0, 0.64);
+  const m = new THREE.Mesh(geo, bladeAuraMat); m.renderOrder = 8; m.frustumCulled = false; bladeAura.add(m);
+}
+bladeAura.visible = false; playerRig.sword.add(bladeAura);
+function updateDragonBlade(dt) {
+  const p = player, moon = G.hero === 'moon';
+  p.dsK = damp(p.dsK || 0, moon && p.ultOn && p.bladeLit ? 1 : 0, p.bladeLit ? 4 : 2, dt);
+  const k = p.dsK, out = k > 0.01 && !(bow.sheathed || p.iaiSheath);
+  bladeAura.visible = out;
+  bladeAuraMat.opacity = k * (0.55 + 0.15 * Math.sin(G.t * 7));
+  HW.blade.emissive.setRGB(0.08 + 0.3 * k, 0.09 + 0.45 * k, 0.11 + 0.85 * k);
+  HW.bladeEdge.color.setRGB(0.96 + 0.04 * k, 0.97 + 0.03 * k, 0.98 + 0.02 * k);
+  if (out && Math.random() < 0.7 * k) {                 // moonlight coming off the edge
+    playerRig.hilt.getWorldPosition(_uA); playerRig.tip.getWorldPosition(_dC); _uA.lerp(_dC, Math.random());
+    fxSpark.emit(_uA.x, _uA.y, _uA.z, rand(-0.2, 0.2), rand(0.2, 0.8), rand(-0.2, 0.2), rand(0.3, 0.6), rand(0.04, 0.08), 0.75, 0.86, 1, -0.2, 0.4);
+  }
 }
 function updateTierFx(dt) {
   const p = player, drawing = p.state === 'draw' && p.ultOn && G.hero === 'moon', tr = drawing ? bow.tier : 0;
@@ -9056,12 +9274,13 @@ function updateTierFx(dt) {
     const vfov = THREE.MathUtils.degToRad(camera.fov), elev = lerp(-0.72, 0.27, smooth(bow.moonUp)) * vfov;
     const az = -0.5 * Math.atan(Math.tan(vfov / 2) * camera.aspect);
     camera.getWorldDirection(_tf); _tu.set(0, 1, 0).applyQuaternion(camera.quaternion); _dl.set(1, 0, 0).applyQuaternion(camera.quaternion);
-    _tp.copy(camera.position).addScaledVector(_tf, 70 * Math.cos(elev) * Math.cos(az)).addScaledVector(_tu, 70 * Math.sin(elev)).addScaledVector(_dl, 70 * Math.sin(az));
-    let size = 30;
+    const md = 70 * (1 - 0.78 * DUN.close);              // (under the vault of the dungeon, it comes in close, inside it)
+    _tp.copy(camera.position).addScaledVector(_tf, md * Math.cos(elev) * Math.cos(az)).addScaledVector(_tu, md * Math.sin(elev)).addScaledVector(_dl, md * Math.sin(az));
+    let size = 30 * md / 70;
     if (bow.moonInT >= 0) {
       nockArrow.localToWorld(_tv.set(0, 0, 0.95));
       const u = Math.pow(bow.moonIn, 1.4);
-      _tp.lerp(_tv, u); size = lerp(30, 0.45, u);
+      _tp.lerp(_tv, u); size = lerp(30 * md / 70, 0.45, u);
       if (pouring) for (let i = 0; i < 4; i++) {          // a river of light from the moon to the arrowhead
         const s = Math.random();
         fxSpark.emit(lerp(_tp.x, _tv.x, s), lerp(_tp.y, _tv.y, s), lerp(_tp.z, _tv.z, s), rand(-0.4, 0.4), rand(-0.4, 0.4), rand(-0.4, 0.4),
@@ -9100,6 +9319,7 @@ function updateBow(dt) {
   updateShotFx(dt);
   updateMoonfall(dt);
   updateHoles(dt);
+  updateDragonBlade(dt);
   updateSouls(dt);
   const drawing = p.state === 'draw', shooting = p.state === 'shoot';
   if (bow.active && !drawing) endDraw();                // knocked out of it
@@ -9120,7 +9340,7 @@ function updateBow(dt) {
     bowFrame(drawing || shooting);
     // the string: from the tips to his string hand while he holds it; snapping back and humming after he lets go
     let bend = 0, nx = 0, ny = 0, nz = -0.2;
-    if (drawing) {
+    if (drawing && bow.t >= NOCK_T) {
       playerRig.arms[1].wr.getWorldPosition(_bN);
       _bT.copy(_bN); bowG.worldToLocal(_bT);
       nx = clamp(_bT.x, -0.12, 0.12); ny = clamp(_bT.y, -0.15, 0.15); nz = clamp(_bT.z, -1.1, -0.2);
@@ -9136,13 +9356,14 @@ function updateBow(dt) {
     for (const li of [0, 1]) { tassels[li].visible = orn; tassels[li].position.copy(tipPos[li]); tassels[li].rotation.x = Math.sin(G.t * 3 + li) * 0.15; }
     for (const s of strSegs) s.g.visible = orn;
     BWM.glow.opacity = bow.ornate * (0.75 + 0.25 * Math.sin(G.t * 7)) * (0.7 + 0.1 * tierNow);
-    if (drawing) {
+    if (drawing && bow.t >= NOCK_T) {
       bowG.localToWorld(_bT.set(nx, ny, nz));
       nockArrow.position.copy(_bT);
       nockArrow.quaternion.copy(bowG.quaternion);
       nockArrow.scale.setScalar(tierNow >= 4 ? 1.7 : tierNow >= 1 ? 1.3 : 1);
       nockArrow.userData.glow.visible = tierNow >= 1;
-    }
+    } else if (drawing) quiverArrow();
+    nockArrow.visible = drawing && bow.t >= QV.grab;
     if (orn && Math.random() < 0.7) {
       const sg = limbSegs[Math.random() < 0.5 ? 0 : 1][(Math.random() * LIMB_N) | 0];
       _bT.copy(sg.fine.position); bowG.localToWorld(_bT);
@@ -9158,11 +9379,11 @@ function updateBow(dt) {
   if (meter !== bow.shown) { bow.shown = meter; chargeEl.box.classList.toggle('on', meter); if (meter) chargeEl.box.classList.add('bow'); }
   if (meter) {
     chargeEl.box.classList.toggle('plain', !p.ultOn);
-    const name = p.ultOn ? MOON_NAMES[bow.tier] : bow.t < 1.4 ? 'Drawn' : 'Taut';
+    const name = p.ultOn ? MOON_NAMES[bow.tier] : drawnFor() < 1.4 ? 'Drawn' : 'Taut';
     if (name !== bow.hudName) { bow.hudName = name; chargeEl.name.textContent = name; }
     let f;
     if (p.ultOn) { const tr = bow.tier, prev = tr > 0 ? MOON_TIERS[tr - 1] : 0, next = tr < 4 ? MOON_TIERS[tr] : 1; f = tr < 4 ? clamp((bow.t - prev) / (next - prev), 0, 1) : 1; }
-    else f = clamp(bow.t / 1.4, 0, 1);
+    else f = clamp(drawnFor() / 1.4, 0, 1);
     chargeEl.fill.style.width = (f * 100).toFixed(1) + '%';
   }
   // the trigger fights back harder with every stage
@@ -9198,7 +9419,8 @@ function resetMoon() {
   for (const s of souls) s.m.visible = false;
   for (const s of army) s.m.visible = false;
   for (const m of holes) { if (m.parent !== scene) scene.attach(m); m.visible = false; }
-  for (const d of dragons) { d.state = 'off'; d.k = 0; d.g.visible = false; }
+  for (const d of [...dragons, ...swordDragons]) { d.state = 'off'; d.k = 0; d.g.visible = false; }
+  player.bladeLit = false; player.dsK = 0; bladeAura.visible = false;
   bow.hover = 0;
   haloG.visible = false; moonPillar.visible = false; bigMoon.visible = false;
   ghostMat.uniforms.uOpacity.value = 0; armyMat.uniforms.uOpacity.value = 0;
@@ -9499,6 +9721,7 @@ function updateIai(dt, tgt) {
     clipAtMouth(false);
     bossRig.head.getWorldPosition(_ib);
     cutLine(_ib.x, _ib.y - 0.1, _ib.z, Math.atan2(e.ux, e.uz));   // and the line of the cut shows, as the hilt meets the scabbard
+    neckSlashAt(_ib.setY(_ib.y - 0.1), _ia.set(e.ux, -0.3, e.uz), (3.4 + BOSS_R * 2.3) * 0.75, 0.3 + BOSS_R * 0.08, 0.8, 1.2 + BOSS_R * 0.4);
     swordHome();
     p.iaiSheath = true;                                        // the hilt at his hip, the blade in the scabbard
     Snd.sheathClick(); Haptics.pulse(0.3, 0.8, 90);
@@ -9563,11 +9786,69 @@ function iaiStroke() {
   cutLine(nx, ny, nz, yaw);
   blast(_ia.set(nx, ny, nz), 1.4 + BOSS_R * 0.3, 0.35, 0xffffff);
   moonMotes(_ia, 40, 6);
+  // and on the neck itself: the line of the cut, along his leap and a little downhill like the stroke
+  const L = 3.4 + BOSS_R * 2.3;
+  _ib.set(e.ux, -0.3, e.uz).normalize();
+  neckSlashAt(_ia, _ib, L, 0.36 + BOSS_R * 0.1, 1.1, 1.9 + BOSS_R * 0.7);
+  for (let i = 0; i < 30; i++) { const s = rand(-0.5, 0.5) * L; fxSpark.emit(nx + _ib.x * s, ny + _ib.y * s, nz + _ib.z * s, rand(-1.2, 1.2), rand(-0.4, 1.6), rand(-1.2, 1.2), rand(0.3, 0.8), rand(0.05, 0.11), 0.86, 0.93, 1, 0, 1.5); }
   Snd.iaiSlash();
   Haptics.pulse(0.5, 1, 160);
   G.slow = Math.max(G.slow, 0.7); G.hitStop = Math.max(G.hitStop, 0.1); G.flash = Math.max(G.flash, 0.25); G.fovKick = Math.max(G.fovKick, 1.2);
   if (G.blood) { bladeAt(0.72, bladeBlood.position); bladeBlood.rotation.set(0, -0.72 / BLADE.rho, 0); bladeBlood.visible = true; }
   whiteFlash(bossRig, 0.05);
+}
+// the cut itself, on his neck: a long hard line of light across it (drawn over everything, so none of it hides inside him),
+// a four-pointed star where it crosses, sparks along it. At the stroke, and again, smaller, as the hilt clicks home.
+const neckSlashMat = new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+  uniforms: { uK: { value: 0 } },
+  vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `uniform float uK; varying vec2 vUv;
+    void main() {
+      float x = vUv.x * 2.0 - 1.0, y = vUv.y * 2.0 - 1.0;
+      float taper = pow(max(0.0, 1.0 - x * x), 0.55), w = 0.05 + 0.95 * taper;
+      float core = exp(-pow(y / (0.13 * w), 2.0)), glow = 0.6 * exp(-pow(y / (0.5 * w), 2.0));
+      float a = (core + glow) * taper * uK;
+      if (a < 0.003) discard;
+      gl_FragColor = vec4(mix(vec3(0.5, 0.7, 1.0), vec3(1.0), clamp(core * 1.3, 0.0, 1.0)), a);
+    }`,
+});
+const neckSlash = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), neckSlashMat);
+neckSlash.visible = false; neckSlash.renderOrder = 13; neckSlash.frustumCulled = false; scene.add(neckSlash);
+const neckStarMat = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture((() => {
+  const S = 256, c = cv(S, S), g = c.getContext('2d'), M = S / 2;
+  let gr = g.createRadialGradient(M, M, 0, M, M, M); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.12, 'rgba(210,228,255,0.8)'); gr.addColorStop(0.4, 'rgba(120,160,255,0.18)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  for (const [w, h] of [[S, 9], [9, S], [S * 0.55, 5], [5, S * 0.55]]) {           // the four points, long and short
+    gr = g.createRadialGradient(M, M, 0, M, M, Math.max(w, h) / 2); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(1, 'rgba(160,190,255,0)');
+    g.save(); g.translate(M, M); if (w < S) g.rotate(Math.PI / 4); g.fillStyle = gr; g.fillRect(-w / 2, -h / 2, w, h); g.restore();
+  }
+  return c;
+})()), color: 0xf2f6ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false });
+const neckStar = new THREE.Sprite(neckStarMat); neckStar.visible = false; neckStar.renderOrder = 14; scene.add(neckStar);
+const NS = { t: 9, life: 1, c: new V3(), L: new V3(), len: 1, wid: 0.3, star: 0 }, _nsV = new V3(), _nsY = new V3(), _nsZ = new V3(), _nsM = new THREE.Matrix4();
+function neckSlashAt(c, L, len, wid, life, star) {
+  Object.assign(NS, { t: 0, len, wid, life, star }); NS.c.copy(c); NS.L.copy(L).normalize();
+  neckSlash.visible = true; neckStar.visible = star > 0;
+}
+function updateNeckSlash(dt) {
+  if (!neckSlash.visible) return;
+  NS.t += dt;
+  const u = NS.t / NS.life;
+  if (u >= 1) { neckSlash.visible = false; neckStar.visible = false; return; }
+  const grow = smooth(clamp(NS.t / 0.06, 0, 1)), fade = 1 - smooth(clamp((u - 0.4) / 0.6, 0, 1));
+  // along the cut, turned about it to face the lens
+  _nsV.subVectors(camera.position, NS.c).normalize();
+  _nsY.crossVectors(_nsV, NS.L).normalize(); _nsZ.crossVectors(NS.L, _nsY);
+  neckSlash.quaternion.setFromRotationMatrix(_nsM.makeBasis(NS.L, _nsY, _nsZ));
+  neckSlash.position.copy(NS.c);
+  neckSlash.scale.set(NS.len * (0.3 + 0.7 * grow) * (1 + 0.1 * u), NS.wid * (1 - 0.55 * u), 1);
+  neckSlashMat.uniforms.uK.value = fade * 1.7;
+  if (NS.star > 0) {
+    neckStar.position.copy(NS.c);
+    neckStar.scale.setScalar(NS.star * (u < 0.1 ? lerp(0.3, 1.5, u / 0.1) : lerp(1.5, 0.7, (u - 0.1) / 0.9)));
+    neckStarMat.opacity = fade; neckStarMat.rotation = 0.4 * u;
+  }
 }
 // five shots, see the top
 function iaiCam() {
@@ -11146,6 +11427,7 @@ function updateHell(dt) {
       fxEmber.emit(Math.sin(a) * r, rand(0.1, 1.5), Math.cos(a) * r, rand(-0.4, 0.4), rand(1.2, 3), rand(-0.4, 0.4), rand(2, 4), rand(0.07, 0.15), 1, 0.2, 0.06, -0.15, 0.2);
     }
   }
+  updateDungeon(dt, hk, hell.t);
   if (hell.clear && hell.k < 0.004) resetHell();
 }
 function resetHell() {
@@ -11157,6 +11439,7 @@ function resetHell() {
   W_M.flameOut.color.copy(HELL0.flameOut); W_M.flameIn.color.copy(HELL0.flameIn);
   torchLights.forEach((l, i) => l.color.copy(HELL0.torch[i]));
   fissureMat.uniforms.uRed.value = 0; wallCrackMat.color.copy(HELL0.wallCrack);
+  resetDungeon();
 }
 
 /* ───── helpers ───── */
@@ -12037,6 +12320,217 @@ function finaleDescentTick(D, t) {
   if (!D.sang && t >= D.T.apex) { D.sang = true; Snd.verseChoir(); }
 }
 
+/* ═══════════════════════════ the dungeon: what hell makes of the arena ═══════════════════════════ */
+// When the Perfected turns, the stone does not only go red. A vault of black-red brick closes over the arena from the top of
+// the wall to a burning circle and star at its crown, ribbed like a crypt. Chains come down out of it, three with iron cages
+// at their ends; banners with the star unroll down the wall between the columns, inverted crosses burn red on the stone,
+// and candles stand among skulls at the foot of every column. When the light comes it all goes, the crown first.
+const DUN = { close: 0, H0: 12, RISE: 9, R: ARENA.wall, t: 0 };
+const dungeon = new THREE.Group(); dungeon.visible = false; scene.add(dungeon);
+const drng = rng(666);
+const vaultY = r => DUN.H0 + DUN.RISE * Math.sqrt(Math.max(0, 1 - (r / DUN.R) * (r / DUN.R)));   // the underside of the vault at radius r
+
+// the vault: drawn closing from the rim to the crown (uClose); brick with hot mortar; the circle and the star at the crown.
+// It writes depth, so the burning sky and the moon over the wall are shut out behind it.
+const vaultMat = new THREE.ShaderMaterial({
+  side: THREE.BackSide, fog: false,
+  uniforms: { uClose: { value: 0 }, uTime: { value: 0 } },
+  vertexShader: `varying vec3 vP; void main() { vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+  fragmentShader: `uniform float uClose; uniform float uTime; varying vec3 vP;
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    float seg(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0); return length(pa - ba * h); }
+    void main() {
+      float v = asin(clamp(vP.y, 0.0, 1.0)) / 1.5707963;
+      if (v > uClose) discard;
+      float th = atan(vP.z, vP.x) / 6.2831853 + 0.5;
+      float rows = 26.0, row = floor(v * rows), fy = fract(v * rows);
+      float n = max(8.0, floor(cos(v * 1.5707963) * 120.0));
+      float bx = th * n + mod(row, 2.0) * 0.5, fx = fract(bx), id = floor(bx);
+      float mort = 1.0 - smoothstep(0.0, 0.09, min(min(fx, 1.0 - fx) * 2.0, min(fy, 1.0 - fy)));
+      float h = hash(vec2(id, row));
+      vec3 brick = vec3(0.11, 0.03, 0.024) * (0.65 + 0.7 * h);
+      float pulse = 0.6 + 0.4 * sin(uTime * 1.7 + h * 6.28 + v * 9.0);
+      vec3 col = mix(brick, vec3(0.95, 0.15, 0.04) * pulse, mort * 0.85) * (0.6 + 0.4 * (1.0 - v));
+      vec2 q = vP.xz / 0.34;
+      float r = length(q);
+      float ring = exp(-pow((r - 0.92) / 0.025, 2.0)) + 0.7 * exp(-pow((r - 0.8) / 0.018, 2.0));
+      float star = 1e3;
+      for (int k = 0; k < 5; k++) {
+        float a0 = 1.5707963 + float(k) * 1.2566371;
+        star = min(star, seg(q, 0.8 * vec2(cos(a0), sin(a0)), 0.8 * vec2(cos(a0 + 2.5132741), sin(a0 + 2.5132741))));
+      }
+      col += vec3(1.0, 0.2, 0.05) * (ring + exp(-pow(star / 0.022, 2.0))) * (0.75 + 0.25 * sin(uTime * 3.0)) * step(r, 1.05);
+      col += vec3(1.0, 0.32, 0.08) * smoothstep(uClose - 0.05, uClose, v) * step(uClose, 0.995);
+      gl_FragColor = vec4(col, 1.0);
+    }`,
+});
+const vault = new THREE.Mesh(new THREE.SphereGeometry(DUN.R, 64, 20, 0, TAU, 0, Math.PI / 2), vaultMat);
+vault.scale.set(1, DUN.RISE / DUN.R, 1); vault.position.y = DUN.H0; vault.renderOrder = -8; vault.frustumCulled = false;
+dungeon.add(vault);
+
+// the ribs, meeting at the crown under an iron ring hung with spikes
+const ironMat = new THREE.MeshStandardMaterial({ color: lin(0x2a2326), roughness: 0.5, metalness: 0.7, emissive: 0x3c0806 });     // iron, warm from the fire
+const ribMat = new THREE.MeshStandardMaterial({ color: lin(0x2c0f0b), roughness: 0.9, emissive: 0x1c0302 });
+const ribs = [];
+for (let i = 0; i < 12; i++) {
+  const th = (i + 0.5) / 12 * TAU, pts = [];
+  for (let k = 0; k <= 16; k++) {
+    const ph = k / 16 * Math.PI / 2, r = (DUN.R - 0.5) * Math.cos(ph);
+    pts.push(new V3(Math.cos(th) * r, DUN.H0 + (DUN.RISE - 0.45) * Math.sin(ph), Math.sin(th) * r));
+  }
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.45, 6, false), ribMat);
+  m.frustumCulled = false; dungeon.add(m); ribs.push(m);
+}
+const crown = new THREE.Group();
+{
+  const parts = new THREE.Group();
+  const ring = new THREE.Mesh(GEO.torus, ironMat); ring.scale.set(1.9, 1.9, 1.4); ring.rotation.x = Math.PI / 2; parts.add(ring);
+  for (let i = 0; i < 10; i++) { const a = i / 10 * TAU, s = new THREE.Mesh(GEO.cone, ironMat); s.scale.set(0.16, 0.9, 0.16); s.rotation.x = Math.PI; s.position.set(Math.cos(a) * 1.9, -0.5, Math.sin(a) * 1.9); parts.add(s); }
+  crown.add(new THREE.Mesh(bakeParts(parts, () => true), ironMat));
+  crown.position.y = DUN.H0 + DUN.RISE - 1.0; dungeon.add(crown);
+}
+
+// chains: four long ones from round the crown, ten from halfway up the vault, three of those with a cage at the end
+const CHAINS = [], LINK = 0.34;
+for (let i = 0; i < 4; i++) { const a = i / 4 * TAU + 0.4; CHAINS.push({ x: Math.cos(a) * 2.3, z: Math.sin(a) * 2.3, len: 8.5 + drng() * 1.5 }); }
+for (let i = 0; i < 10; i++) {
+  const a = (i + drng() * 0.6) / 10 * TAU, r = (DUN.R - 1.5) * Math.cos((0.42 + drng() * 0.25) * Math.PI / 2);
+  CHAINS.push({ x: Math.cos(a) * r, z: Math.sin(a) * r, len: 4.5 + drng() * 3.5, cage: i % 3 === 1 });
+}
+let NLINK = 0;
+for (const c of CHAINS) { c.top = new V3(c.x, vaultY(Math.hypot(c.x, c.z)) - 0.35, c.z); c.n = Math.round(c.len / LINK); c.ph = drng() * TAU; c.i0 = NLINK; NLINK += c.n; }
+const linkGeo = new THREE.TorusGeometry(0.21, 0.06, 5, 10);
+const chainMesh = new THREE.InstancedMesh(linkGeo, ironMat, NLINK); chainMesh.frustumCulled = false; dungeon.add(chainMesh);
+const boneMat = new THREE.MeshStandardMaterial({ color: lin(0xd8ccb0), roughness: 0.7 }), hollowMat = new THREE.MeshBasicMaterial({ color: 0x080303 });
+function makeSkull(parent, s) {
+  const g = new THREE.Group();
+  ell(g, boneMat, 0.16 * s, 0.15 * s, 0.19 * s, 0, 0, 0);
+  ell(g, boneMat, 0.11 * s, 0.07 * s, 0.1 * s, 0, -0.1 * s, 0.07 * s);
+  for (const x of [-1, 1]) ell(g, hollowMat, 0.045 * s, 0.05 * s, 0.03 * s, x * 0.065 * s, 0.01 * s, 0.165 * s);
+  ell(g, hollowMat, 0.022 * s, 0.03 * s, 0.02 * s, 0, -0.06 * s, 0.18 * s);
+  parent.add(g); return g;
+}
+const glowTexD = new THREE.CanvasTexture(makeGlow('rgba(255,90,40,1)', 'rgba(200,20,10,0.35)'));
+const cages = [];
+for (const c of CHAINS.filter(c => c.cage)) {
+  const g = new THREE.Group(), parts = new THREE.Group();
+  for (let i = 0; i < 10; i++) { const a = i / 10 * TAU, b = new THREE.Mesh(GEO.cyl, ironMat); b.scale.set(0.03, 1.7, 0.03); b.position.set(Math.cos(a) * 0.62, 0, Math.sin(a) * 0.62); parts.add(b); }
+  for (const y of [-0.85, 0, 0.85]) { const r = new THREE.Mesh(GEO.torus, ironMat); r.scale.set(0.63, 0.63, 0.25); r.rotation.x = Math.PI / 2; r.position.y = y; parts.add(r); }
+  const top = new THREE.Mesh(GEO.cone, ironMat); top.scale.set(0.66, 0.5, 0.66); top.position.y = 1.1; parts.add(top);
+  const bottom = new THREE.Mesh(GEO.cyl, ironMat); bottom.scale.set(0.64, 0.05, 0.64); bottom.position.y = -0.86; parts.add(bottom);
+  g.add(new THREE.Mesh(bakeParts(parts, () => true), ironMat));
+  const sk = makeSkull(g, 1.2); sk.position.set(0.15, -0.68, 0.1); sk.rotation.set(0.4, 0.6, 0.3);
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexD, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false })); glow.scale.setScalar(2.2); g.add(glow);
+  dungeon.add(g); cages.push({ g, c });
+}
+
+// round the wall, between the columns: banners with the star, and inverted crosses burning red
+const MIDS = [];
+for (let i = 0; i < COLS; i++) { const a = (i + 0.5) / COLS * TAU + 0.21; if (Math.abs(angDiff(a, 0)) > 0.5) MIDS.push(a); }
+const bannerTex = new THREE.CanvasTexture((() => {
+  const W = 256, H = 768, c = cv(W, H), g = c.getContext('2d'), M = W / 2;
+  g.beginPath(); g.moveTo(0, 0); g.lineTo(W, 0); g.lineTo(W, H - 90); g.lineTo(M, H); g.lineTo(0, H - 90); g.closePath(); g.clip();     // cut to a point at the foot
+  const gr = g.createLinearGradient(0, 0, W, 0);
+  for (let k = 0; k <= 8; k++) gr.addColorStop(k / 8, k % 2 ? '#4a0606' : '#6e0b0b');       // the folds
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.strokeStyle = '#a07a2a'; g.lineWidth = 10; g.strokeRect(14, 14, W - 28, H - 28);
+  g.beginPath(); g.moveTo(14, H - 100); g.lineTo(M, H - 14); g.lineTo(W - 14, H - 100); g.stroke();
+  const cy = 300, R = 96;
+  g.strokeStyle = '#120202'; g.lineWidth = 12; g.beginPath(); g.arc(M, cy, R + 14, 0, TAU); g.stroke();
+  g.strokeStyle = '#b08a34'; g.lineWidth = 5; g.beginPath(); g.arc(M, cy, R + 14, 0, TAU); g.stroke(); g.beginPath(); g.arc(M, cy, R - 2, 0, TAU); g.stroke();
+  g.lineWidth = 7; g.beginPath();                                       // the star, point down
+  for (let k = 0; k <= 5; k++) { const a = Math.PI / 2 + ((k * 2) % 5) * TAU / 5, x = M + Math.cos(a) * (R - 6), y = cy + Math.sin(a) * (R - 6); if (k) g.lineTo(x, y); else g.moveTo(x, y); }
+  g.stroke();
+  g.fillStyle = '#b08a34';                                                // a column of small inverted crosses under it
+  for (let k = 0; k < 4; k++) { const y = 450 + k * 56; g.fillRect(M - 4, y, 8, 40); g.fillRect(M - 14, y + 24, 28, 7); }
+  return c;
+})());
+const bannerMat = new THREE.MeshStandardMaterial({ map: bannerTex, side: THREE.DoubleSide, alphaTest: 0.5, roughness: 0.92, emissive: 0x2a0404 });
+const crossMatD = new THREE.MeshStandardMaterial({ color: lin(0x1a0606), roughness: 0.6, metalness: 0.4, emissive: 0xff1a08, emissiveIntensity: 0 });
+const banners = [], crossGlows = [];
+{
+  const crossParts = new THREE.Group();
+  MIDS.forEach((a, i) => {
+    const x = Math.sin(a), z = Math.cos(a);
+    if (i % 2 === 0) {
+      const geo = new THREE.PlaneGeometry(2.4, 7.2); geo.translate(0, -3.6, 0);
+      const m = new THREE.Mesh(geo, bannerMat); m.position.set(x * (DUN.R - 0.25), 11.6, z * (DUN.R - 0.25)); m.rotation.y = a + Math.PI;
+      m.scale.y = 0.001; dungeon.add(m); banners.push(m);
+    } else {
+      const g = new THREE.Group(); g.position.set(x * (DUN.R - 0.2), 7.6, z * (DUN.R - 0.2)); g.rotation.y = a + Math.PI; crossParts.add(g);
+      blk(g, crossMatD, 0.34, 3.6, 0.22, 0, 0, 0);
+      blk(g, crossMatD, 1.8, 0.34, 0.22, 0, -0.75, 0);                 // the crossbar low: it is upside down
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexD, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+      glow.position.set(x * (DUN.R - 0.6), 7.3, z * (DUN.R - 0.6)); glow.scale.set(3.4, 5, 1); dungeon.add(glow); crossGlows.push(glow);
+    }
+  });
+  dungeon.add(new THREE.Mesh(bakeParts(crossParts, () => true), crossMatD));
+}
+
+// at the foot of every column: skulls, and candles burning among them
+const SK = [], CANDLES = [];
+for (const c of columns) {
+  const a = c.a, ux = Math.sin(a), uz = Math.cos(a), tx = uz, tz = -ux, r0 = ARENA.wall - 2.95;
+  for (let k = 0; k < 3; k++) SK.push({ x: ux * (r0 + drng() * 0.3) + tx * (drng() - 0.5) * 1.6, z: uz * (r0 + drng() * 0.3) + tz * (drng() - 0.5) * 1.6, ry: a + Math.PI + (drng() - 0.5) * 1.2, s: 0.9 + drng() * 0.5 });
+  for (let k = 0; k < 5; k++) CANDLES.push({ x: ux * (r0 - 0.4 + drng() * 0.8) + tx * (drng() - 0.5) * 2.2, z: uz * (r0 - 0.4 + drng() * 0.8) + tz * (drng() - 0.5) * 2.2, h: 0.22 + drng() * 0.45 });
+}
+const skullG = new THREE.Group(); dungeon.add(skullG);
+for (const s of SK) { const k = makeSkull(skullG, s.s); k.position.set(s.x, 0.17 * s.s, s.z); k.rotation.y = s.ry; }
+const waxMat = new THREE.MeshStandardMaterial({ color: lin(0x5a1010), roughness: 0.8 });
+const candleMesh = new THREE.InstancedMesh(GEO.cyl, waxMat, CANDLES.length); candleMesh.frustumCulled = false; dungeon.add(candleMesh);
+{
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new V3(), sc = new V3();
+  CANDLES.forEach((c, i) => { m.compose(v.set(c.x, c.h / 2, c.z), q, sc.set(0.085, c.h, 0.085)); candleMesh.setMatrixAt(i, m); });
+}
+const flameGeo = new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute(CANDLES.flatMap(c => [c.x, c.h + 0.07, c.z]), 3));
+const flameMatD = new THREE.PointsMaterial({ map: new THREE.CanvasTexture(makeGlow('rgba(255,230,160,1)', 'rgba(255,90,20,0.5)')), size: 0.32, transparent: true, opacity: 0,
+  blending: THREE.AdditiveBlending, depthWrite: false, color: 0xffb070 });
+const candleFlames = new THREE.Points(flameGeo, flameMatD); candleFlames.frustumCulled = false; dungeon.add(candleFlames);
+dungeon.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
+
+// driven from updateHell: hk is how much of hell there is, t how long it has been coming
+const _dm = new THREE.Matrix4(), _dq = new THREE.Quaternion(), _dqy = new THREE.Quaternion(), _dv3 = new V3(), _ds3 = new V3(), _dd3 = new V3(), _UPY = new V3(0, 1, 0);
+function updateDungeon(dt, hk, t) {
+  const on = hk > 0.003;
+  dungeon.visible = on;
+  if (!on) { DUN.close = 0; return; }
+  DUN.t += dt;
+  const T = DUN.t, ease = (a, d) => hk * smooth(clamp((t - a) / d, 0, 1));
+  DUN.close = ease(0.6, 3.0);
+  vaultMat.uniforms.uClose.value = DUN.close; vaultMat.uniforms.uTime.value = T;
+  vault.visible = DUN.close > 0.002;
+  const rib = ease(0.2, 2.6);
+  for (const m of ribs) { m.visible = rib > 0.01; m.geometry.setDrawRange(0, Math.floor(m.geometry.index.count * rib / 6) * 6); }
+  crown.visible = rib > 0.97;
+  banners.forEach((m, i) => { const s = ease(1.2 + i * 0.12, 1.0); m.visible = s > 0.01; m.scale.y = Math.max(0.001, s); m.rotation.x = 0.03 * Math.sin(T * 0.9 + i); });
+  const burn = ease(1.6, 1.2);
+  crossMatD.emissiveIntensity = burn * (0.75 + 0.25 * Math.sin(T * 2.3));
+  for (const g of crossGlows) g.material.opacity = 0.5 * burn;
+  const floorK = ease(1.0, 1.0);
+  skullG.visible = candleMesh.visible = floorK > 0.5;
+  flameMatD.opacity = floorK; flameMatD.size = 0.5 + 0.06 * Math.sin(T * 13);
+  // the chains let down from the vault, swaying; the cages at the ends of three
+  const drop = ease(2.4, 1.6);
+  for (const c of CHAINS) {
+    const sx = 0.05 * Math.sin(T * 0.7 + c.ph), sz = 0.05 * Math.cos(T * 0.6 + c.ph * 1.3);
+    _dd3.set(sx, -1, sz).normalize();
+    const nv = Math.floor(c.n * drop);
+    for (let j = 0; j < c.n; j++) {
+      _dqy.setFromAxisAngle(_UPY, j % 2 ? Math.PI / 2 : 0);
+      _dv3.copy(c.top).addScaledVector(_dd3, j * LINK + 0.12);
+      _ds3.set(1, 1.45, 1).multiplyScalar(j < nv ? 1 : 0);
+      chainMesh.setMatrixAt(c.i0 + j, _dm.compose(_dv3, _dqy, _ds3));
+    }
+    c.end = (c.end || new V3()).copy(c.top).addScaledVector(_dd3, nv * LINK + 1.05);
+    c.sx = sx; c.sz = sz;
+  }
+  chainMesh.instanceMatrix.needsUpdate = true;
+  for (const k of cages) { k.g.visible = drop > 0.98; k.g.position.copy(k.c.end); k.g.rotation.set(k.c.sz, T * 0.15 + k.c.ph, -k.c.sx); }
+}
+function resetDungeon() {
+  DUN.close = 0; DUN.t = 0; dungeon.visible = false; vaultMat.uniforms.uClose.value = 0;
+}
+
 /* ═══════════════════════════ scheduler, toast, banners ═══════════════════════════ */
 const timers = [];
 function later(sec, fn) { timers.push({ t: sec, fn }); }
@@ -12570,7 +13064,7 @@ if (!MANUAL) requestAnimationFrame(loop);
 window.__saleem = { G, player, boss, cam, keys, tap, ATK, PATK, frame, press, release, shocks, camera, scene, renderer,
   beginGame, resetFight, wakeBoss, setOpponent, nextFight, downBoss, startExecution, finish, charge, angels, CHARGE_TIERS, startChargeP, aura, bladeFx, wrath, columns, slabs, megaRig, MATK, startMegaAttack, startCutscene, skipCutscene, startDescent, heaven, bolt, MIGHT, fxBlood, KNEEL, chanRig, CHA, projs, clouds, strikes, startChanAttack, fxFire, swordRibbon, arcPool, holyCross, crossLight, swordLight, crossMat, pillar, floorTex, moon, hemi, rimLight, torchLights, startAttack, damageBoss, hurtPlayer, applyPose, evalKeys, bossRig, playerRig, hud, TRUMPET, FT, FIN_DESC, DEMON, hell, catchBlade, returnToTitle, effOffset, megaEFF: EFF, DATK, startDemonAttack,
   Haptics, DS5, TRIG, holySword, horns, dWings, ritual, hellSky, heartGlow, wrathCracks: () => cracks, wrathRocks: () => rocks.filter(r => r.live && r.m.visible).length,
-  bow, souls, army, stuck, beams, bowG, setHero, setOutfit, activateUlt, hitReact, white, kb, MOON_TIERS, dragon, haloG, bigMoon, holes, IAI, startIai, dragons };
+  bow, souls, army, stuck, beams, bowG, setHero, setOutfit, activateUlt, hitReact, white, kb, MOON_TIERS, dragon, haloG, bigMoon, holes, IAI, startIai, dragons, swordDragons };
 })();
 </script>
 </body>
