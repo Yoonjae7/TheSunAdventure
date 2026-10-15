@@ -1520,11 +1520,12 @@ const MAXANISO = renderer.capabilities.getMaxAnisotropy();
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x05070c);
-scene.fog = new THREE.FogExp2(0x0b111c, 0.015);
+scene.fog = new THREE.FogExp2(0x0b111c, 0.0113);        // (thinned with the arena's growth, so the far wall shows as it did)
 const camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 600);
 scene.add(camera);
 
-const ARENA = { r: 24, wall: 27.5 };
+const ARENA = { r: 32, wall: 36.5 };
+const ARENA_K = ARENA.wall / 27.5;                    // how much bigger than it first was (stones, columns, fog keep their size)
 let pointScale = 1;
 let camBaseFov = 60;
 const pointUniforms = { uScale: { value: 500 } };
@@ -1561,7 +1562,7 @@ function tex(c, rx = 1, ry = 1) {
 function makeFloor() {
   const S = 2048, C = S / 2, c = cv(S, S), g = c.getContext('2d'), R = rng(7);
   g.fillStyle = '#131317'; g.fillRect(0, 0, S, S);
-  const rings = 15, w = (C * 0.99) / rings;
+  const rings = Math.round(15 * ARENA_K), w = (C * 0.99) / rings;
   for (let i = 0; i < rings; i++) {
     const r0 = i * w + 2, r1 = (i + 1) * w - 2, mid = (r0 + r1) / 2;
     const n = Math.max(5, Math.round(TAU * mid / (w * 1.7))), off = R() * TAU;
@@ -1727,21 +1728,21 @@ const floor = new THREE.Mesh(new THREE.CircleGeometry(ARENA.wall + 0.7, 96),
 floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
 arena.add(floor);
 
-const wallTex = tex(makeWall(), 10, 1);
+const wallTex = tex(makeWall(), Math.round(10 * ARENA_K), 1);
 const wall = new THREE.Mesh(new THREE.CylinderGeometry(ARENA.wall, ARENA.wall, 12, 72, 1, true),
   new THREE.MeshStandardMaterial({ map: wallTex, roughness: 0.96, side: THREE.BackSide }));
 wall.position.y = 6; arena.add(wall);
 
 // columns, some of them broken, with torches on a few
-const TORCH_AT = new Set([1, 3, 5, 8, 10, 12]);
-const COLS = 15;
+const TORCH_AT = new Set([1, 4, 6, 9, 13, 16]);
+const COLS = 19;
 const columns = [];
 for (let i = 0; i < COLS; i++) {
   const a = (i / COLS) * TAU + 0.21;
   if (Math.abs(angDiff(a, 0)) < 0.34) continue;                     // leave the gate clear
   const x = Math.sin(a) * (ARENA.wall - 1.1), z = Math.cos(a) * (ARENA.wall - 1.1);
   const col = new THREE.Group(); col.position.set(x, 0, z); col.rotation.y = -a; arena.add(col);
-  const broken = i % 5 === 2, h = broken ? 4.2 + rngW() * 2 : 10.5;
+  const broken = i % 5 === 3, h = broken ? 4.2 + rngW() * 2 : 10.5;
   columns.push({ col, i, a, broken, h, torch: TORCH_AT.has(i) });
   const shaft = new THREE.Mesh(GEO.cyl, W_M.stone); shaft.scale.set(0.95, h, 0.95); shaft.position.y = h / 2; col.add(shaft);
   const base = new THREE.Mesh(GEO.box, W_M.stoneDark); base.scale.set(2.5, 0.6, 2.5); base.position.y = 0.3; col.add(base);
@@ -3699,7 +3700,7 @@ function setOpponent(kind) {
   saleemRig.root.visible = b.kind === 'saleem'; clementRig.root.visible = b.kind === 'clement'; chanRig.root.visible = b.kind === 'chan';
   megaRig.root.visible = b.kind === 'mega';
   bossRig = b.kind === 'clement' ? clementRig : b.kind === 'chan' ? chanRig : b.kind === 'mega' ? megaRig : saleemRig; b.rig = bossRig;
-  BOSS_R = o.r; b.hpMax = o.hp; b.poiseMax = o.poise; b.wakeR = o.wake;
+  BOSS_R = o.r; b.hpMax = o.hp; b.poiseMax = o.poise; b.wakeR = o.wake * ARENA_K;      // (the arena grew; so does how far off he notices you)
   b.lookY = o.lookY; b.lockY = o.lockY; b.home = o.home;
   document.querySelector('.boss-name').textContent = o.name;
   document.querySelector('#card .name').textContent = o.name;
@@ -8453,10 +8454,12 @@ function aimPoint(out) {
   return out.set(p.pos.x + Math.sin(p.yaw) * 20, 1.5, p.pos.z + Math.cos(p.yaw) * 20);
 }
 // how far the string hand has gone: 0 nocked, 1 at the jaw, 2 behind the ear
-function drawK(t) { return t < 0.3 ? t / 0.3 : t < 1.4 ? 1 : Math.min(2, 1 + (t - 1.4) / 0.6); }
+// (the plain bow's times: a tap under DRAW_T.tap, Drawn until DRAW_T.taut, then Taut)
+const DRAW_T = { tap: 0.2, jaw: 0.2, taut: 0.8, ear: 0.4 };
+function drawK(t) { return t < DRAW_T.jaw ? t / DRAW_T.jaw : t < DRAW_T.taut ? 1 : Math.min(2, 1 + (t - DRAW_T.taut) / DRAW_T.ear); }
 // before any of that he takes the arrow: his right hand goes up over his shoulder to the quiver on his back, closes on a
 // fletching, draws the arrow up out of it, and brings it over and down onto the string. Then the draw proper begins.
-const NOCK_T = 0.42, QV = { reach: 0.13, grab: 0.12, pull: 0.22 };
+const NOCK_T = 0.3, QV = { reach: 0.09, grab: 0.085, pull: 0.155 };
 const drawnFor = () => Math.max(0, bow.t - NOCK_T);      // how long the arrow has been on the string
 
 function startDrawP() {
@@ -8578,7 +8581,7 @@ function moonShot() {
   bowFrame(true);
   _sDir.copy(_bF); _sO.copy(_bB).addScaledVector(_sDir, 0.3);
   if (tier >= 3) { looseGreat(tier); return; }
-  const S = !ult ? (t < 0.35 ? SHOTS.tap : t < 1.4 ? SHOTS.drawn : SHOTS.taut) : tier === 0 ? (t < 0.35 ? SHOTS.tap : SHOTS.lit) : tier === 1 ? SHOTS.crescent : SHOTS.half;
+  const S = !ult ? (t < DRAW_T.tap ? SHOTS.tap : t < DRAW_T.taut ? SHOTS.drawn : SHOTS.taut) : tier === 0 ? (t < DRAW_T.tap ? SHOTS.tap : SHOTS.lit) : tier === 1 ? SHOTS.crescent : SHOTS.half;
   const hit = rayBoss(_sO, _sDir, S.pierce ? 0.35 : 0.1), tEnd = rayEnd(_sO, _sDir);
   const tStop = hit && !S.pierce ? hit.tIn : tEnd;
   fireBeam(_sO, _sDir, tStop, S.w, S.life);
@@ -9379,11 +9382,11 @@ function updateBow(dt) {
   if (meter !== bow.shown) { bow.shown = meter; chargeEl.box.classList.toggle('on', meter); if (meter) chargeEl.box.classList.add('bow'); }
   if (meter) {
     chargeEl.box.classList.toggle('plain', !p.ultOn);
-    const name = p.ultOn ? MOON_NAMES[bow.tier] : drawnFor() < 1.4 ? 'Drawn' : 'Taut';
+    const name = p.ultOn ? MOON_NAMES[bow.tier] : drawnFor() < DRAW_T.taut ? 'Drawn' : 'Taut';
     if (name !== bow.hudName) { bow.hudName = name; chargeEl.name.textContent = name; }
     let f;
     if (p.ultOn) { const tr = bow.tier, prev = tr > 0 ? MOON_TIERS[tr - 1] : 0, next = tr < 4 ? MOON_TIERS[tr] : 1; f = tr < 4 ? clamp((bow.t - prev) / (next - prev), 0, 1) : 1; }
-    else f = clamp(drawnFor() / 1.4, 0, 1);
+    else f = clamp(drawnFor() / DRAW_T.taut, 0, 1);
     chargeEl.fill.style.width = (f * 100).toFixed(1) + '%';
   }
   // the trigger fights back harder with every stage
@@ -9394,7 +9397,7 @@ function updateBow(dt) {
     else if (tr === 2) Haptics.trigger('vibration', 2, 4, 18);
     else if (tr === 1) Haptics.trigger('feedback', 2, 5);
     else if (tr === 0) Haptics.trigger('feedback', 3, 3);
-    else Haptics.trigger('feedback', 3, bow.t < 1.4 ? 2 : 4);
+    else Haptics.trigger('feedback', 3, drawnFor() < DRAW_T.taut ? 2 : 4);
     if (bow.t > 0.3) Haptics.hold(0.02 + 0.05 * Math.max(0, tr), 0.04 + 0.05 * Math.max(0, tr), 0.1 + 0.12 * Math.max(0, tr));
   }
 }
@@ -11372,7 +11375,7 @@ const ritualMat = new THREE.ShaderMaterial({
       gl_FragColor = vec4(c.rgb * 1.2, a);
     }`,
 });
-const ritual = new THREE.Mesh(new THREE.PlaneGeometry(36, 36), ritualMat);
+const ritual = new THREE.Mesh(new THREE.PlaneGeometry(ARENA.r * 1.5, ARENA.r * 1.5), ritualMat);
 ritual.rotation.x = -Math.PI / 2; ritual.position.set(0, 0.07, 0); ritual.renderOrder = 3; ritual.visible = false; scene.add(ritual);
 const hell = { on: false, t: 0, r: 0, k: 0, clear: false, geyT: 0 };
 const HELL0 = { fog: scene.fog.color.clone(), rim: rimLight.color.clone(), moonS: moonSprite.material.color.clone(),
@@ -12325,7 +12328,7 @@ function finaleDescentTick(D, t) {
 // the wall to a burning circle and star at its crown, ribbed like a crypt. Chains come down out of it, three with iron cages
 // at their ends; banners with the star unroll down the wall between the columns, inverted crosses burn red on the stone,
 // and candles stand among skulls at the foot of every column. When the light comes it all goes, the crown first.
-const DUN = { close: 0, H0: 12, RISE: 9, R: ARENA.wall, t: 0 };
+const DUN = { close: 0, H0: 12, RISE: 9 * ARENA_K, R: ARENA.wall, t: 0 };
 const dungeon = new THREE.Group(); dungeon.visible = false; scene.add(dungeon);
 const drng = rng(666);
 const vaultY = r => DUN.H0 + DUN.RISE * Math.sqrt(Math.max(0, 1 - (r / DUN.R) * (r / DUN.R)));   // the underside of the vault at radius r
