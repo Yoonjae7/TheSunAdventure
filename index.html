@@ -3621,13 +3621,13 @@ const SC_POOL = (() => {
   let workers = [];
   if (!/[?&]noworkers\b/.test(location.search)) try {
     const src = [SC_PRELUDE, scDist, scField, scMesh, scProject, scAOAt, scShade, scRun, scWarm].map(f => typeof f === 'string' ? f : f.toString()).join('\n')
-      + '\nonmessage = e => { if (e.data.warm) { scWarm(); return; } const r = scRun(e.data); postMessage(r.msg, r.transfer); };';
+      + '\nonmessage = e => { if (e.data.warm) { scWarm(); postMessage({ warm: 1 }); return; } const r = scRun(e.data); postMessage(r.msg, r.transfer); };';
     const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
     for (let i = 0; i < n; i++) { const w = new Worker(url); w.postMessage({ warm: true }); workers.push(w); }
   } catch (e) { workers = []; }
   // each worker keeps up to three jobs in hand, so none sits idle while the page is busy painting; what the title needs
   // goes out first, the background work only once the page's first pass is done, the biggest first
-  const queue = [], load = new Map(workers.map(w => [w, 0])), cbs = new Map();
+  const queue = [], load = new Map(workers.map(w => [w, 0])), cbs = new Map(), alive = new Set();
   let next = 1, bgOpen = false;
   setTimeout(() => { bgOpen = true; pump(); }, 0);
   const local = (job, cb) => setTimeout(() => cb(scRun(job).msg), 0);
@@ -3645,16 +3645,24 @@ const SC_POOL = (() => {
       w.postMessage(job);
     }
   }
+  // a worker that cannot run (not allowed, or broken): the page does its jobs, and every job after them
+  const fail = w => {
+    if (!load.has(w)) return;
+    try { w.terminate(); } catch (e) { /* gone already */ }
+    workers = workers.filter(x => x !== w); load.delete(w);
+    for (const [id, [cb, job, ww]] of [...cbs]) if (ww === w) { cbs.delete(id); local(job, cb); }
+    if (!workers.length) while (queue.length) { const [job, cb] = queue.shift(); local(job, cb); }
+  };
   for (const w of workers) {
-    w.onmessage = e => { const c = cbs.get(e.data.id); cbs.delete(e.data.id); load.set(w, load.get(w) - 1); pump(); c[0](e.data); };
-    // a worker that cannot run (not allowed, or broken): the page does its jobs, and every job after them
-    w.onerror = e => {
-      e.preventDefault();
-      workers = workers.filter(x => x !== w); load.delete(w);
-      for (const [id, [cb, job, ww]] of [...cbs]) if (ww === w) { cbs.delete(id); local(job, cb); }
-      if (!workers.length) while (queue.length) { const [job, cb] = queue.shift(); local(job, cb); }
+    w.onmessage = e => {
+      alive.add(w);
+      const c = !e.data.warm && cbs.get(e.data.id); if (!c) return;
+      cbs.delete(e.data.id); load.set(w, load.get(w) - 1); pump(); c[0](e.data);
     };
+    w.onerror = e => { e.preventDefault(); fail(w); };
   }
+  // one blocked without a word, never answering even the warm-up, is given up on after a while
+  if (workers.length) setTimeout(() => { for (const w of [...workers]) if (!alive.has(w)) fail(w); }, 4000);
   return {
     get workers() { return workers.length; },
     run(job, cb) {
