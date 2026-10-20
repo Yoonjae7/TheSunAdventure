@@ -40,6 +40,32 @@ html, body { height: 100%; margin: 0; background: var(--ink); color: var(--bone)
 #forge i { display: block; width: 168px; height: 1px; background: rgba(236,228,209,.12); overflow: hidden; }
 #forge b { display: block; height: 100%; background: var(--ember); transform-origin: 0 50%; transform: scaleX(0); transition: transform .25s ease; }
 #forge.done { display: none; }
+/* the loading screen: a blade forged, hilt to point, while the game is made */
+#loader { z-index: 60; display: grid; place-items: center; padding: 24px 16px; pointer-events: auto; color: var(--bone); transition: opacity .9s ease;
+  background: radial-gradient(ellipse at 50% 118%, rgba(206,98,30,.3), rgba(206,98,30,0) 58%), radial-gradient(ellipse at 50% 42%, #100d0a, #050404 76%); }
+#loader.out { opacity: 0; pointer-events: none; }
+#ldEmbers { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ld-inner { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; width: min(660px, 100%); min-width: 0; }
+.ld-eyebrow { margin: 0 0 16px; font-family: var(--display); font-size: 11px; letter-spacing: .5em; padding-left: .5em; text-transform: uppercase; color: var(--ash); }
+.ld-logo { font-family: var(--display); font-weight: 900; font-size: clamp(30px, 7.4vw, 76px); line-height: 1; letter-spacing: .06em; text-transform: uppercase;
+  background: linear-gradient(#f7eed6 20%, #bb9c5d 68%, #6d5629); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 4px 24px rgba(0,0,0,.85)); }
+.ld-logo small { display: block; font-size: .34em; letter-spacing: .6em; font-weight: 500; margin: .45em 0; padding-left: .6em; }
+.ld-sword { display: block; width: min(580px, 88vw); height: auto; margin: clamp(26px, 6.5vh, 58px) 0 16px; overflow: visible; }
+.ld-stage { min-height: 1.45em; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: clamp(17px, 2.3vw, 23px); color: #d6ccb4; transition: opacity .22s ease; }
+.ld-stage.swap { opacity: 0; }
+.ld-pct { margin-top: 6px; font-family: var(--display); font-size: 11px; letter-spacing: .42em; padding-left: .42em; color: var(--ember); font-variant-numeric: tabular-nums; }
+.ld-lore { position: absolute; left: 0; right: 0; bottom: max(24px, env(safe-area-inset-bottom, 0px)); margin: 0 auto; padding: 0 16px; max-width: 36em; text-align: center;
+  font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 15px; color: var(--ash); transition: opacity .5s ease; }
+.ld-lore.swap { opacity: 0; }
+#ldHot, #ldBlob { transition: opacity .5s ease; }
+#loader.ready #ldHot, #loader.ready #ldBlob { opacity: 0; }
+#loader.ready #ldDone { width: 508px; }
+#ldSheen { opacity: 0; }
+#loader.ready #ldSheen { animation: ldsheen 1s ease-in-out .1s 1 forwards; }
+#loader.ready .ld-pct { color: #fff4d6; text-shadow: 0 0 12px rgba(255,200,110,.8); }
+@keyframes ldsheen { 0% { opacity: 0; transform: translateX(0); } 30% { opacity: .95; } 100% { opacity: 0; transform: translateX(470px); } }
+@media (prefers-reduced-motion: reduce) { #loader.ready #ldSheen { animation: none; } }
 
 /* HUD */
 #hud { transition: opacity .8s ease; opacity: 0; }
@@ -424,7 +450,7 @@ body.finhp #hud .flasks, body.finhp #hud .bar.st, body.finhp #hud .bar.ult { vis
   <div id="fightTitle" class="layer"><div class="ft1">Fight</div><div class="ft2">Fucking</div><div class="ft3">Clement</div></div>
   <div id="theEnd" class="layer"><div><h1>The End</h1><p id="endSub"></p></div></div>
 
-  <div id="fade" class="layer"><div id="forge"><span>Forging</span><i><b id="forgeBar"></b></i></div></div>
+  <div id="fade" class="layer"><div id="forge" class="done"><span>Forging</span><i><b id="forgeBar"></b></i></div></div>
 
   <div id="touch" class="layer">
     <div class="stick" id="stick"><i id="stickKnob"></i></div>
@@ -496,8 +522,132 @@ body.finhp #hud .flasks, body.finhp #hud .bar.st, body.finhp #hud .bar.ult { vis
       <div id="deaths"></div>
     </div>
   </div>
+
+  <div id="loader" class="layer" role="status" aria-label="Loading">
+    <canvas id="ldEmbers"></canvas>
+    <div class="ld-inner">
+      <p class="ld-eyebrow">A boss fight in the ashes</p>
+      <div class="ld-logo">Saleem<small>the</small>Antonio</div>
+      <svg class="ld-sword" id="ldSword" viewBox="0 0 640 80" aria-hidden="true">
+        <defs>
+          <linearGradient id="ldSteel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e1f24"/><stop offset=".5" stop-color="#3b3e46"/><stop offset="1" stop-color="#15161a"/></linearGradient>
+          <linearGradient id="ldForged" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d8592"/><stop offset=".44" stop-color="#eef2f7"/><stop offset=".56" stop-color="#bcc4cf"/><stop offset="1" stop-color="#5d636d"/></linearGradient>
+          <linearGradient id="ldHeat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a2a0a" stop-opacity="0"/><stop offset=".3" stop-color="#b8350b"/><stop offset=".62" stop-color="#ff9a26"/><stop offset=".86" stop-color="#ffe7a8"/><stop offset="1" stop-color="#fffdf5"/></linearGradient>
+          <linearGradient id="ldShine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <linearGradient id="ldGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d58a"/><stop offset=".5" stop-color="#b8892f"/><stop offset="1" stop-color="#6e4e17"/></linearGradient>
+          <radialGradient id="ldBlobG"><stop offset="0" stop-color="#ffd27a" stop-opacity=".95"/><stop offset=".35" stop-color="#ff7a1e" stop-opacity=".45"/><stop offset="1" stop-color="#ff5a10" stop-opacity="0"/></radialGradient>
+          <clipPath id="ldBlade"><path d="M118 31L584 33L626 40L584 47L118 49Z"/></clipPath>
+        </defs>
+        <circle cx="21" cy="40" r="9.5" fill="url(#ldGold)"/>
+        <rect x="29" y="34.5" width="78" height="11" rx="3.5" fill="#3a2414"/>
+        <path d="M36 35l7 10M48 35l7 10M60 35l7 10M72 35l7 10M84 35l7 10M96 35l7 10" stroke="#20130a" stroke-width="2.4"/>
+        <rect x="106" y="14" width="13" height="52" rx="4" fill="url(#ldGold)"/>
+        <path d="M118 31L584 33L626 40L584 47L118 49Z" fill="url(#ldSteel)" stroke="rgba(236,228,209,.14)" stroke-width="1"/>
+        <g clip-path="url(#ldBlade)">
+          <rect id="ldDone" x="118" y="28" width="0" height="24" fill="url(#ldForged)"/>
+          <rect id="ldHot" x="8" y="28" width="110" height="24" fill="url(#ldHeat)"/>
+          <rect id="ldSheen" x="96" y="28" width="70" height="24" fill="url(#ldShine)"/>
+        </g>
+        <path d="M124 40H556" stroke="rgba(0,0,0,.3)" stroke-width="1.4"/>
+        <ellipse id="ldBlob" cx="118" cy="40" rx="46" ry="26" fill="url(#ldBlobG)" style="mix-blend-mode: screen"/>
+      </svg>
+      <div class="ld-stage" id="ldStage">Kindling the bonfire</div>
+      <div class="ld-pct" id="ldPct">0%</div>
+    </div>
+    <p class="ld-lore" id="ldLore"></p>
+  </div>
 </div>
 
+<script>
+// The loading screen runs on its own, from the first moment: embers, the hammer's sparks off the hot steel, the lore. The
+// game feeds it (window.__ld): how far along it is, what it is making, and when it is all done.
+(() => {
+  const L = document.getElementById('loader'); if (!L) return;
+  const manual = /[?&]manual\b/.test(location.search), reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const cvs = document.getElementById('ldEmbers'), g = cvs.getContext('2d'), sword = document.getElementById('ldSword');
+  const doneEl = document.getElementById('ldDone'), hot = document.getElementById('ldHot'), blob = document.getElementById('ldBlob');
+  const stageEl = document.getElementById('ldStage'), pctEl = document.getElementById('ldPct'), loreEl = document.getElementById('ldLore');
+  const X0 = 118, X1 = 626, parts = [];
+  const NAMES = { bonfire: 'Kindling the bonfire', sun: 'Hammering out the Sun\u2019s armour', moon: 'Dressing the Moon', star: 'Riveting the Star',
+    saleem: 'Raising the colossus', clement: 'Finding Fucking Clement a spoon', chan: 'Filling Fucking Chan\u2019s prescriptions', mega: 'Splicing something unholy',
+    angel: 'Calling down the Host', devil: 'Something stirs on the wall' };
+  const LORE = ['Few have laid eyes upon his neck. None have returned to describe it.', 'Tap guard just before a blow lands, and you will parry it.',
+    'A felled boss gives you seven seconds. Take the head.', 'The Moon draws his bow through four moons.', 'The Star\u2019s cylinder holds six. Make them count.',
+    'Fucking Clement brought a spoon. He is very proud of it.', 'Roll through the shockwave, not away from it.', 'Something has been watching from the wall.',
+    'Every charge reaches its peak in ten seconds, if nothing hits you first.'];
+  let shown = 0, target = 0, finished = false, alive = true, last = performance.now(), hammer = 0.4, stageAt = 0;
+  function size() { const r = Math.min(2, window.devicePixelRatio || 1); cvs.width = innerWidth * r; cvs.height = innerHeight * r; g.setTransform(r, 0, 0, r, 0, 0); }
+  size(); addEventListener('resize', size);
+  function front() { const b = sword.getBoundingClientRect(), x = X0 + (X1 - X0) * shown; return { x: b.left + b.width * x / 640, y: b.top + b.height * 0.5, k: b.width / 640 }; }
+  function sparks(n, sp) {
+    const f = front();
+    for (let i = 0; i < n; i++) {
+      const a = -Math.PI / 2 + (Math.random() - 0.5) * 2.6, s = sp * (0.35 + Math.random());
+      parts.push({ x: f.x, y: f.y + (Math.random() - 0.5) * 8 * f.k, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.35 + Math.random() * 0.55, t: 0, r: 0.7 + Math.random() * 1.5, spark: true });
+    }
+  }
+  function ember() { parts.push({ x: Math.random() * innerWidth, y: innerHeight + 8, vx: (Math.random() - 0.5) * 16, vy: -(18 + Math.random() * 46), life: 4 + Math.random() * 6, t: 0, r: 0.6 + Math.random() * 1.7, spark: false, ph: Math.random() * 6 }); }
+  if (!reduce) for (let i = 0; i < 40; i++) { ember(); const p = parts[parts.length - 1]; p.y = Math.random() * innerHeight; p.t = Math.random() * 3; }
+  function tick(now) {
+    if (!alive) return;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    shown += (target - shown) * (1 - Math.exp(-5 * dt));
+    if (finished && target - shown < 0.004) shown = 1;
+    const x = X0 + (X1 - X0) * shown;
+    if (!L.classList.contains('ready')) doneEl.setAttribute('width', Math.max(0, x - X0 - 34).toFixed(1));
+    hot.setAttribute('x', (x - 118).toFixed(1)); blob.setAttribute('cx', x.toFixed(1));
+    pctEl.textContent = Math.round(shown * 100) + '%';
+    hammer -= dt;
+    if (hammer <= 0 && !finished) { hammer = 0.4 + Math.random() * 0.32; if (!reduce) sparks(12 + (Math.random() * 12 | 0), 230); blob.setAttribute('rx', '58'); }
+    else blob.setAttribute('rx', (46 + 12 * Math.max(0, hammer - 0.25) * 4).toFixed(1));
+    if (!reduce && Math.random() < dt * 12) ember();
+    g.clearRect(0, 0, innerWidth, innerHeight);
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.t += dt;
+      if (p.t >= p.life) { parts.splice(i, 1); continue; }
+      if (p.spark) { p.vy += 420 * dt; p.vx *= 1 - 1.4 * dt; } else p.vx += Math.sin(now / 900 + p.ph) * 7 * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const k = 1 - p.t / p.life;
+      if (p.spark) {
+        g.strokeStyle = 'rgba(255,' + (190 + 60 * k | 0) + ',' + (110 * k | 0) + ',' + k.toFixed(2) + ')'; g.lineWidth = p.r;
+        g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x - p.vx * 0.035, p.y - p.vy * 0.035); g.stroke();
+      } else {
+        const a = Math.min(1, p.t * 1.5) * k * (0.55 + 0.45 * Math.sin(now / 170 + p.ph));
+        g.fillStyle = 'rgba(255,' + (130 + 70 * k | 0) + ',45,' + (a * 0.85).toFixed(2) + ')';
+        g.beginPath(); g.arc(p.x, p.y, p.r, 0, 6.283); g.fill();
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  let li = Math.random() * LORE.length | 0; loreEl.textContent = LORE[li];
+  const loreT = setInterval(() => { loreEl.classList.add('swap'); setTimeout(() => { li = (li + 1) % LORE.length; loreEl.textContent = LORE[li]; loreEl.classList.remove('swap'); }, 500); }, 3800);
+  function say(text) {
+    if (stageEl.dataset.t === text) return;
+    stageEl.dataset.t = text; stageEl.classList.add('swap');
+    setTimeout(() => { stageEl.textContent = text; stageEl.classList.remove('swap'); }, 220);
+  }
+  function finish() {
+    L.classList.add('out'); clearInterval(loreT);
+    const gone = () => { alive = false; removeEventListener('resize', size); L.remove(); };
+    if (manual) gone(); else setTimeout(gone, 950);
+  }
+  window.__ld = {
+    progress(f) { target = Math.max(target, Math.min(1, f)); },
+    stage(key) { const n = NAMES[key], now = performance.now(); if (!n || finished || now - stageAt < 700) return; stageAt = now; say(n); },
+    say,
+    done() {
+      if (finished) return;
+      finished = true; target = 1;
+      if (manual) { finish(); return; }
+      say('Ready');
+      setTimeout(() => { L.classList.add('ready'); if (!reduce) sparks(70, 300); }, 380);   // quenched: a burst of sparks, the light along the blade
+      setTimeout(finish, 1500);
+    },
+    get active() { return alive; },
+  };
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>window.THREE || document.write('<script src="three.min.js"><\/script>');</script>
 <script>
@@ -535,8 +685,10 @@ const store = {
 // laterLoad(fn) runs fn once the page's first pass is done, counted like the rest.
 const SC_WAIT = { n: 0, total: 0, cbs: [] };
 function whenSculpted(f) { if (!SC_WAIT.n) f(); else SC_WAIT.cbs.push(f); }
+// the loading screen's bar: everything sculpted and painted so far, of everything there is (the sounds are the last tenth)
+function ldProgress() { if (!window.__ld) return; const t = SC_WAIT.total + SC_BG.total, n = SC_WAIT.n + SC_BG.n; window.__ld.progress(0.9 * (t ? (t - n) / t : 0)); }
 function scJobDone() {
-  SC_WAIT.n--;
+  SC_WAIT.n--; ldProgress();
   const el = document.getElementById('forgeBar');
   if (el) el.style.transform = `scaleX(${1 - SC_WAIT.n / Math.max(1, SC_WAIT.total)})`;
   if (!SC_WAIT.n) {
@@ -550,7 +702,7 @@ function laterLoad(fn) { SC_WAIT.n++; SC_WAIT.total++; setTimeout(() => { try { 
 const SC_BG = { n: 0, total: 0, cbs: [], forging: false };
 function whenAllSculpted(f) { if (!SC_WAIT.n && !SC_BG.n) f(); else SC_BG.cbs.push(f); }
 function scBgDone() {
-  SC_BG.n--;
+  SC_BG.n--; ldProgress();
   const el = document.getElementById('forgeBar');
   if (el && SC_BG.forging) el.style.transform = `scaleX(${1 - SC_BG.n / Math.max(1, SC_BG.total)})`;
   if (!SC_BG.n && !SC_WAIT.n) for (const f of SC_BG.cbs.splice(0)) f();
@@ -1398,6 +1550,7 @@ const Snd = (() => {
     jet: 0,                      // how hard the boosters are burning, 0 to about 0.6 (the gunslinger's Overdrive)
     get muted() { return muted; },
     get ready() { return bank.size; },
+    get total() { return Object.keys(recipes).length; },
     toggle() { muted = !muted; if (master) { master.gain.setTargetAtTime(muted ? 0 : 1.2, ac.currentTime, 0.05); clearM.gain.setTargetAtTime(muted ? 0 : 1.2, ac.currentTime, 0.05); } return muted; },
     // everything but the clear channel down to almost nothing (k = 1), or back (k = 0)
     duck(k) { if (!duckG) return; duckG.gain.cancelScheduledValues(ac.currentTime); duckG.gain.setTargetAtTime(1 - 0.97 * k, ac.currentTime, k > 0 ? 0.22 : 0.35); },
@@ -4136,6 +4289,7 @@ Sculpt.prototype.build = function (o = {}) {
       SC_GEO.set(key, geo);
       if (SC_DEBUG) console.log('sculpt', key, 'h', h, 'verts', r.P.length / 3, r.ms + 'ms', 'grid', r.grid);
       const cbs = SC_PEND.get(key); SC_PEND.delete(key);
+      if (window.__ld) window.__ld.stage(base);
       for (const f of cbs) f(geo);
       if (o.bg) scBgDone(); else scJobDone();
     };
@@ -18178,7 +18332,7 @@ function resetFight(first) {
   placeCamera(true, 0.016);
 }
 function beginGame() {
-  if (G.state !== 'title' || SC_BG.forging) return;
+  if (G.state !== 'title' || SC_BG.forging || loading()) return;
   if (SC_BG.n || SC_WAIT.n) {                         // still sculpting the bosses: wait behind the fade, then go
     SC_BG.forging = true; Snd.init(); Snd.ui();
     $('forgeBar').style.transform = `scaleX(${1 - SC_BG.n / Math.max(1, SC_BG.total)})`;
@@ -18238,7 +18392,7 @@ function setHero(h, fx) {
   }
 }
 function switchHero(d) {
-  if (G.state !== 'title') return;
+  if (G.state !== 'title' || loading()) return;
   const i = HERO_ORDER.indexOf(G.hero), n = HERO_ORDER.length;
   setHero(HERO_ORDER[(i + (d < 0 ? -1 : 1) + n) % n], true);
 }
@@ -18251,8 +18405,9 @@ function setMenu(i) {
   $('begin').classList.toggle('sel', menuIdx === 0);
   document.querySelectorAll('.picks button').forEach((b, k) => b.classList.toggle('sel', menuIdx === k + 1));
 }
+const loading = () => !!(window.__ld && window.__ld.active);
 function confirmMenu() {
-  if (G.state !== 'title') return;
+  if (G.state !== 'title' || loading()) return;
   G.opponent = menuIdx === 0 ? ORDER[0] : MENU[menuIdx];
   if (G.opponent === 'mega') G.megaIntro = true;
   if (G.opponent === 'devil') G.devilIntro = true;
@@ -18482,7 +18637,16 @@ $('deaths').textContent = G.deaths ? `Fallen ${G.deaths} time${G.deaths === 1 ? 
 // everyone is sculpted behind the fade; the title comes up when they are all done. In the meantime, the shaders for what
 // is already there are compiled (the first frame would stall on them otherwise).
 laterLoad(() => { try { renderer.compile(scene, camera); } catch (e) { /* not fatal */ } });
-whenAllSculpted(() => { G.allReady = true; setTimeout(() => Snd.prepare(), 150); });      // then the sounds are made
+// then the sounds are made, and the loading screen gives way to the title
+whenAllSculpted(() => {
+  G.allReady = true;
+  const ld = window.__ld;
+  if (!ld || MANUAL) { if (ld) ld.done(); setTimeout(() => Snd.prepare(), 150); return; }
+  ld.say('Tuning the orchestra');
+  const total = Math.max(1, Snd.total), poll = setInterval(() => ld.progress(0.9 + 0.1 * Math.min(1, Snd.ready / total)), 90);
+  const fin = () => { clearInterval(poll); ld.done(); };
+  setTimeout(() => { const pr = Snd.prepare(); Promise.race([pr || Promise.resolve(), new Promise(r => setTimeout(r, 3500))]).then(fin, fin); }, 60);
+});
 whenSculpted(() => {
   const t0 = performance.now();
   draw();
