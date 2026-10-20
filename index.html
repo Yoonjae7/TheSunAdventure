@@ -1779,17 +1779,14 @@ const Snd = (() => {
     spurs() { for (let i = 0; i < 3; i++) R('shell', { vol: 0.18, rate: 0.7 + i * 0.05, delay: i * 0.06 }); },
     holster() { R('hammer', { vol: 0.7, rate: 0.7, verb: 0.2 }); R('step', { vol: 0.25, rate: 1.6 }); },
     noonBell() { bell(57, 0.18); bell(57, 0.12, 1.6); },
-    // high noon: the hush comes down, wind over the wall, one bell; a heartbeat; the ring ticking shut; the lock; the shot
+    // high noon: one deep boom and the hush comes down; the lock as the ring closes; the shot
     noonIn() {
       if (!ac || muted) return;
-      noise({ dur: 3.4, vol: 0.12, type: 'bandpass', f: 500, f2: 1400, q: 0.7, a: 0.9, color: 'pink', dest: clear, verb: 0.3 });
-      noise({ dur: 2.6, vol: 0.05, type: 'highpass', f: 2500, f2: 5000, a: 1.2, dest: clear, verb: 0.2, delay: 0.5 });
-      bell(57, 0.2, 0.25, clear); bell(64, 0.06, 0.27, clear);
-      tone({ f: 1318, dur: 2.4, vol: 0.03, type: 'sine', a: 0.6, delay: 0.4, verb: 0.6, dest: clear });     // a long thin whistle
-      tone({ f: 1311, dur: 2.4, vol: 0.02, type: 'sine', a: 0.6, delay: 0.4, verb: 0.6, dest: clear });
+      R('boom', { dest: clear, vol: 1.1, rate: 0.6, verb: 0.8, jit: 0 });
+      tone({ f: 60, f2: 25, dur: 2.8, vol: 0.6, a: 0.008, verb: 0.45, dest: clear });                         // the weight under it
+      noise({ dur: 1.6, vol: 0.2, type: 'lowpass', f: 1000, f2: 110, a: 0.004, color: 'brown', dest: clear, verb: 0.6 });
+      noise({ dur: 4.5, vol: 0.035, type: 'bandpass', f: 650, f2: 1100, q: 0.7, a: 1.6, color: 'pink', dest: clear, verb: 0.3, delay: 1.2 });   // and then only a little wind
     },
-    noonBeat(v = 1) { tone({ f: 60, f2: 34, dur: 0.22, vol: 0.7 * v, lp: 220, verb: 0.05, dest: clear }); tone({ f: 54, f2: 30, dur: 0.24, vol: 0.5 * v, lp: 200, delay: 0.26, verb: 0.05, dest: clear }); },
-    noonTick(k = 0) { R('hammer', { dest: clear, vol: 0.18 + 0.2 * k, rate: 1.4 + 0.4 * k, verb: 0.15, jit: 0 }); },
     noonLock() { R('hammer', { dest: clear, vol: 0.8, rate: 0.85, verb: 0.3, jit: 0 }); bell(91, 0.08, 0.02, clear); tone({ f: 2093, dur: 0.9, vol: 0.05, type: 'triangle', a: 0.003, verb: 0.5, dest: clear }); },
     noonShot(at) {
       R('shot', { at, dest: clear, vol: 1.5, rate: 0.82, verb: 0.55, jit: 0 }); R('shot', { at, dest: clear, vol: 0.8, rate: 0.6, verb: 0.6, jit: 0, delay: 0.004 });
@@ -8547,6 +8544,7 @@ function updatePlayer(dt) {
 
   blendPose(p.pose, tgt, p.state === 'attack' ? 32 : p.state === 'execute' ? (G.exec && G.exec.fast ? 75 : 20) : p.state === 'scripted' ? p.scriptBlend || 12
     : p.state === 'shoot' ? 26 : p.state === 'draw' ? 14 : p.state === 'gun' || p.state === 'fan' ? 30 : p.state === 'skid' ? 22 : p.state === 'barrage' ? 24
+    : p.state === 'noon' ? (p.t < 0.16 ? 70 : 18)
     : p.parryAnim > 0 ? 40 : 16, dt);
   applyPose(rig, p.pose);
   rig.hips.position.y += Math.abs(Math.sin(p.walkPh)) * 0.045 * w + (p.state === 'execute' ? p.exBob || 0 : 0);
@@ -10811,7 +10809,7 @@ function updateChargeFx(dt) {
   const guardWrist = p.state === 'free' && G.hero === 'moon' ? (p.parryAnim > 0 ? PARRY_WRIST : p.guarding ? GUARD_WRIST : 0) : 0;
   charge.wrist = damp(charge.wrist, p.state === 'charge' ? charge.raise * Math.PI / 2 : p.state === 'execute' || p.state === 'descent' || p.state === 'scripted' ? p.wristWant || 0 : guardWrist,
     p.parryAnim > 0 ? 30 : G.exec && G.exec.fast ? 40 : 12, dt);          // the wrists snap through the stroke
-  const zoomWant = p.state === 'charge' ? CHARGE_ZOOM[charge.tier] : p.state === 'draw' ? DRAW_ZOOM[bow.tier] : p.state === 'arsenal' ? ARS_ZOOM[star.ars.tier] : p.state === 'barrage' ? ARS_ZOOM[4] : 1;
+  const zoomWant = p.state === 'charge' ? CHARGE_ZOOM[charge.tier] : p.state === 'draw' ? DRAW_ZOOM[bow.tier] : p.state === 'arsenal' ? ARS_ZOOM[star.ars.tier] : p.state === 'barrage' || p.state === 'noon' ? ARS_ZOOM[4] : 1;
   cam.zoom = damp(cam.zoom || 1, zoomWant, p.state === 'charge' || p.state === 'draw' || p.state === 'arsenal' ? 1.4 : 2.4, dt);
   const pinned = (p.state === 'charge' && charge.tier >= TRUMPET) || (p.state === 'draw' && p.ultOn && bow.tier >= 3) || (p.state === 'arsenal' && star.ars.tier >= 3);
   boss.weight = damp(boss.weight || 0, pinned && boss.state !== 'down' ? 1 : 0, 2.2, dt);
@@ -13846,12 +13844,12 @@ function barrageCam() {
 }
 
 /* ───── past the top: high noon ───── */
-// Hold on past the Dead Man's Hand and everything goes quiet. Every gun folds back into him and the revolver comes out;
-// the world turns the colour of an old photograph, a tumbleweed rolls across the stone, a bell, a heartbeat, and a ring
-// closes on the man's face. Let go once it has closed all the way and he fans three shots into it: executed where he
-// stands. Let go sooner and it is one hard shot, no more.
+// Hold on past the Dead Man's Hand: one deep boom, and then nothing. Every gun folds back into him and he stands as a
+// gunfighter stands, the revolver in its holster and his hand hanging over it. The world turns the colour of an old
+// photograph, a tumbleweed rolls across between them, and a ring closes on the man's face. The camera does not move.
+// Let go once the ring has closed: the draw, one shot, and he is executed where he stands. Let go sooner and it is one
+// hard shot, no more.
 const NOON = { start: 11.0, close: 2.6 };                  // (on the arsenal's clock it begins at 11 s; the ring takes 2.6 s of real time)
-const P_NOON = mkPose(P_FAN, { crouch: 0.3, lean: 0.1, spread: 0.27, stepL: 0.34, stepR: -0.3, twist: 0.18, cTwist: 0.08, hx: 0.04 });
 const westernEl = $('western'), noonEl = $('noon'), noonRing = $('noonRing');
 {
   // the grain on the old photograph, and the ring's tick marks
@@ -13881,8 +13879,8 @@ const weed = (() => {
   }
   const m = new THREE.Mesh(mergeGeos(parts), new THREE.MeshStandardMaterial({ color: lin(0x8e6b3c), roughness: 1 }));
   m.castShadow = true; m.visible = false; scene.add(m);
-  m.scale.setScalar(1.65);
-  return { m, t: -1, a: new V3(), b: new V3(), r: 0.6, bounce: 0 };
+  m.scale.setScalar(2.1);
+  return { m, t: -1, a: new V3(), b: new V3(), r: 0.76, bounce: 0 };
 })();
 function rollWeed(from, to) {
   weed.a.copy(from); weed.b.copy(to); weed.t = 0; weed.bounce = 0; weed.m.visible = true;
@@ -13905,20 +13903,20 @@ function updateWeed(dt) {
 G.noon = null;
 function startNoon() {
   const A = star.ars, p = player, b = boss;
-  const N = A.noon = G.noon = { t: 0, locked: false, beat: 0, tick: 0, phase: 'aim', shot: -1, lastShot: -2, camOn: true };
+  A.noon = G.noon = { t: 0, locked: false, phase: 'aim', camOn: false };
   if (A.hum) { A.hum = false; Snd.humStop(); }
-  Snd.duck(1); Snd.noonIn();
-  star.holstered = false; star.twirlT = 0; star.twirlN = 2;               // the guns fold away; the revolver spins out
-  Snd.deploy(); Snd.holster();
-  western(true); $('cine').classList.add('on');
+  Snd.duck(1); Snd.noonIn();                                              // boom, and then the quiet
+  star.holstered = true;                                                  // the guns fold away; the revolver is where it lives
+  western(true);
   noonEl.classList.add('on'); noonRing.classList.remove('lock');
   chargeEl.name.textContent = 'High noon'; chargeEl.box.dataset.tier = 'g5';
   chargeEl.pips.forEach(e => e.classList.add('lit'));
+  G.shake = Math.min(1.5, G.shake + 0.35);
   // the tumbleweed crosses between them, from one side of the picture to the other
   const dx = b.pos.x - p.pos.x, dz = b.pos.z - p.pos.z, d = Math.hypot(dx, dz) || 1, sx = -dz / d, sz = dx / d;
-  const mx = p.pos.x + dx * 0.42, mz = p.pos.z + dz * 0.42;
+  const mx = p.pos.x + dx * 0.34, mz = p.pos.z + dz * 0.34;
   rollWeed(_sb.set(mx - sx * 12, 0, mz - sz * 12), _sc.set(mx + sx * 12, 0, mz + sz * 12));
-  Haptics.pulse(0.4, 0.2, 300);
+  Haptics.pulse(0.8, 0.3, 450);
 }
 function updateNoon(dt, tgt) {
   const N = star.ars.noon, p = player, b = boss;
@@ -13926,17 +13924,15 @@ function updateNoon(dt, tgt) {
   p.vel.x = damp(p.vel.x, 0, 12, dt); p.vel.z = damp(p.vel.z, 0, 12, dt);
   p.yaw += clamp(angDiff(p.yaw, Math.atan2(b.pos.x - p.pos.x, b.pos.z - p.pos.z)), -4 * dt, 4 * dt); p.yaw0 = p.yaw;
   bossRig.head.getWorldPosition(_sm);
-  Object.assign(tgt, P_NOON);
-  aimArm(tgt, _sm, true);
+  Object.assign(tgt, P_QD_READY);                                         // a gunfighter's stance (the hand is put over the holster: noonHands)
+  tgt.hy = clamp(angDiff(p.yaw, Math.atan2(_sm.x - p.pos.x, _sm.z - p.pos.z)), -0.5, 0.5);
   const k = clamp(N.t / NOON.close, 0, 1);
+  if (k > 0.55) tgt.rae += Math.sin(N.t * 38) * 0.035 * (k - 0.55) / 0.45;   // the fingers, twitching
   if (!N.locked && k >= 1) {
     N.locked = true; noonRing.classList.add('lock');
     Snd.noonLock(); Haptics.pulse(0.6, 1, 140); Haptics.trigger('weapon', 2, 4, 8);
     chargeEl.name.textContent = 'Let go';
   }
-  // a heartbeat, and the ring ticking shut faster as it goes
-  N.beat -= dt; if (N.beat <= 0) { N.beat = N.locked ? 0.55 : 0.85 - 0.25 * k; Snd.noonBeat(0.6 + 0.4 * k); Haptics.pulse(0.25 + 0.2 * k, 0, 90); }
-  N.tick -= dt; if (!N.locked && N.tick <= 0) { N.tick = 0.32 - 0.2 * k; Snd.noonTick(k); }
   chargeEl.fill.style.width = (k * 100).toFixed(1) + '%';
   noonRingAt(_sm, k);
 }
@@ -13950,48 +13946,46 @@ function noonRingAt(pt, k) {
   noonRing.style.width = noonRing.style.height = size.toFixed(0) + 'px';
   noonRing.style.transform = `translate(${(x - size / 2).toFixed(0)}px, ${(y - size / 2).toFixed(0)}px) rotate(${(k * 140).toFixed(1)}deg)`;
 }
-// let go: three shots fanned off the hip into his face (or, too soon, one)
+// let go: the draw (the revolver out of the holster and up at his head in a blink), and one shot
 function noonRelease() {
   const p = player, A = star.ars, N = A.noon;
-  const kill = N.locked;
-  endArsenal(true);                                                       // (the meter goes; the revolver stays out)
+  N.kill = N.locked;
+  endArsenal(true);                                                       // (the meter goes; the revolver is out of the leather)
   p.state = 'noon'; p.t = 0; p.buf = ''; p.iframes = 999;
   Object.assign(p.from, p.pose);
-  N.phase = 'shot'; N.st = 0; N.kill = kill; N.fired = 0; N.done = false;
-  noonRing.classList.toggle('lock', kill);
-  star.fanNext = 0.03; star.fanLeft = kill ? 3 : 1; star.fanN = 0;
+  N.phase = 'shot'; N.fired = false;
+  noonRing.classList.toggle('lock', N.kill);
+  Snd.holster();
 }
-function noonShot(i, last) {
+function noonShot() {
   const p = player, N = G.noon, b = boss, R = playerRig;
   R.root.updateMatrixWorld(true);
   R.muzzle.getWorldPosition(_sm);
   bossRig.head.getWorldPosition(_sa);
   _sdv.subVectors(_sa, _sm).normalize();
-  muzzleFlash(_sm, _sdv, 1.6);
-  addTracer(_sm, _sa, 0.05, 0.14, TR_HOT);
-  if (i === 0) Snd.noonShot(_sm); else Snd.play('shot', { at: _sm, vol: 1.1, rate: 0.9, verb: 0.4 });
-  star.kick = 1.3; star.drumTo += Math.PI / 3; star.hammer = 1;
-  Haptics.pulse(0.8, 1, 160);
-  G.shake = Math.min(1.5, G.shake + 0.5); G.fovKick = Math.max(G.fovKick, 0.9); G.flash = Math.max(G.flash, 0.18);
-  if (i === 0) { Snd.duck(0); western(false); }                          // the shot breaks the silence; colour floods back
-  impactStar(_sa, 1.2, [1, 0.88, 0.55]);
-  hitReact.rig = bossRig; hitReact.f = -0.7; hitReact.s = rand(-0.3, 0.3); hitReact.w = 0.5;
-  if (G.blood) bloodSpray(_sa.x, _sa.y, _sa.z, 8, { speed: 2, up: 0.6 }); else sparks(_sa.x, _sa.y, _sa.z, 16, { speed: 5, color: [1, 0.85, 0.5] });
-  if (!last) return;
+  muzzleFlash(_sm, _sdv, 1.8);
+  addTracer(_sm, _sa, 0.055, 0.16, TR_HOT);
   fireBeam(_sm, _sdv, _sm.distanceTo(_sa) + 0.4, 0.14, 0.5, 0xffd27a);
+  Snd.noonShot(_sm); Snd.duck(0); western(false);                        // the shot breaks the silence; colour floods back
+  star.kick = 1.4; star.drumTo += Math.PI / 3; star.hammer = 1;
+  Haptics.pulse(0.9, 1, 220);
+  G.shake = Math.min(1.5, G.shake + 0.55); G.flash = Math.max(G.flash, 0.18);
+  impactStar(_sa, 1.4, [1, 0.88, 0.55]);
   blast(_sa, 1.6 + BOSS_R * 0.3, 0.4, 0xffd27a);
+  hitReact.rig = bossRig; hitReact.f = -0.8; hitReact.s = rand(-0.3, 0.3); hitReact.w = 0.55;
+  if (G.blood) bloodSpray(_sa.x, _sa.y, _sa.z, 10, { speed: 2, up: 0.6 }); else sparks(_sa.x, _sa.y, _sa.z, 18, { speed: 5, color: [1, 0.85, 0.5] });
   later(0.3, () => noonEl.classList.remove('on'));                       // the ring has done its work
-  G.slow = Math.max(G.slow, 1.1); G.hitStop = Math.max(G.hitStop, 0.14);
+  G.slow = Math.max(G.slow, 1.0); G.hitStop = Math.max(G.hitStop, 0.12);
   const dir = { x: _sdv.x, z: _sdv.z };
+  if (b.state === 'dying' || b.state === 'dead') return;
   if (!N.kill) {                                                          // too soon: a hard shot, no more
-    if (b.demon && b.state === 'down') starFinale(b.pos.x, b.pos.z);
+    if (b.demon && b.state === 'down') { starFinale(b.pos.x, b.pos.z); endNoon(); }
     else { chargeBlow(0.42, _sa.clone(), dir); if (b.state !== 'down') holdBoss(3.4); }
     return;
   }
   // executed where he stands
   if (b.demon) { starFinale(b.pos.x, b.pos.z); endNoon(); return; }
   if (b.kind === 'mega') { b.inv = false; b.hp = 0; downBoss(); G.autoExec = true; return; }   // (he is not done: he goes to his knees, and the draw goes for him)
-  const fx = Math.sin(b.yaw), fz = Math.cos(b.yaw);
   G.exec = { noon: true, t: 0, camEnd: 0, fx: _sdv.x, fz: _sdv.z, rx: 0, rz: 0, side: Math.random() < 0.5 ? 1 : -1, W: 0 };
   b.state = 'executed'; b.atk = null; b.inv = true; b.hp = 0;
   $('exec').classList.remove('on'); $('boss').classList.remove('on');
@@ -14004,51 +13998,28 @@ function updateNoonShot(dt, tgt) {
   if (!N) { p.state = 'free'; p.t = 0; return; }
   p.vel.set(0, 0, 0);
   bossRig.head.getWorldPosition(_sm);
-  Object.assign(tgt, P_NOON);
-  aimArm(tgt, _sm, true);
-  while (star.fanLeft > 0 && t >= star.fanNext) {
-    star.fanLeft--; noonShot(star.fanN, star.fanLeft === 0); star.fanN++; star.fanNext += 0.075;
-    if (!G.noon) return;                                                  // (the last of the demon took the scene with it)
-  }
-  if (t > 0.6 && t < 1.9) { const u = (t - 0.6) / 1.3; tgt.rae += 0.6 * smooth(u); tgt.rax += 0.2 * smooth(u); }   // the barrel up, smoke curling off it
-  if (t > 0.65 && t < 1.5 && Math.random() < 0.5) { playerRig.muzzle.getWorldPosition(_sa); fxSmoke.emit(_sa.x, _sa.y, _sa.z, rand(-0.1, 0.1), rand(0.3, 0.6), rand(-0.1, 0.1), rand(0.8, 1.3), rand(0.1, 0.2), 0.4, 0.38, 0.36, -0.2, 1, 2); }
-  if (!N.spun && t >= 1.5) { N.spun = true; star.twirlT = 0; star.twirlN = 3; Snd.whoosh(); }
-  if (!N.away && t >= 2.1) { N.away = true; star.holstered = true; Snd.holster(); }
-  if (t >= 2.4) { endNoon(); p.state = 'free'; p.t = 0; p.iframes = 0.6; }
+  Object.assign(tgt, P_AIM);
+  aimArm(tgt, _sm);                                                       // straight out at his head
+  if (!N.fired && t >= 0.1) { N.fired = true; noonShot(); if (!G.noon) return; }
+  if (t > 0.75 && t < 1.9) { const u = (t - 0.75) / 1.15; tgt.rax -= 0.5 * smooth(u); tgt.rae += 1.4 * smooth(u); }   // the barrel up, smoke curling off it
+  if (t > 0.3 && t < 1.6 && Math.random() < 0.5) { playerRig.muzzle.getWorldPosition(_sa); fxSmoke.emit(_sa.x, _sa.y, _sa.z, rand(-0.1, 0.1), rand(0.3, 0.6), rand(-0.1, 0.1), rand(0.8, 1.3), rand(0.1, 0.2), 0.4, 0.38, 0.36, -0.2, 1, 2); }
+  if (!N.spun && t >= 1.45) { N.spun = true; star.twirlT = 0; star.twirlN = 3; Snd.whoosh(); }
+  if (!N.away && t >= 2.05) { N.away = true; star.holstered = true; Snd.holster(); }
+  if (t >= 2.35) { endNoon(); p.state = 'free'; p.t = 0; p.iframes = 0.6; }
+}
+// where his right hand waits through it: over the holster, fingers loose
+function noonHands() {
+  const R = playerRig;
+  R.root.updateMatrixWorld(true);
+  R.holster.localToWorld(_sa.set(0, 0.13, 0.03));
+  armTo(1, _sa, player.pose, 12);
 }
 function endNoon() {
   if (!G.noon) return;
   G.noon = null; star.ars.noon = null;
   Snd.duck(0); western(false);
   noonEl.classList.remove('on'); noonRing.classList.remove('lock');
-  $('cine').classList.remove('on');
 }
-// the camera: low over his right shoulder at the face in the ring; then, for the shots, side-on to the line of them,
-// and close on the head
-function noonCam() {
-  const N = G.noon, p = player, b = boss;
-  bossRig.head.getWorldPosition(_sm);
-  const dx = _sm.x - p.pos.x, dz = _sm.z - p.pos.z, d = Math.hypot(dx, dz) || 1, ux = dx / d, uz = dz / d, rx = -uz, rz = ux;   // rx: his right? (across the line)
-  if (N.phase === 'aim') {
-    const k = smooth(clamp(N.t / NOON.close, 0, 1)), back = lerp(2.4, 1.6, k);
-    _want.set(p.pos.x - ux * back - rx * 0.75, 1.55 - 0.1 * k, p.pos.z - uz * back - rz * 0.75);
-    _lookT.set(_sm.x, _sm.y, _sm.z);
-    N.shot = 0;
-  } else {
-    const st = player.t;
-    if (st < 0.42) {
-      const mx = lerp(p.pos.x, _sm.x, 0.45), mz = lerp(p.pos.z, _sm.z, 0.45), D = 3 + d * 0.35;
-      _want.set(mx + rx * D, 1.2, mz + rz * D);
-      _lookT.set(mx, lerp(1.3, _sm.y, 0.5), mz);
-      N.shot = 1;
-    } else if (st < 1.3 && N.kill) {
-      _want.set(_sm.x - ux * 2.6 + rx * 1.6, _sm.y + 0.3, _sm.z - uz * 2.6 + rz * 1.6);
-      _lookT.set(_sm.x, _sm.y - 0.2, _sm.z);
-      N.shot = 2;
-    } else { N.camOn = false; }
-  }
-}
-
 /* ───── the quick-draw: his execution ───── */
 // He walks up to the kneeling man and stops before him, spins the revolver into its holster, and waits with his hand over
 // it. A bell, somewhere. His eyes. His fingers. Then the draw, one shot, too fast to see. He spins the gun on his finger,
@@ -14366,7 +14337,8 @@ function starRigPost(dt) {
   }
   const kickFlip = -0.38 * kk;
   R.gun.quaternion.copy(playerGunQ).multiply(_sq.setFromAxisAngle(_sx, roll + kickFlip + (p.state === 'reload' && star.rl && !star.rl.closed ? -0.5 : 0)));
-  if (p.state === 'fan' || p.state === 'noon' || (p.state === 'arsenal' && star.ars.noon)) starHands();
+  if (p.state === 'fan') starHands();
+  if (p.state === 'arsenal' && star.ars.noon) noonHands();
   if (p.state === 'execute') drawHands();
   // leaning into a skid, into the wind of his flight
   const fwd = p.vel.x * Math.sin(p.yaw) + p.vel.z * Math.cos(p.yaw), side = p.vel.x * Math.cos(p.yaw) - p.vel.z * Math.sin(p.yaw);
@@ -18129,8 +18101,6 @@ function placeCamera(snap, dt) {
     descentCam();
   } else if (G.moonfall && G.moonfall.camOn) {
     moonfallCam();
-  } else if (G.noon && G.noon.camOn) {
-    noonCam();
   } else if (G.barrage && G.barrage.camOn) {
     barrageCam();
   } else if (G.exec && G.exec.t < (G.exec.camEnd || G.exec.W + EX.hold + 0.55)) {
@@ -18182,7 +18152,7 @@ function placeCamera(snap, dt) {
     const along = (cx * ux + cz * uz), off2 = Rc * Rc - along * along, s = along - Math.sqrt(Math.max(0, M * M - off2));
     if (s < rw) { _want.x = ux * s; _want.z = uz * s; }
   }
-  const cin = G.dcut && G.dcut.camOn ? G.dcut : finCam ? G.finale : (G.moonfall && G.moonfall.camOn ? G.moonfall : null) || (G.noon && G.noon.camOn ? G.noon : null) || (G.barrage && G.barrage.camOn ? G.barrage : null) || G.exec || G.assault || G.cut || G.descent;
+  const cin = G.dcut && G.dcut.camOn ? G.dcut : finCam ? G.finale : (G.moonfall && G.moonfall.camOn ? G.moonfall : null) || (G.barrage && G.barrage.camOn ? G.barrage : null) || G.exec || G.assault || G.cut || G.descent;
   const hardCut = !!(cin && cin.shot !== cin.lastShot);
   if (cin) cin.lastShot = cin.shot;
   if (snap || hardCut) { camera.position.copy(_want); cam.look.copy(_lookT); }
@@ -18288,7 +18258,7 @@ function updateHUD(dt) {
   else el.bossDmg.style.opacity = 0;
 
   // lock-on reticle
-  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || (G.noon && G.noon.camOn) || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
+  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
   if (cineNow !== hud.cine) { hud.cine = cineNow; document.body.classList.toggle('cine', cineNow); }
   const lockOk = G.lockOn && !cineNow && (G.state === 'explore' || G.state === 'fight') && b.state !== 'dead' && b.state !== 'dying';
   if (lockOk) {
