@@ -29,7 +29,7 @@ Pick your hero on the title screen with the D-pad (left and right).
   - Heavy attack fans the hammer with both hands and empties the cylinder.
   - He blocks and parries on his steel forearms. A shot straight after a parry is a riposte.
   - His ult is Overdrive: power lines light up across his body and boosters fold out of his calves. Tap roll to skid on the boosters, hold roll to fly (slams and stomps cannot reach you in the air). The cylinder never runs dry.
-  - Hold heavy in Overdrive to bring out every gun: Spinning up, Hot iron, Full arsenal, Every gun, then Dead Man's Hand at ten seconds. Let go to fire everything. A hit breaks the charge until the third mark (Every gun); after that nothing stops it.
+  - Hold heavy in Overdrive to bring out every gun: Spinning up, Hot iron, Full arsenal, Every gun, then Dead Man's Hand at ten seconds. Let go to fire everything. A hit breaks the charge until the second mark (Full arsenal); from there on nothing can touch you.
   - Keep holding past the Dead Man's Hand and it goes quiet: high noon. When the ring has closed on the boss's face, let go and he is executed where he stands.
 
 All three charges reach their top in ten seconds.

@@ -7992,9 +7992,9 @@ function hurtPlayer(dmg, o = {}) {
   const p = player;
   if (p.state === 'dead' || G.state === 'won' || G.state === 'title' || G.state === 'finale' || G.state === 'end') return 'none';
   if (p.state === 'ult' || p.state === 'execute' || p.state === 'assault' || p.state === 'descent' || p.state === 'scripted' || p.state === 'cut' || p.state === 'noon') return 'none';
-  if (p.state === 'barrage' && G.barrage && G.barrage.tier >= 3) return 'none';
+  if (p.state === 'barrage' && G.barrage && G.barrage.tier >= 2) return 'none';
   if (G.finale && G.finale.shield) return finaleDeflect(o);         // the last fight: nothing he does reaches the knight
-  if (p.state === 'arsenal' && star.ars.tier >= 3) return starArmor(dmg, o);     // past the third mark nothing stops the Star
+  if (p.state === 'arsenal' && star.ars.tier >= 2) return starArmor(o);         // from the second mark nothing touches the Star
   if (p.state === 'charge' || p.state === 'draw' || p.state === 'arsenal') breakCharge();
   if (p.state === 'roll' && p.t > 0.04 && p.t < 0.42) return 'dodge';
   if (p.state === 'skid' && p.t > 0.02 && p.t < 0.32) return 'dodge';
@@ -8118,7 +8118,7 @@ const STAR_TIPS = [
   'Heavy fans the hammer: the whole cylinder in a breath. Get close first.',
   'Parry with the steel forearm, then shoot: a riposte.',
   'In Overdrive, tap roll to skid on the boosters. Hold it to fly over his slams.',
-  'In Overdrive, hold heavy to bring out every gun. A hit breaks it, until the third mark: from Every gun on, nothing stops you.',
+  'In Overdrive, hold heavy to bring out every gun. A hit breaks it, until the second mark: from Full arsenal on, nothing can touch you.',
   'Hold past the Dead Man’s Hand: high noon. Let go when the ring has closed on his face, and he is executed where he stands.',
 ];
 const DEVIL_TIPS = [
@@ -13550,6 +13550,7 @@ function arsTierUp(n) {
   sparks(_sa.x, _sa.y, _sa.z, 14 + n * 6, { speed: 6, color: [1, 0.8, 0.3] });
   for (let i = 0; i < 3 + n; i++) fxSmoke.emit(_sa.x + rand(-0.3, 0.3), _sa.y + rand(-0.4, 0.3), _sa.z + rand(-0.3, 0.3), rand(-2, 2), rand(0.5, 2), rand(-2, 2), rand(0.4, 0.8), rand(0.22, 0.38), 0.4, 0.41, 0.43, -0.4, 2.4, 1.6);
   G.fovKick = Math.max(G.fovKick, 0.3 + n * 0.12); G.shake = Math.min(1.5, G.shake + 0.15 + n * 0.08);
+  if (n === 2 && !star.told.immune) { star.told.immune = true; showToast('Full arsenal: nothing can touch you now.', 2.4); }
   if (n === 4) {
     popText('Dead man’s hand'); G.flash = Math.max(G.flash, 0.3);
     dust(p.pos.x, p.pos.z, 12, 2, { speed: 5 });
@@ -13579,7 +13580,7 @@ function startBarrage(tier) {
   const finale = !!(b.demon && b.state === 'down' && big);
   endArsenal(true); star.holstered = true;
   p.state = 'barrage'; p.t = 0; p.buf = '';
-  if (tier >= 3) p.iframes = 999;
+  if (tier >= 2) p.iframes = 999;
   G.barrage = { t: 0, tier, T: BARRAGE_T[tier], finale, chunks: 0, camOn: tier >= 3, shot: -1, lastShot: -2, acc: 0, snd: 0, hits: 0 };
   Snd.gatlingSpin(1); Snd.bigGun();
   G.fovKick = Math.max(G.fovKick, 0.8 + 0.25 * tier); G.flash = Math.max(G.flash, 0.1 + 0.08 * tier);
@@ -14239,20 +14240,18 @@ function starPoseOverlay(tgt) {
   const k = star.fly;
   for (const key in P_FLY) tgt[key] += P_FLY[key] * k;
 }
-// a blow on the Star with every gun out (the third mark on): it hurts, and he does not so much as flinch
-function starArmor(dmg, o) {
+// a blow on the Star from the second mark of the arsenal on: it rings off his steel and does nothing at all
+function starArmor(o) {
   const p = player;
-  if (p.iframes > 0) return 'none';
-  if (p.ultOn) dmg *= 0.75;
-  p.hp -= dmg; p.iframes = 0.3;
+  if (p.iframes > 0) return 'block';
+  p.iframes = 0.25;
   playerRig.chest.getWorldPosition(_sa);
-  sparks(_sa.x, _sa.y, _sa.z, 22, { speed: 7, color: [1, 0.8, 0.4] });
-  Snd.block(); Snd.hurt(); Snd.spark(_sa);
-  Haptics.pulse(0.5, 0.6, 160);
-  G.shake = Math.min(1.5, G.shake + 0.3); G.hurt = 1;
-  if (!star.told.armor) { star.told.armor = true; showToast('Every gun is out: nothing stops you now. It still hurts.', 2.6); }
-  if (p.hp <= 0) { endArsenal(true); endNoon(); killPlayer(); }
-  return 'hit';
+  sparks(_sa.x, _sa.y, _sa.z, 26, { speed: 8, color: [1, 0.85, 0.45] });
+  addRing(p.pos.x, p.pos.z, { r0: 0.4, rMax: 2.6, speed: 10, color: 0xffc04a, opacity: 0.6 });
+  Snd.block(); Snd.spark(_sa);
+  Haptics.pulse(0.25, 0.6, 90);
+  G.shake = Math.min(1.5, G.shake + 0.12);
+  return 'block';
 }
 // his part of a blow landing on him: no more flying
 function starHurt() {
