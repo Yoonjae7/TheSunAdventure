@@ -16,6 +16,8 @@ Then open http://localhost:8000.
 
 A controller is recommended. Keyboard and mouse also work.
 
+The first load takes a few seconds while the characters are sculpted. The game sets its own render resolution to keep the frame rate up. To fix it yourself, add `?scale=` to the address: `?scale=1` for full resolution, or a lower number such as `?scale=0.6` for a slow machine.
+
 ## Heroes
 
 Pick your hero on the title screen with the D-pad (left and right).
