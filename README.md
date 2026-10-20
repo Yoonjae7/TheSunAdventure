@@ -24,6 +24,19 @@ Pick your hero on the title screen with the D-pad (left and right).
 
 - **The Sun**: a knight with sword and shield. His ult is Holy Fire. Hold heavy in it to charge, all the way up to Might of God.
 - **The Moon**: a Hwarang with a sword and a horn bow on heavy. His ult is Moonlight: his sword becomes a dragon sword with slow, wide, heavy sweeps. Hold the draw in it through Crescent, Half Moon, Full Moon and Moonfall. From Full Moon on you can glide around while you hold it.
+- **The Star**: a cyborg gunslinger with a revolver and steel arms.
+  - Light attack shoots. The cylinder holds six; he reloads when it runs dry, and tops it up if you stand still a moment. Hold light attack to keep firing.
+  - Heavy attack fans the hammer with both hands and empties the cylinder.
+  - He blocks and parries on his steel forearms. A shot straight after a parry is a riposte.
+  - His ult is Overdrive: power lines light up across his body and boosters fold out of his calves. Tap roll to skid on the boosters, hold roll to fly (slams and stomps cannot reach you in the air). The cylinder never runs dry.
+  - Hold heavy in Overdrive to bring out every gun: Spinning up, Hot iron, Full arsenal, Every gun, then Dead Man's Hand at ten seconds. Let go to fire everything. A hit breaks the charge until the third mark (Every gun); after that nothing stops it.
+  - Keep holding past the Dead Man's Hand and it goes quiet: high noon. When the ring has closed on the boss's face, let go and he is executed where he stands.
+
+All three charges reach their top in ten seconds.
+
+## Bosses
+
+The gauntlet runs Fucking Clement, Saleem the Antonio, Fucking Chan, then Fucking Clement, Perfected. Whatever you end him with, someone has been watching from the wall: the Devil is the last fight. Once you have met him, he is pick 5 on the title screen.
 
 ## Controls
 
@@ -31,9 +44,9 @@ Pick your hero on the title screen with the D-pad (left and right).
 | --- | --- | --- |
 | Move | L stick | W A S D |
 | Light attack | R1 | Click / J |
-| Heavy attack (Moon: bow) | R2 | Right click / K |
+| Heavy attack (Moon: bow, Star: fan the hammer) | R2 | Right click / K |
 | Block (hold) / parry (tap) | L1 | Shift |
-| Dodge roll | A | Space |
+| Dodge roll (Star in Overdrive: tap to skid, hold to fly) | A | Space |
 | Ult (when full) | Y | E |
 | Charge in the ult | Hold R2 | Hold K |
 | Flask | X | R |
