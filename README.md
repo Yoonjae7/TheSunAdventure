@@ -36,7 +36,11 @@ All three charges reach their top in ten seconds.
 
 ## Bosses
 
-The gauntlet runs Fucking Clement, Saleem the Antonio, Fucking Chan, then Fucking Clement, Perfected. Whatever you end him with, someone has been watching from the wall: the Devil is the last fight. Once you have met him, he is pick 5 on the title screen.
+The gauntlet runs Fucking Clement, Saleem the Antonio, Fucking Chan, then Fucking Clement, Perfected. Whatever you end him with, "The End" comes up, and then a spear comes through it. Someone has been watching the whole time.
+
+What follows plays out on its own until the last moment: a city, a titan, and the other two heroes. Then the Star has one shot. A ring closes on the Devil's head; once it has closed, shoot (light or heavy attack) before his trident comes down. Too soon or too late and you try it again from the top of his dive. For now it ends there: to be continued.
+
+Once you have met the Devil, he is pick 5 on the title screen, and you can fight him there.
 
 ## Controls
 

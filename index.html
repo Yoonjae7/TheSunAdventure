@@ -368,9 +368,38 @@ body.finhp #hud .flasks, body.finhp #hud .bar.st, body.finhp #hud .bar.ult { vis
   40% { transform: translate(5px, 6px); } 55% { transform: translate(-3px, 2px); } 70% { transform: translate(2px, -2px); } }
 #theEnd { display: grid; place-items: center; align-content: center; opacity: 0; transition: opacity 3.2s ease; text-align: center; padding: 0 16px; }
 #theEnd.on { opacity: 1; }
-#theEnd h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(46px, 11.5vw, 170px); letter-spacing: .32em; padding-left: .32em;
+#theEnd h1, .shard h1 { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(46px, 11.5vw, 170px); letter-spacing: .32em; padding-left: .32em;
   text-transform: uppercase; line-height: 1; color: transparent; background: linear-gradient(180deg, #9a6a1c 0%, #4c2c06 52%, #a8782a 100%);
   -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 0 14px rgba(255,252,238,.95)) drop-shadow(0 0 44px rgba(255,236,190,.85)); }
+/* to be continued: the letters broken by the spear, the Devil's words, the shot, and the arrow at the end */
+#shards { perspective: 900px; opacity: 0; }
+#shards.on { opacity: 1; }
+#shards .shard { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; text-align: center; padding: 0 16px; will-change: transform, opacity; }
+#shards .cracks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#shards .cracks polyline { fill: none; stroke: #fff6e0; stroke-width: 2; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(255,90,40,1)); }
+#sqTint { background: radial-gradient(ellipse at 50% 50%, rgba(140,0,0,0) 30%, rgba(170,8,4,.72) 100%); opacity: 0; mix-blend-mode: multiply; }
+#cutCap.devil { color: #ffd9cc; font-style: normal; font-family: var(--display); letter-spacing: .08em; font-size: clamp(16px, 2.2vw, 25px);
+  text-shadow: 0 0 16px rgba(255,40,16,.75), 0 1px 10px #000, 0 0 2px #000; }
+#qte { display: grid; place-items: end center; padding: 0 16px calc(11vh + 10px); text-align: center; opacity: 0; transition: opacity .25s; }
+#qte.on, #qte.fail { opacity: 1; }
+#qte .qte-name { font-family: var(--display); font-weight: 700; text-transform: uppercase; letter-spacing: .5em; padding-left: .5em; font-size: clamp(13px, 2vw, 20px);
+  color: #ffe9c0; text-shadow: 0 0 18px rgba(255,120,40,1), 0 2px 6px #000; }
+#qte .qte-hint { margin-top: 4px; font-style: italic; font-size: clamp(13px, 1.7vw, 18px); color: var(--bone); text-shadow: 0 1px 8px #000; }
+#qte .qte-why { margin-top: 10px; min-height: 1.2em; font-family: var(--display); font-weight: 900; text-transform: uppercase; letter-spacing: .2em;
+  font-size: clamp(22px, 4.6vw, 52px); color: #ff4a30; text-shadow: 0 0 24px rgba(255,30,10,.9), 0 3px 10px #000; }
+#qte.fail .qte-name, #qte.fail .qte-hint { opacity: .35; }
+#tbc { display: grid; align-content: end; justify-items: start; padding: 0 16px 13vh clamp(16px, 5vw, 64px); opacity: 0; pointer-events: none; }
+#tbc.on { opacity: 1; }
+#tbc .tbc-arrow { position: relative; display: flex; align-items: center; height: clamp(46px, 8vw, 84px); padding: 0 clamp(22px, 3.4vw, 40px) 0 clamp(48px, 7vw, 92px);
+  background: linear-gradient(180deg, #e2cf86, #b59b45 55%, #8f7631); color: #2a1d08; font-family: var(--display); font-weight: 900; letter-spacing: .06em;
+  font-size: clamp(18px, 3.6vw, 40px); text-transform: none; white-space: nowrap; max-width: calc(100vw - 32px);
+  clip-path: polygon(0 50%, clamp(30px, 4.6vw, 56px) 0, 100% 0, 100% 100%, clamp(30px, 4.6vw, 56px) 100%); filter: drop-shadow(0 4px 10px rgba(0,0,0,.7));
+  transform: translateX(-120%); }
+#tbc.on .tbc-arrow { animation: tbcIn .55s cubic-bezier(.2,.9,.25,1.12) forwards; }
+@keyframes tbcIn { 0% { transform: translateX(-120%); } 100% { transform: translateX(0); } }
+#tbc p { margin: 16px 0 0; font-style: italic; font-size: clamp(15px, 2vw, 22px); color: var(--bone); text-shadow: 0 1px 8px #000; opacity: 0; transition: opacity 1.2s ease; min-height: 1.3em; }
+#tbc p.on { opacity: 1; }
+#tbc p b { font-style: normal; font-family: var(--display); font-weight: 700; letter-spacing: .12em; }
 #theEnd p { margin: 18px 0 0; font-style: italic; font-size: clamp(15px, 2vw, 22px); color: #4a3412; text-shadow: 0 0 12px rgba(255,248,226,.9); min-height: 1.3em;
   opacity: 0; transition: opacity 1.4s ease; }
 #theEnd p.on { opacity: 1; }
@@ -449,6 +478,10 @@ body.finhp #hud .flasks, body.finhp #hud .bar.st, body.finhp #hud .bar.ult { vis
   <div id="glory" class="layer"></div>
   <div id="fightTitle" class="layer"><div class="ft1">Fight</div><div class="ft2">Fucking</div><div class="ft3">Clement</div></div>
   <div id="theEnd" class="layer"><div><h1>The End</h1><p id="endSub"></p></div></div>
+  <div id="sqTint" class="layer"></div>
+  <div id="shards" class="layer"></div>
+  <div id="qte" class="layer"><div><div class="qte-name">High noon</div><div class="qte-hint">Shoot when the ring closes on him &nbsp;·&nbsp; Click / J / R1</div><div class="qte-why" id="qteWhy"></div></div></div>
+  <div id="tbc" class="layer"><div class="tbc-arrow">To Be Continued</div><p id="tbcSub"></p></div>
 
   <div id="fade" class="layer"><div id="forge" class="done"><span>Forging</span><i><b id="forgeBar"></b></i></div></div>
 
@@ -2898,6 +2931,7 @@ const ENV_FIRES = [];
 Snd.fires = ENV_FIRES;                      // the nearest of them crackles
 let envHell = 0;
 function updateEnvFire(dt) {
+  if (G.sq && G.sq.t > SQT.sink) { envFire.update(dt); return; }
   for (const f of ENV_FIRES) {
     f.acc += dt * 34 * f.s;
     while (f.acc > 1) {
@@ -8459,6 +8493,7 @@ function updatePlayer(dt) {
       break;
     }
     case 'cut': devilCutPlayer(dt, tgt); break;
+    case 'sequel': p.vel.set(0, 0, 0); break;
     case 'gun': updateGunState(dt, tgt, m); break;
     case 'fan': updateFanState(dt, tgt); break;
     case 'reload': updateReloadState(dt, tgt, m, facingLock, lockYaw); break;
@@ -12964,8 +12999,8 @@ function swordHome() {
 // while it goes home: his right hand on the hilt, his left at the scabbard's mouth. Each arm is turned, a little at a time,
 // until its wrist is where it should be; the answer is kept in his pose, so he eases out of it afterwards.
 const IK_LIM = [[-0.6, 3.1], [-0.6, 1.6], [-1.4, 1.5], [0.05, 2.5]], _ikw = new V3(), _ikt = new V3();
-function armTo(side, target, P, iters) {
-  const a = playerRig.arms[side], c = side ? 'r' : 'l', K = [c + 'ax', c + 'az', c + 'ay', c + 'ae'];
+function armTo(side, target, P, iters, R = playerRig) {
+  const a = R.arms[side], c = side ? 'r' : 'l', K = [c + 'ax', c + 'az', c + 'ay', c + 'ae'];
   const put = () => { a.sh.rotation.set(-P[K[0]], -a.s * P[K[2]], a.s * P[K[1]]); a.el.rotation.x = -P[K[3]]; a.sh.updateMatrixWorld(true);
     return a.wr.getWorldPosition(_ikw).distanceToSquared(target); };
   let cur = put(), step = 0.12;
@@ -16687,7 +16722,7 @@ function finaleEnd(dt) {
     const p = player; f.endA0 = angTo(p.pos.x, p.pos.z, camera.position.x, camera.position.z);
     f.endR0 = Math.hypot(camera.position.x - p.pos.x, camera.position.z - p.pos.z); f.endH0 = camera.position.y; f.endT0 = f.endT;
   }
-  if (!f.devil && f.endT >= 5.6) { f.devil = true; startDevilCut('finale'); }     // a slow clap, from up on the wall
+  if (!f.devil && f.endT >= 6.9) { f.devil = true; startSequel(); }               // and then a spear, through it
   if (f.devil) return;
   if (!f.endShown && f.endT >= 3.7) { f.endShown = true; finEl.end.classList.add('on'); Snd.endChord(); Haptics.pulse(0.25, 0.3, 1500); }
   if (!f.promptShown && f.endT >= 7.5) {
@@ -16697,7 +16732,7 @@ function finaleEnd(dt) {
   }
 }
 function returnToTitle() {
-  const f = G.devilEnd || G.finale;
+  const f = G.sq || G.devilEnd || G.finale;
   if (!f || !f.canReturn || f.leaving) return;
   f.leaving = true;
   $('fade').classList.remove('out');
@@ -17086,8 +17121,9 @@ const DV = {
 DV.wing = DM.wing.clone(); DV.wing.color.setRGB(0.5, 0.14, 0.12); DV.wing.emissive.setRGB(0.22, 0.03, 0.02);
 for (const m of Object.values(DV)) { m.userData.o = m.opacity; m.userData.t = m.transparent; }
 
-// tall and lean, red, horned, goat-legged, a spade-tipped tail and bat wings folded at his back
-function buildDevil() {
+// tall and lean, red, horned, goat-legged, a spade-tipped tail and bat wings folded at his back (M: what he is made of;
+// the titan is the same body in other stuff)
+function buildDevil(M = DV) {
   const root = new THREE.Group();
   const R = { root, ankleH: 0.1, thighL: 0.6, shinL: 0.6, hipDrop: 0 };
   const hips = R.hips = pivot(root, 0, 1.3, 0);
@@ -17125,7 +17161,7 @@ function buildDevil() {
   const cloth = (scale = 60, bump = 0.0007) => ({ type: 'cloth', scale, bump, alb: 0.06, rough: 0.1 });
 
   // ── the body: a long lean torso, every muscle drawn, the skin red ──
-  const body = S.group('dvBody', DV.skin, { skin: true, cell: 0.011, detail: SKIN });
+  const body = S.group('dvBody', M.skin, { skin: true, cell: 0.011, detail: SKIN });
   body.ell(hips, [0, -0.02, 0], [0.165, 0.12, 0.125]);
   body.cone(torso, [0, -0.02, 0.0], [0, 0.4, -0.01], 0.135, 0.165, { k: 0.05, sq: [1, 0.72] });
   body.ell(chest, [0, 0.11, -0.01], [0.235, 0.2, 0.145], { k: 0.05 });
@@ -17146,7 +17182,7 @@ function buildDevil() {
     body.ell(a.el, [0, -0.08, 0.01], [0.05, 0.08, 0.045], { k: 0.03 });
   }
   // ── the legs: a goat's, black fur to the hock, then the hooves ──
-  const fur = S.group('dvFur', DV.fur, { skin: true, cell: 0.012, detail: FUR, weightsFrom: body });
+  const fur = S.group('dvFur', M.fur, { skin: true, cell: 0.012, detail: FUR, weightsFrom: body });
   fur.ell(hips, [0, -0.07, 0], [0.175, 0.11, 0.135]);
   for (const l of R.legs) {
     fur.cone(l.thigh, [0, 0, 0], [0, -0.58, 0.03], 0.1, 0.07, { k: 0.04 });
@@ -17157,49 +17193,49 @@ function buildDevil() {
     for (let i = 0; i < 5; i++) { const a = i / 5 * TAU; fur.cone(l.knee, [Math.sin(a) * 0.05, -0.5, Math.cos(a) * 0.05 - 0.01], [Math.sin(a) * 0.07, -0.6, Math.cos(a) * 0.07], 0.02, 0.005, { k: 0.01 }); }   // the tufts over the hoof
   }
   for (const l of R.legs) {
-    const hoof = S.group('dvHoof' + l.s, DV.hoof, { bone: l.ankle, cell: 0.006, detail: METAL });
+    const hoof = S.group('dvHoof' + l.s, M.hoof, { bone: l.ankle, cell: 0.006, detail: METAL });
     for (const x of [-0.024, 0.024]) hoof.box(l.ankle, [x, -0.055, 0.035], [0.021, 0.04, 0.055], 0.018, { k: 0.008, rot: [0.15, 0, 0] });
     hoof.cone(l.ankle, [0, 0.0, 0.0], [0, -0.04, 0.02], 0.045, 0.05, { k: 0.02 });
   }
   // ── a belt with a gold skull, and a red cloth hanging before and behind ──
-  const belt = S.group('dvBelt', DV.leather, { bone: hips, cell: 0.007, detail: { type: 'leather', scale: 90, bump: 0.0005 } });
+  const belt = S.group('dvBelt', M.leather, { bone: hips, cell: 0.007, detail: { type: 'leather', scale: 90, bump: 0.0005 } });
   for (let i = 0; i < 24; i++) { const a = i / 24 * TAU; belt.box(hips, [Math.sin(a) * 0.178, 0.05, Math.cos(a) * 0.138], [0.026, 0.028, 0.008], 0.005, { rot: [0, a, 0], k: 0.008 }); }
-  const skull = S.group('dvSkull', DV.gold, { bone: hips, cell: 0.004, detail: METAL });
+  const skull = S.group('dvSkull', M.gold, { bone: hips, cell: 0.004, detail: METAL });
   skull.ell(hips, [0, 0.055, 0.145], [0.034, 0.036, 0.016]);
   skull.cone(hips, [0, 0.03, 0.148], [0, 0.012, 0.15], 0.02, 0.016, { k: 0.008 });
   for (const s of [-1, 1]) skull.ell(hips, [s * 0.013, 0.062, 0.158], [0.009, 0.009, 0.008], { op: 'sub', k: 0.003 });
   for (const s of [-1, 1]) skull.cone(hips, [s * 0.03, 0.08, 0.148], [s * 0.05, 0.11, 0.14], 0.007, 0.002, { k: 0.004 });   // horns on the skull
   for (const [nm, a0, a1] of [['dvClothF', -0.5, 0.5], ['dvClothB', Math.PI - 0.62, Math.PI + 0.62]]) {
-    S.panel(nm, DV.cloth, { skin: true, w: skirtW(hips, R.legs[0].thigh, R.legs[1].thigh, 1.3, 0.6, 0.55, 5), frame: hips, nu: 12, nv: 10, t: 0.01, cell: 0.012, detail: cloth(60),
+    S.panel(nm, M.cloth, { skin: true, w: skirtW(hips, R.legs[0].thigh, R.legs[1].thigh, 1.3, 0.6, 0.55, 5), frame: hips, nu: 12, nv: 10, t: 0.01, cell: 0.012, detail: cloth(60),
       surf: shellSurf({ r0: 0.18, r1: 0.23, top: 0.03, len: 0.58, a0, a1, nf: 4, fold: 0.02, zs: 0.84, hem: u => 1 + 0.08 * Math.sin(u * 17) + 0.06 * Math.sin(u * 7 + 2) }) });
   }
   // ── arms: an iron bracer with spikes on each forearm, a gold band above each elbow, black claws ──
   for (const a of R.arms) {
     const s = a.s;
-    const br = S.group('dvBracer' + s, DV.iron, { bone: a.el, cell: 0.0065, detail: METAL });
+    const br = S.group('dvBracer' + s, M.iron, { bone: a.el, cell: 0.0065, detail: METAL });
     br.cone(a.el, [0, -0.12, 0], [0, -0.3, 0], 0.056, 0.048);
     for (const y of [-0.13, -0.29]) br.tor(a.el, [0, y, 0], 0.056, 0.007, { k: 0.004 });
     for (let i = 0; i < 3; i++) br.cone(a.el, [s * 0.05, -0.15 - i * 0.06, -0.01], [s * 0.1, -0.18 - i * 0.06, -0.03], 0.012, 0.002, { k: 0.004 });
-    const band = S.group('dvBand' + s, DV.gold, { bone: a.sh, cell: 0.005, detail: METAL });
+    const band = S.group('dvBand' + s, M.gold, { bone: a.sh, cell: 0.005, detail: METAL });
     band.tor(a.sh, [0, -0.2, 0], 0.056, 0.009);
-    const hand = S.group('dvHand' + s, DV.skin, { bone: a.wr, cell: 0.0055, detail: SKIN });
+    const hand = S.group('dvHand' + s, M.skin, { bone: a.wr, cell: 0.0055, detail: SKIN });
     hand.cone(a.wr, [0, 0.02, 0], [0, -0.04, 0.004], 0.04, 0.042);
     hand.box(a.wr, [0, -0.07, 0.01], [0.034, 0.042, 0.04], 0.022, { k: 0.012 });
     for (let f = 0; f < 4; f++) { const x = (f - 1.5) * 0.019; hand.cone(a.wr, [x, -0.1, 0.03], [x, -0.12, 0.06], 0.0105, 0.009, { k: 0.006 }); }
     hand.cone(a.wr, [-s * 0.034, -0.04, 0.026], [-s * 0.022, -0.085, 0.05], 0.013, 0.011, { k: 0.007 });
-    const claw = S.group('dvClaw' + s, DV.claw, { bone: a.wr, cell: 0.003 });
+    const claw = S.group('dvClaw' + s, M.claw, { bone: a.wr, cell: 0.003 });
     for (let f = 0; f < 4; f++) { const x = (f - 1.5) * 0.019; claw.cone(a.wr, [x, -0.12, 0.062], [x, -0.155, 0.072], 0.0075, 0.0012, { k: 0.002 }); }
     claw.cone(a.wr, [-s * 0.022, -0.087, 0.052], [-s * 0.018, -0.115, 0.066], 0.0075, 0.0012, { k: 0.002 });
   }
   // ── the tail ──
-  const tail = S.group('dvTail', DV.skin, { skin: true, cell: 0.009, detail: SKIN });
+  const tail = S.group('dvTail', M.skin, { skin: true, cell: 0.009, detail: SKIN });
   for (let i = 0; i < 6; i++) tail.cone(R.tail[i], [0, 0, 0], [0, 0, -0.2], 0.042 - i * 0.005, 0.037 - i * 0.005, { k: 0.02 });
-  const spade = S.group('dvSpade', DV.horn, { bone: R.tail[5], cell: 0.005, detail: METAL });
+  const spade = S.group('dvSpade', M.horn, { bone: R.tail[5], cell: 0.005, detail: METAL });
   spade.ell(R.tail[5], [0, 0, -0.27], [0.062, 0.014, 0.07], { k: 0.01 });
   spade.cone(R.tail[5], [0, 0, -0.3], [0, 0, -0.38], 0.04, 0.002, { sq: [1.3, 0.3], k: 0.01 });
   for (const s of [-1, 1]) spade.cone(R.tail[5], [s * 0.04, 0, -0.24], [s * 0.075, 0, -0.2], 0.018, 0.002, { sq: [1, 0.35], k: 0.008 });
   // ── the head: long and sharp, the chin a point, the ears pointed, the brows down in a V, and that smile ──
-  const face = S.group('dvFace', DV.skin, { bone: head, cell: 0.005, detail: SKIN });
+  const face = S.group('dvFace', M.skin, { bone: head, cell: 0.005, detail: SKIN });
   face.ell(head, [0, 0.13, -0.012], [0.1, 0.122, 0.112]);
   face.ell(head, [0, 0.06, 0.035], [0.082, 0.1, 0.082], { k: 0.04 });
   for (const s of [-1, 1]) {
@@ -17215,29 +17251,29 @@ function buildDevil() {
   face.cone(head, [-0.03, 0.036, 0.107], [0.012, 0.035, 0.113], 0.0035, 0.0035, { op: 'sub', k: 0.004, tint: 0x3a0606 });
   face.cone(head, [0.012, 0.035, 0.113], [0.04, 0.05, 0.1], 0.0035, 0.003, { op: 'sub', k: 0.004, tint: 0x3a0606 });
   face.ell(head, [0.042, 0.052, 0.097], [0.008, 0.006, 0.006], { k: 0.004 });                  // the cheek bunched over it
-  const chin = S.group('dvChin', DV.skin, { bone: jaw, cell: 0.005, detail: SKIN });
+  const chin = S.group('dvChin', M.skin, { bone: jaw, cell: 0.005, detail: SKIN });
   chin.cone(jaw, [0, 0.0, 0.05], [0, -0.075, 0.085], 0.045, 0.014, { k: 0.02 });
   for (const s of [-1, 1]) chin.ell(jaw, [s * 0.055, 0.0, 0.02], [0.022, 0.035, 0.05], { k: 0.02 });
-  const fang = S.group('dvFang', DV.teeth, { bone: head, cell: 0.0025 });
+  const fang = S.group('dvFang', M.teeth, { bone: head, cell: 0.0025 });
   fang.cone(head, [0.03, 0.044, 0.104], [0.032, 0.026, 0.105], 0.0035, 0.0006, { k: 0.001 });   // one fang shows, at the high corner
-  const eyes = S.group('dvEyes', DV.eye, { bone: head, cell: 0.0022, shadow: false });
-  const pup = S.group('dvPupils', DV.pupil, { bone: head, cell: 0.0018, shadow: false });
+  const eyes = S.group('dvEyes', M.eye, { bone: head, cell: 0.0022, shadow: false });
+  const pup = S.group('dvPupils', M.pupil, { bone: head, cell: 0.0018, shadow: false });
   for (const s of [-1, 1]) {
     eyes.ell(head, [s * 0.04, 0.117, 0.104], [0.017, 0.008, 0.006], { rot: [0, s * 0.25, s * 0.3] });
     pup.ell(head, [s * 0.039, 0.117, 0.1095], [0.0022, 0.0075, 0.0022], { rot: [0, s * 0.25, 0] });
   }
   // black hair slicked straight back from a widow's peak; a pointed beard and a thin moustache
-  const hair = S.group('dvHair', DV.hair, { bone: head, cell: 0.0055, detail: cloth(240, 0.0004) });
+  const hair = S.group('dvHair', M.hair, { bone: head, cell: 0.0055, detail: cloth(240, 0.0004) });
   hair.ell(head, [0, 0.15, -0.03], [0.106, 0.112, 0.118]);
   hair.plane(head, [0, 0.0, 0.05], [0, 0.45, -1], { op: 'and', k: 0.01 });
   hair.cone(head, [0, 0.22, 0.07], [0, 0.17, 0.104], 0.022, 0.004, { k: 0.012 });               // the widow's peak
   for (let i = 0; i < 5; i++) hair.cone(head, [(i - 2) * 0.03, 0.22, 0.0], [(i - 2) * 0.032, 0.17, -0.15], 0.018, 0.006, { k: 0.012 });   // combed back
-  const beard = S.group('dvBeard', DV.hair, { bone: jaw, cell: 0.004 });
+  const beard = S.group('dvBeard', M.hair, { bone: jaw, cell: 0.004 });
   beard.cone(jaw, [0, -0.04, 0.084], [0, -0.16, 0.07], 0.02, 0.002, { k: 0.008, sq: [0.8, 1] });
-  const stache = S.group('dvStache', DV.hair, { bone: head, cell: 0.003 });
+  const stache = S.group('dvStache', M.hair, { bone: head, cell: 0.003 });
   for (const s of [-1, 1]) stache.cone(head, [s * 0.005, 0.052, 0.12], [s * 0.04, 0.028, 0.106], 0.004, 0.0015, { k: 0.002 });
   // the horns: up off the brow, back and out, ridged, black and shining
-  const horn = S.group('dvHorns', DV.horn, { bone: head, cell: 0.0045, detail: METAL });
+  const horn = S.group('dvHorns', M.horn, { bone: head, cell: 0.0045, detail: METAL });
   const HP = [[0.055, 0.2, 0.06], [0.085, 0.29, 0.03], [0.12, 0.37, -0.04], [0.14, 0.43, -0.13], [0.135, 0.455, -0.22], [0.115, 0.45, -0.29]];
   const HR = [0.034, 0.028, 0.022, 0.016, 0.01, 0.003];
   for (const s of [-1, 1]) for (let i = 0; i < HP.length - 1; i++) {
@@ -17245,38 +17281,38 @@ function buildDevil() {
     horn.cone(head, a, b, HR[i], HR[i + 1], { k: 0.01 });
     if (i < 3) horn.tor(head, a, HR[i] * 1.02, 0.004, { rot: [Math.atan2(b[2] - a[2], b[1] - a[1]), 0, 0], k: 0.004 });
   }
-  const ring = S.group('dvEarring', DV.gold, { bone: head, cell: 0.0025, detail: METAL });
+  const ring = S.group('dvEarring', M.gold, { bone: head, cell: 0.0025, detail: METAL });
   ring.tor(head, [0.122, 0.1, -0.03], 0.012, 0.0025, { rot: [0, 0, Math.PI / 2] });
   S.build({ key: 'devil', bg: true });
 
   // the trident: an iron shaft banded in gold, three barbed prongs, the edges burning
   const T = R.trident, tr = new THREE.Group(); T.add(tr); R.tridentMesh = tr;
-  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.021, 0.024, 2.12, 10).rotateX(Math.PI / 2).translate(0, 0, 0.16), DV.iron); shaft.castShadow = true; tr.add(shaft);
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.021, 0.024, 2.12, 10).rotateX(Math.PI / 2).translate(0, 0, 0.16), M.iron); shaft.castShadow = true; tr.add(shaft);
   const bandG = new THREE.TorusGeometry(0.027, 0.008, 6, 14);
-  for (const z of [-0.88, -0.25, 0.32, 1.08]) { const bd = new THREE.Mesh(bandG, DV.gold); bd.position.z = z; tr.add(bd); }
-  const butt = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.12, 10).rotateX(-Math.PI / 2).translate(0, 0, -0.97), DV.gold); tr.add(butt);
+  for (const z of [-0.88, -0.25, 0.32, 1.08]) { const bd = new THREE.Mesh(bandG, M.gold); bd.position.z = z; tr.add(bd); }
+  const butt = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.12, 10).rotateX(-Math.PI / 2).translate(0, 0, -0.97), M.gold); tr.add(butt);
   const head3 = new THREE.Group(); head3.position.z = 1.2; head3.scale.setScalar(1.35); tr.add(head3);
-  const bar = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.035, 0.05), DV.iron); bar.castShadow = true; head3.add(bar);
-  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 8), DV.ember); orb.position.z = -0.03; head3.add(orb);
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.035, 0.05), M.iron); bar.castShadow = true; head3.add(bar);
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 8), M.ember); orb.position.z = -0.03; head3.add(orb);
   const prong = (x0, x1, len, mat) => {
     const g = new THREE.Group();
     const a = new V3(x0, 0, 0), b = new V3(x1, 0, 0.12), c = new V3(x1 * 1.05, 0, len);
     for (const [p, q, r0, r1] of [[a, b, 0.02, 0.017], [b, c, 0.017, 0.003]]) {
       const L = p.distanceTo(q), geo = new THREE.CylinderGeometry(r1, r0, L, 8).translate(0, L / 2, 0).rotateX(Math.PI / 2);
-      const m = new THREE.Mesh(geo, q === c ? mat : DV.iron); m.castShadow = true; g.add(m);
+      const m = new THREE.Mesh(geo, q === c ? mat : M.iron); m.castShadow = true; g.add(m);
       m.position.copy(p); m.quaternion.setFromUnitVectors(new V3(0, 0, 1), q.clone().sub(p).normalize());
     }
     const barb = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.07, 6).rotateX(-Math.PI / 2 + 0.5).translate(Math.sign(x1 || 1) * 0.02, 0, len - 0.06), mat); g.add(barb);
     head3.add(g);
   };
-  prong(0, 0, 0.5, DV.ember); prong(0.1, 0.15, 0.4, DV.ember); prong(-0.1, -0.15, 0.4, DV.ember);
+  prong(0, 0, 0.5, M.ember); prong(0.1, 0.15, 0.4, M.ember); prong(-0.1, -0.15, 0.4, M.ember);
   // the wings: the demon's own membranes, smaller, folded at his back until he needs them
   R.wings = [];
   for (const s of [1, -1]) {
     const W = D_WING.W * 0.62, H = D_WING.H * 0.62, geo = new THREE.PlaneGeometry(W, H);
     geo.translate(-(D_WING.rx - 0.5) * W, -(D_WING.ry - 0.5) * H, 0);
     const g = pivot(chest, s * 0.1, 0.28, -0.13);
-    const m = new THREE.Mesh(geo, DV.wing); m.scale.x = s; m.castShadow = true; g.add(m);
+    const m = new THREE.Mesh(geo, M.wing); m.scale.x = s; m.castShadow = true; g.add(m);
     R.wings.push({ g, m, s });
   }
   // and his eyes burn
@@ -18028,6 +18064,1671 @@ function devilCutCam() {
   }
 }
 
+/* ═══════════════════════════ to be continued: the Devil's own ending ═══════════════════════════ */
+// The light has taken the demon and "The End" is on the screen when a spear comes through it from behind the lens and
+// nails the hero to the floor. The Devil comes down out of a red sky: Fucking Clement was a sketch of his, thrown away.
+// He snaps his fingers and the arena goes down into the earth while a city comes up out of it. The hero tears the spear
+// out of himself, a bus comes at him, and he chases the Devil down the avenue; at the end of it the Devil calls up his
+// masterpiece, a titan, out of a burning circle, and it walks. Then the other two come. The Sun, burning, with an
+// archangel the size of a tower, takes its arm off and is swatted out of the sky; the Moon catches him and draws the
+// ancestors' bow; and when the Devil drops on the Moon it is the Star's to stop, in a slowed world, with one shot.
+// He knocks the bullet aside. To be continued.
+// Whoever was being played is the hero on the floor, and plays his own part after; the other two have bodies of their
+// own (copies of the hero's, dressed). Everything is laid out in a frame put down where the spear lands: +z is the way
+// the spear was going, and the way the avenue runs.
+const SQF = { ox: 0, oz: 0, yaw: 0, c: 1, s: 0 };
+const _sqv = new V3(), _sqw = new V3(), _sqa = new V3(), _sqb = new V3(), _sqc = new V3(), _sqd = new V3(), _sqe = new V3(), _sqf = new V3();
+const _sqq = new THREE.Quaternion(), _sqm = new THREE.Matrix4(), _sqs = new V3();
+function sqFrame(x, z, yaw) { SQF.ox = x; SQF.oz = z; SQF.yaw = yaw; SQF.c = Math.cos(yaw); SQF.s = Math.sin(yaw); }
+// local to world, and back
+function sqW(x, y, z, out = _sqv) { return out.set(SQF.ox + x * SQF.c + z * SQF.s, y, SQF.oz - x * SQF.s + z * SQF.c); }
+function sqL(w, out = _sqw) { const dx = w.x - SQF.ox, dz = w.z - SQF.oz; return out.set(dx * SQF.c - dz * SQF.s, w.y, dx * SQF.s + dz * SQF.c); }
+const sqK = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+const sqEase = (u, e) => (e === 'l' ? u : e === 'i' ? u * u : e === 'o' ? 1 - (1 - u) * (1 - u) : smooth(u));
+// a path through keyed points [t, x, y, z, ease] in the frame
+function sqPath(keys, t, out) {
+  if (t <= keys[0][0]) return out.set(keys[0][1], keys[0][2], keys[0][3]);
+  for (let i = 1; i < keys.length; i++) {
+    const b = keys[i];
+    if (t > b[0]) continue;
+    const a = keys[i - 1], u = sqEase((t - a[0]) / Math.max(1e-4, b[0] - a[0]), b[4]);
+    return out.set(lerp(a[1], b[1], u), lerp(a[2], b[2], u), lerp(a[3], b[3], u));
+  }
+  const z = keys[keys.length - 1];
+  return out.set(z[1], z[2], z[3]);
+}
+// a pose track, keyed in the scene's own seconds
+function sqBez(a, c, b, u, out) { return out.set(bez(a.x, c.x, b.x, u), bez(a.y, c.y, b.y, u), bez(a.z, c.z, b.z, u)); }
+
+// its own smoke, sparks and fire, so the fight's are never short of any
+class SoftParticles extends Particles {
+  update(dt) { super.update(dt); for (let i = 0; i < this.n; i++) this.alpha[i] *= 0.42; }
+}
+const sqDust = new SoftParticles(800, false), sqSpark = new Particles(500, true), sqFire = new FireSprites(800);
+scene.add(sqDust.points, sqSpark.points, sqFire.points);
+function sqBillow(x, y, z, n, size, sp, col = 0.16) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(TAU), s = rand(0.3, 1) * sp;
+    sqDust.emit(x + rand(-1, 1) * size * 0.3, y + rand(0, 0.6) * size * 0.3, z + rand(-1, 1) * size * 0.3, Math.cos(a) * s, rand(0.2, 0.7) * sp, Math.sin(a) * s,
+      rand(2.2, 4.4), size * rand(0.6, 1.3), col, col * 0.92, col * 0.86, -0.12, 0.8, 1.5);
+  }
+}
+function sqSparks(x, y, z, n, sp, c, life = 0.7, size = 0.14) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(TAU), e = rand(-0.6, 1), s = rand(0.3, 1) * sp;
+    sqSpark.emit(x, y, z, Math.cos(a) * s * (1 - Math.abs(e) * 0.4), e * s, Math.sin(a) * s * (1 - Math.abs(e) * 0.4), rand(0.5, 1) * life, size * rand(0.6, 1.3), c[0], c[1], c[2], 9, 0.6);
+  }
+}
+function sqBlaze(x, y, z, n, size, sp, hell = 0, up = 3) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(TAU), s = rand(0.2, 1) * sp;
+    sqFire.emit(x + Math.cos(a) * size * 0.2, y, z + Math.sin(a) * size * 0.2, Math.cos(a) * s, rand(0.3, 1) * up, Math.sin(a) * s, rand(0.6, 1.3), size * rand(0.6, 1.3), 0, 1.15, -1.2, 1.2, 0.8, hell);
+  }
+}
+
+/* ───── the spear ───── */
+const SPM = {
+  iron: new THREE.MeshStandardMaterial({ color: lin(0x161113), roughness: 0.3, metalness: 0.9 }),
+  blade: new THREE.MeshStandardMaterial({ color: lin(0x1e0a08), roughness: 0.2, metalness: 0.75, emissive: new THREE.Color(0.95, 0.1, 0.03), emissiveIntensity: 0.55 }),
+  rune: new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 0.42, 0.1) }),
+};
+// four metres of black iron along +z (the point forward, the grip at the origin): a long barbed cross-blade that burns
+// along its edges, a crown of thorns where it meets the shaft, runes winding up the shaft, a spike for a butt
+function buildSpear() {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.034, 0.03, 2.9, 10).rotateX(Math.PI / 2).translate(0, 0, -0.33), SPM.iron));
+  const runeG = new THREE.BoxGeometry(0.012, 0.07, 0.022);
+  for (let i = 0; i < 24; i++) {
+    const a = i * 1.15, r = new THREE.Mesh(runeG, SPM.rune);
+    r.position.set(Math.cos(a) * 0.033, Math.sin(a) * 0.033, -1.65 + i * 0.115); r.rotation.z = a; g.add(r);
+  }
+  const bandG = new THREE.TorusGeometry(0.038, 0.009, 6, 14);
+  for (const z of [-1.76, -1.02, 0.25, 0.98]) { const b = new THREE.Mesh(bandG, SPM.iron); b.position.z = z; g.add(b); }
+  g.add(new THREE.Mesh(new THREE.ConeGeometry(0.046, 0.3, 8).rotateX(-Math.PI / 2).translate(0, 0, -1.93), SPM.iron));
+  for (let i = 0; i < 7; i++) {
+    const a = i / 7 * TAU, th = new THREE.Mesh(new THREE.ConeGeometry(0.016, 0.22, 6).translate(0, 0.11, 0), SPM.iron);
+    th.position.set(Math.cos(a) * 0.045, Math.sin(a) * 0.045, 1.1);
+    th.lookAt(Math.cos(a) * 0.3, Math.sin(a) * 0.3, 0.86); th.rotateX(Math.PI / 2); g.add(th);
+  }
+  const s = new THREE.Shape();
+  s.moveTo(0, 0); s.lineTo(0.06, 0.03); s.lineTo(0.17, -0.13); s.lineTo(0.11, 0.12); s.quadraticCurveTo(0.12, 0.5, 0, 0.98);
+  s.quadraticCurveTo(-0.12, 0.5, -0.11, 0.12); s.lineTo(-0.17, -0.13); s.lineTo(-0.06, 0.03); s.lineTo(0, 0);
+  const hg = new THREE.ExtrudeGeometry(s, { depth: 0.016, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.01, bevelSegments: 1 });
+  hg.translate(0, 0, -0.008); hg.rotateX(Math.PI / 2); hg.translate(0, 0, 1.12);
+  for (const rz of [0, Math.PI / 2]) { const h = new THREE.Mesh(hg, SPM.blade); h.rotation.z = rz; g.add(h); }
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: wingGlowTex, color: 0xff3a14, transparent: true, opacity: 0.85, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  glow.position.z = 1.55; glow.scale.setScalar(0.8); g.add(glow);
+  g.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  g.visible = false; scene.add(g);
+  return g;
+}
+const sqSpear = buildSpear();
+const SPEAR_TIP = 2.1;
+
+/* ───── "The End", broken ───── */
+// the letters cut into shards round the place the spear came through, cracked for a moment, then thrown out at the lens
+function shatterEnd() {
+  const h1 = finEl.end.querySelector('h1'), lay = $('shards');
+  lay.innerHTML = '';
+  const A = app.getBoundingClientRect(), B = h1.getBoundingClientRect();
+  finEl.end.style.transition = 'none'; finEl.end.classList.remove('on');
+  if (B.width < 2) return;
+  const cx = B.left - A.left + B.width * rand(0.42, 0.58), cy = B.top - A.top + B.height * 0.52;
+  const N = 12, RU = [0, 0.16, 0.42, 0.8, 1.6], ang = [];
+  for (let i = 0; i < N; i++) ang.push((i + rand(0.25, 0.75)) / N * TAU);
+  const P = ang.map(a => RU.map((u, j) => {
+    const aa = a + (j ? rand(-0.12, 0.12) : 0), uu = u * (j && j < RU.length - 1 ? rand(0.85, 1.15) : 1);
+    return [cx + Math.cos(aa) * uu * B.width * 0.62, cy + Math.sin(aa) * uu * B.height * 1.5];
+  }));
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'cracks');
+  const shards = [];
+  for (let i = 0; i < N; i++) for (let j = 0; j < RU.length - 1; j++) {
+    const i2 = (i + 1) % N, poly = j === 0 ? [[cx, cy], P[i2][1], P[i][1]] : [P[i][j], P[i2][j], P[i2][j + 1], P[i][j + 1]];
+    const d = document.createElement('div');
+    d.className = 'shard';
+    d.style.clipPath = `polygon(${poly.map(q => q[0].toFixed(1) + 'px ' + q[1].toFixed(1) + 'px').join(',')})`;
+    const ox = poly.reduce((s, q) => s + q[0], 0) / poly.length, oy = poly.reduce((s, q) => s + q[1], 0) / poly.length;
+    d.style.transformOrigin = `${ox.toFixed(0)}px ${oy.toFixed(0)}px`;
+    d.appendChild(h1.cloneNode(true));
+    lay.appendChild(d);
+    shards.push({ d, ox, oy, j });
+    const l = document.createElementNS(NS, 'polyline');
+    l.setAttribute('points', poly.map(q => q[0].toFixed(1) + ',' + q[1].toFixed(1)).join(' '));
+    svg.appendChild(l);
+  }
+  lay.appendChild(svg);
+  lay.classList.add('on');
+  setTimeout(() => {
+    svg.remove();
+    for (const s of shards) {
+      let dx = s.ox - cx, dy = s.oy - cy; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+      const far = rand(180, 520) * (1.2 - s.j * 0.15), dur = rand(1.5, 2.2);
+      s.d.style.transition = `transform ${dur.toFixed(2)}s cubic-bezier(.25,.5,.35,1), opacity ${dur.toFixed(2)}s ease-in`;
+      s.d.style.transform = `translate3d(${(dx * far).toFixed(0)}px, ${(dy * far + rand(80, 300)).toFixed(0)}px, ${rand(60, 320).toFixed(0)}px) rotateX(${rand(-80, 80).toFixed(0)}deg) rotateY(${rand(-80, 80).toFixed(0)}deg) rotateZ(${rand(-70, 70).toFixed(0)}deg)`;
+      s.d.style.opacity = '0';
+    }
+  }, 110);
+  setTimeout(() => { lay.classList.remove('on'); lay.innerHTML = ''; }, 2600);
+}
+
+/* ───── the bus: a coach in the University of Nottingham's colours ───── */
+const BUS = { L: 12, W: 2.5, H: 3.6 };
+// one side of it, front to back: navy, a teal sweep with a white band at the front, the windows with their teal festoon
+// curtains, the blue panel with the tower on it and the name beside it. frontLeft: which end of the picture is the front
+function busSideCanvas(frontLeft) {
+  const W = 2048, H = Math.round(W * BUS.H / BUS.L), c = cv(W, H), g = c.getContext('2d');
+  const X = m => (frontLeft ? m : BUS.L - m) / BUS.L * W, Y = h => H - h / BUS.H * H, PX = W / BUS.L;
+  const poly = (pts, col) => { g.fillStyle = col; g.beginPath(); pts.forEach(([m, h], i) => (i ? g.lineTo(X(m), Y(h)) : g.moveTo(X(m), Y(h)))); g.closePath(); g.fill(); };
+  const rect = (m0, m1, h0, h1, col) => { g.fillStyle = col; const a = X(m0), b = X(m1); g.fillRect(Math.min(a, b), Y(h1), Math.abs(b - a), Y(h0) - Y(h1)); };
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#202a3b'); bg.addColorStop(0.5, '#161d2a'); bg.addColorStop(1, '#0e131c');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  rect(0, BUS.L, 3.33, 3.6, '#e7e9ea'); rect(0, BUS.L, 3.27, 3.33, '#8c959c');
+  // the windows
+  const wy0 = 2.1, wy1 = 3.2, wStart = 1.5;
+  rect(wStart - 0.1, BUS.L - 0.2, wy0 - 0.04, wy1 + 0.04, '#04060a');
+  for (let m = wStart; m < BUS.L - 0.45; m += 1.62) {
+    const m1 = Math.min(m + 1.48, BUS.L - 0.3), x0 = Math.min(X(m), X(m1)), w = Math.abs(X(m1) - X(m)), y0 = Y(wy1), hh = Y(wy0) - Y(wy1);
+    g.fillStyle = '#0c151a'; g.fillRect(x0, y0, w, hh);
+    const rg = g.createLinearGradient(x0, y0, x0 + w, y0 + hh);
+    rg.addColorStop(0, 'rgba(150,180,200,0.3)'); rg.addColorStop(0.45, 'rgba(40,60,70,0.04)'); rg.addColorStop(1, 'rgba(150,180,200,0.16)');
+    g.fillStyle = rg; g.fillRect(x0, y0, w, hh);
+    g.fillStyle = '#2b8f99'; g.fillRect(x0, y0, w * 0.1, hh * 0.92); g.fillRect(x0 + w * 0.9, y0, w * 0.1, hh * 0.92);   // the curtains tied back
+    const sw = 3, segW = w / sw;
+    for (let k = 0; k < sw; k++) {
+      const a = x0 + k * segW;
+      g.fillStyle = '#4cc3c8'; g.beginPath(); g.moveTo(a, y0); g.quadraticCurveTo(a + segW / 2, y0 + hh * 0.62, a + segW, y0); g.fill();
+      g.strokeStyle = 'rgba(225,252,252,0.7)'; g.lineWidth = 3; g.beginPath(); g.moveTo(a + 5, y0 + 4); g.quadraticCurveTo(a + segW / 2, y0 + hh * 0.5, a + segW - 5, y0 + 4); g.stroke();
+      g.strokeStyle = 'rgba(20,90,100,0.6)'; g.lineWidth = 2; g.beginPath(); g.moveTo(a + 8, y0 + 2); g.quadraticCurveTo(a + segW / 2, y0 + hh * 0.36, a + segW - 8, y0 + 2); g.stroke();
+    }
+  }
+  // the teal sweep and the white band at the front
+  poly([[0, 0.3], [0, 2.05], [1.7, 2.05], [4.7, 0.3]], '#2bb0a6');
+  poly([[1.7, 2.05], [2.12, 2.05], [5.12, 0.3], [4.7, 0.3]], '#f1f3f3');
+  if (frontLeft) {                                                     // the door, with its number on the glass
+    rect(0.22, 1.32, 0.34, 3.2, '#090d11'); rect(0.22, 1.32, 1.9, 1.93, '#1c262e');
+    const dg = g.createLinearGradient(X(0.22), 0, X(1.32), 0); dg.addColorStop(0, 'rgba(160,190,210,0.18)'); dg.addColorStop(1, 'rgba(160,190,210,0.02)');
+    g.fillStyle = dg; g.fillRect(Math.min(X(0.22), X(1.32)), Y(3.2), Math.abs(X(1.32) - X(0.22)), Y(0.34) - Y(3.2));
+    g.fillStyle = '#f4f4f2'; g.font = `italic 600 ${Math.round(PX * 0.19)}px Georgia, 'Times New Roman', serif`; g.textAlign = 'left'; g.textBaseline = 'alphabetic';
+    g.save(); g.translate(X(0.3), Y(1.48)); g.rotate(-0.16); g.fillText('VCK 2020', 0, 0); g.restore();
+    rect(0.28, 0.48, 1.05, 1.2, '#c9372c'); rect(0.55, 0.75, 1.05, 1.2, '#e9e9e9');      // the little no-smoking, no-food stickers
+  }
+  // the panel with the tower on it
+  const L0 = 6.35, L1 = 7.75, B0 = 0.55, B1 = 2.0;
+  rect(L0, L1, B0, B1, '#1b5bb4');
+  {
+    const cx = (X(L0) + X(L1)) / 2, cy = (Y(B0) + Y(B1)) / 2, u = PX * 0.1;
+    g.fillStyle = '#ffffff'; g.beginPath();
+    g.moveTo(cx - 1.7 * u, cy + 2.3 * u); g.lineTo(cx - 1.45 * u, cy - 2.0 * u); g.lineTo(cx - 1.9 * u, cy - 2.0 * u); g.lineTo(cx - 1.9 * u, cy - 3.6 * u);
+    for (let k = 0; k < 3; k++) { const x = cx - 1.9 * u + k * 1.4 * u; g.lineTo(x + 0.75 * u, cy - 3.6 * u); g.lineTo(x + 0.75 * u, cy - 3.0 * u); g.lineTo(x + 1.15 * u, cy - 3.0 * u); g.lineTo(x + 1.15 * u, cy - 3.6 * u); }
+    g.lineTo(cx + 1.9 * u, cy - 3.6 * u); g.lineTo(cx + 1.9 * u, cy - 2.0 * u); g.lineTo(cx + 1.45 * u, cy - 2.0 * u); g.lineTo(cx + 1.7 * u, cy + 2.3 * u); g.closePath(); g.fill();
+    g.fillStyle = '#1b5bb4'; g.fillRect(cx - 0.22 * u, cy - 1.4 * u, 0.44 * u, 1.3 * u);                 // a slit window
+    g.beginPath(); g.arc(cx, cy + 1.6 * u, 0.7 * u, Math.PI, 0); g.lineTo(cx + 0.7 * u, cy + 2.3 * u); g.lineTo(cx - 0.7 * u, cy + 2.3 * u); g.fill();   // the door
+    g.strokeStyle = '#ffffff'; g.lineWidth = 0.42 * u; g.lineCap = 'round';                           // and the water under it
+    for (let k = 0; k < 2; k++) {
+      g.beginPath(); const y = cy + (3.05 + k * 0.75) * u;
+      g.moveTo(cx - 2.1 * u, y); g.bezierCurveTo(cx - 1.2 * u, y - 0.7 * u, cx - 0.6 * u, y + 0.7 * u, cx, y); g.bezierCurveTo(cx + 0.6 * u, y - 0.7 * u, cx + 1.2 * u, y + 0.7 * u, cx + 2.1 * u, y); g.stroke();
+    }
+  }
+  // the name beside it
+  g.fillStyle = '#ffffff'; g.textAlign = frontLeft ? 'left' : 'right'; g.textBaseline = 'alphabetic';
+  const tx = X(L1 + 0.22);
+  g.font = `500 ${Math.round(PX * 0.27)}px 'Helvetica Neue', Helvetica, Arial, sans-serif`; g.fillText('University of', tx, Y(1.6));
+  g.font = `700 ${Math.round(PX * 0.37)}px 'Helvetica Neue', Helvetica, Arial, sans-serif`; g.fillText('Nottingham', tx, Y(1.18));
+  g.font = `500 ${Math.round(PX * 0.2)}px 'Helvetica Neue', Helvetica, Arial, sans-serif`; g.fillText('UK  |  CHINA  |  MALAYSIA', tx, Y(0.78));
+  // the plate by the back wheel
+  rect(10.95, 11.45, 0.44, 0.88, '#efefef');
+  for (let k = 0; k < 4; k++) rect(11.0, 11.4, 0.52 + k * 0.09, 0.55 + k * 0.09, '#555');
+  // wheel arches, a dark skirt
+  rect(0, BUS.L, 0.3, 0.36, '#2a2f36');
+  g.fillStyle = '#05070a';
+  for (const m of [2.2, 8.9]) { g.beginPath(); g.arc(X(m), Y(0.56), 0.68 * PX, Math.PI, 0); g.lineTo(X(m) + 0.68 * PX, H); g.lineTo(X(m) - 0.68 * PX, H); g.fill(); }
+  g.fillRect(0, Y(0.3), W, H - Y(0.3));
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = Math.min(8, MAXANISO);
+  return t;
+}
+function busEndCanvas(front) {
+  const W = 512, H = Math.round(W * BUS.H / BUS.W), c = cv(W, H), g = c.getContext('2d');
+  g.fillStyle = front ? '#151c28' : '#141a25'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#e7e9ea'; g.fillRect(0, 0, W, H * 0.06);
+  if (front) {
+    g.fillStyle = '#2bb0a6'; g.fillRect(0, H * 0.06, W, H * 0.05);                               // the teal visor
+    g.fillStyle = '#0a1015'; g.fillRect(W * 0.04, H * 0.11, W * 0.92, H * 0.5);                  // the windscreen
+    const rg = g.createLinearGradient(0, H * 0.11, W, H * 0.6); rg.addColorStop(0, 'rgba(150,180,200,0.28)'); rg.addColorStop(0.5, 'rgba(0,0,0,0)'); rg.addColorStop(1, 'rgba(150,180,200,0.12)');
+    g.fillStyle = rg; g.fillRect(W * 0.04, H * 0.11, W * 0.92, H * 0.5);
+    g.fillStyle = '#ffb02e'; g.font = `700 ${Math.round(W * 0.07)}px 'Helvetica Neue', Arial, sans-serif`; g.textAlign = 'center'; g.fillText('UNIVERSITY', W / 2, H * 0.16);
+    g.fillStyle = '#2bb0a6'; g.beginPath(); g.moveTo(0, H * 0.72); g.lineTo(W * 0.35, H * 0.62); g.lineTo(W * 0.65, H * 0.62); g.lineTo(W, H * 0.72); g.lineTo(W, H * 0.8); g.lineTo(0, H * 0.8); g.fill();
+    g.fillStyle = '#0b0e12'; g.fillRect(W * 0.3, H * 0.82, W * 0.4, H * 0.08);                   // the grille
+    g.fillStyle = '#fff7dc'; for (const x of [0.06, 0.8]) g.fillRect(W * x, H * 0.82, W * 0.14, H * 0.05);
+  } else {
+    g.fillStyle = '#0b1218'; g.fillRect(W * 0.08, H * 0.12, W * 0.84, H * 0.3);
+    g.fillStyle = '#c21d14'; for (const x of [0.03, 0.89]) g.fillRect(W * x, H * 0.55, W * 0.08, H * 0.28);
+    g.fillStyle = '#f2d230'; g.fillRect(W * 0.32, H * 0.78, W * 0.36, H * 0.07);
+    g.fillStyle = '#111'; g.font = `700 ${Math.round(W * 0.06)}px Arial, sans-serif`; g.textAlign = 'center'; g.fillText('VCK 2020', W / 2, H * 0.835);
+  }
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  return t;
+}
+// the coach, its middle at its own origin, the front toward +z
+function buildBus() {
+  const root = new THREE.Group(), g = new THREE.Group(); root.add(g);
+  const paint = map => new THREE.MeshStandardMaterial({ map, roughness: 0.38, metalness: 0.35 });
+  const mats = [paint(busSideCanvas(true)), paint(busSideCanvas(false)), new THREE.MeshStandardMaterial({ color: lin(0xd9dcde), roughness: 0.5 }),
+    new THREE.MeshStandardMaterial({ color: lin(0x0a0b0d), roughness: 0.9 }), paint(busEndCanvas(true)), paint(busEndCanvas(false))];
+  const body = new THREE.Mesh(new THREE.BoxGeometry(BUS.W, BUS.H, BUS.L), mats); body.castShadow = true; body.receiveShadow = true; g.add(body);
+  const roof = new THREE.Mesh(bevelBox(BUS.W - 0.3, 0.16, BUS.L - 0.9, 0.06), mats[2]); roof.position.set(0, BUS.H / 2 + 0.06, -BUS.L / 2 + 0.45); g.add(roof);
+  const ac = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.22, 2.2), mats[2]); ac.position.set(0, BUS.H / 2 + 0.2, -2.6); g.add(ac);
+  const teal = new THREE.MeshStandardMaterial({ color: lin(0x2bb0a6), roughness: 0.35, metalness: 0.3 }), black = new THREE.MeshStandardMaterial({ color: lin(0x07080a), roughness: 0.5 });
+  for (const s of [1, -1]) {                                           // the mirrors on their long arms, teal-capped
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.7), black); arm.position.set(s * 1.05, BUS.H / 2 - 0.25, BUS.L / 2 + 0.3); arm.rotation.x = -0.25; g.add(arm);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.16, 0.1), teal); cap.position.set(s * 1.05, BUS.H / 2 - 0.42, BUS.L / 2 + 0.66); g.add(cap);
+  }
+  const lampM = new THREE.MeshBasicMaterial({ color: new THREE.Color(2.2, 2.0, 1.6) }), tailM = new THREE.MeshBasicMaterial({ color: new THREE.Color(1.8, 0.1, 0.05) });
+  for (const s of [1, -1]) {
+    const h = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.14, 0.04), lampM); h.position.set(s * 0.9, -BUS.H / 2 + 0.75, BUS.L / 2 + 0.01); g.add(h);
+    const tl = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.9, 0.04), tailM); tl.position.set(s * 1.06, -BUS.H / 2 + 1.5, -BUS.L / 2 - 0.01); g.add(tl);
+  }
+  const tire = new THREE.MeshStandardMaterial({ color: lin(0x0d0d0e), roughness: 0.85 }), hub = new THREE.MeshStandardMaterial({ color: lin(0xb8bcc2), roughness: 0.3, metalness: 0.9 });
+  const tg = new THREE.CylinderGeometry(0.56, 0.56, 0.34, 20).rotateZ(Math.PI / 2), hgeo = new THREE.CylinderGeometry(0.3, 0.3, 0.36, 14).rotateZ(Math.PI / 2);
+  for (const z of [BUS.L / 2 - 2.2, BUS.L / 2 - 8.9]) for (const s of [1, -1]) {
+    const w = new THREE.Mesh(tg, tire); w.position.set(s * (BUS.W / 2 - 0.12), -BUS.H / 2 + 0.26, z); w.castShadow = true; g.add(w);
+    const h = new THREE.Mesh(hgeo, hub); h.position.copy(w.position); g.add(h);
+  }
+  // a red glow round it while he holds it up
+  const aura = new THREE.Sprite(new THREE.SpriteMaterial({ map: wingGlowTex, color: 0xff2a10, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  aura.scale.set(16, 9, 1); root.add(aura);
+  root.userData = { g, aura, body };
+  root.visible = false; scene.add(root);
+  return root;
+}
+const sqBus = buildBus();
+const BUS_Y = BUS.H / 2 + 0.3;                                         // its middle, standing on its wheels
+
+/* ───── the city that comes up out of the ground ───── */
+// In the frame: the avenue runs along z, 16 m of road and a pavement each side; cross streets; a plaza at the far end
+// where the circle burns; two buildings the story needs (a roof for the Moon, a tower he can come from). Everything
+// else is blocks of towers, their windows drawn by the shader from where they are, so a box of any size has floors.
+const CITY = { road: 8, walk: 12, z0: -170, z1: 340, cross: [[-60, -46], [40, 54], [214, 228]], plaza: { z0: 146, z1: 206, x: 36, at: 176 } };
+const CITY_FIXED = [[-24, -12.2, 86, 101, 24], [-41, -27, 106, 122, 42], [12.6, 24, 74, 87, 16]];   // x0 x1 z0 z1 height (the Moon's roof, his tower, the Star's roof)
+const ROOF = { x: -12.9, y: 24, z: 93.2 };                             // where the Moon stands to draw
+const TOWER = { x: -27.6, y: 42, z: 114 };                             // and where he comes from, when he is not the hero
+const CITY_U = { uRise: { value: 99 }, uWin: { value: 1 }, uTime: { value: 0 } };
+const cityMat = new THREE.MeshStandardMaterial({ color: lin(0x9a9ca2), vertexColors: true, roughness: 0.8, metalness: 0.12 });
+cityMat.onBeforeCompile = sh => {
+  Object.assign(sh.uniforms, CITY_U);
+  sh.vertexShader = sh.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute vec4 aB; uniform float uRise; varying vec3 vBP; varying vec3 vBN; varying float vBS;')
+    .replace('#include <begin_vertex>', `#include <begin_vertex>
+      vBP = position; vBN = normal; vBS = aB.x;
+      float rk = clamp((uRise - aB.y) / 1.5, 0.0, 1.0); rk = rk * rk * (3.0 - 2.0 * rk);
+      transformed.y -= (1.0 - rk) * (aB.z + 0.5);`);
+  sh.fragmentShader = sh.fragmentShader
+    .replace('#include <common>', `#include <common>
+      uniform float uWin; uniform float uTime; varying vec3 vBP; varying vec3 vBN; varying float vBS;
+      float cityH(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }`)
+    .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      {
+        vec3 bn = normalize(vBN);
+        float side = 1.0 - step(0.5, abs(bn.y));
+        float u = abs(bn.x) > abs(bn.z) ? vBP.z : vBP.x;
+        vec2 cell = vec2(floor(u / 2.6), floor(vBP.y / 3.4)), f = vec2(fract(u / 2.6), fract(vBP.y / 3.4));
+        float win = step(0.16, f.x) * step(f.x, 0.84) * step(0.24, f.y) * step(f.y, 0.8) * side * step(3.2, vBP.y);
+        float h = cityH(vec3(cell, vBS * 91.0 + floor(bn.x * 2.0 + bn.z * 3.0 + 4.0)));
+        float lit = step(0.56, h) * (0.88 + 0.12 * sin(uTime * (0.4 + h * 2.0) + h * 40.0));
+        vec3 wc = mix(vec3(1.0, 0.6, 0.28), vec3(0.6, 0.76, 1.0), step(0.9, h));
+        diffuseColor.rgb *= 1.0 - 0.6 * win;
+        roughnessFactor = mix(roughnessFactor, 0.12, win);
+        totalEmissiveRadiance += wc * win * lit * uWin * (0.45 + 1.1 * fract(h * 13.7));
+      }`);
+};
+// boxes into one geometry: position, normal, colour and the building's own numbers (a seed, when it rises, its height)
+function cityBoxes(list) {
+  const pos = [], nor = [], col = [], ab = [], idx = [];
+  for (const b of list) {
+    const [x0, x1, y0, y1, z0, z1, c, seed, rise] = b;
+    const faces = [
+      [[1, 0, 0], [[x1, y0, z1], [x1, y0, z0], [x1, y1, z0], [x1, y1, z1]]], [[-1, 0, 0], [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0]]],
+      [[0, 0, 1], [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]]], [[0, 0, -1], [[x1, y0, z0], [x0, y0, z0], [x0, y1, z0], [x1, y1, z0]]],
+      [[0, 1, 0], [[x0, y1, z1], [x1, y1, z1], [x1, y1, z0], [x0, y1, z0]]],
+    ];
+    for (const [n, q] of faces) {
+      const base = pos.length / 3, shade = n[1] ? 0.8 : 1;
+      for (const p of q) { pos.push(p[0], p[1], p[2]); nor.push(n[0], n[1], n[2]); col.push(c[0] * shade, c[1] * shade, c[2] * shade); ab.push(seed, rise, y1, 0); }
+      idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setAttribute('aB', new THREE.Float32BufferAttribute(ab, 4));
+  g.setIndex(idx);
+  g.computeBoundingSphere();
+  return g;
+}
+function cityTex(draw, w, h, rx, ry) {
+  const c = cv(w, h), g = c.getContext('2d'); draw(g, w, h);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = Math.min(8, MAXANISO);
+  return t;
+}
+const grit = (g, w, h, n, a) => { for (let i = 0; i < n; i++) { const d = Math.random() < 0.55; g.fillStyle = d ? `rgba(0,0,0,${Math.random() * a})` : `rgba(255,255,255,${Math.random() * a * 0.5})`; g.fillRect(Math.random() * w, Math.random() * h, 2, 2); } };
+function buildCity() {
+  const city = new THREE.Group(), R = rng(2026);
+  city.visible = false; scene.add(city);
+  // the ground, the avenue, the cross streets, the pavements
+  const concrete = cityTex((g, w, h) => { g.fillStyle = '#3a3a3e'; g.fillRect(0, 0, w, h); grit(g, w, h, 9000, 0.25);
+    g.strokeStyle = 'rgba(0,0,0,0.35)'; g.lineWidth = 2; for (let i = 0; i <= 4; i++) { g.beginPath(); g.moveTo(i * w / 4, 0); g.lineTo(i * w / 4, h); g.moveTo(0, i * h / 4); g.lineTo(w, i * h / 4); g.stroke(); } }, 256, 256, 160, 160);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(900, 900).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: concrete, color: lin(0x77767a), roughness: 0.95 }));
+  ground.position.set(0, 0.006, 80); ground.receiveShadow = true; city.add(ground);
+  const asphalt = (g, w, h) => {
+    g.fillStyle = '#1c1d20'; g.fillRect(0, 0, w, h); grit(g, w, h, 16000, 0.3);
+    for (let i = 0; i < 30; i++) { g.fillStyle = `rgba(0,0,0,${0.08 + Math.random() * 0.12})`; g.beginPath(); g.ellipse(Math.random() * w, Math.random() * h, 10 + Math.random() * 30, 20 + Math.random() * 60, 0, 0, TAU); g.fill(); }
+  };
+  const roadTex = cityTex((g, w, h) => {
+    asphalt(g, w, h);
+    g.fillStyle = '#d8b63a'; g.fillRect(w * 0.5 - 7, 0, 4, h); g.fillRect(w * 0.5 + 3, 0, 4, h);                   // the double yellow
+    g.fillStyle = '#d9d9d4'; for (const x of [0.25, 0.75]) for (let y = 0; y < h; y += h / 4) g.fillRect(w * x - 2, y, 4, h / 8);
+    g.fillRect(6, 0, 4, h); g.fillRect(w - 10, 0, 4, h);
+  }, 256, 1024, 1, (CITY.z1 - CITY.z0) / 64);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(CITY.road * 2, CITY.z1 - CITY.z0).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: roadTex, roughness: 0.85 }));
+  road.position.set(0, 0.014, (CITY.z0 + CITY.z1) / 2); road.receiveShadow = true; city.add(road);
+  const crossTex = cityTex((g, w, h) => { asphalt(g, w, h); g.fillStyle = '#d9d9d4'; for (let x = 0; x < w; x += w / 8) g.fillRect(x, h * 0.46, w / 16, 4); }, 512, 128, 6, 1);
+  for (const [a, b] of CITY.cross) {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(240, b - a).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: crossTex, roughness: 0.85 }));
+    m.position.set(0, 0.016, (a + b) / 2); m.receiveShadow = true; city.add(m);
+  }
+  const plazaTex = cityTex((g, w, h) => { g.fillStyle = '#4a4744'; g.fillRect(0, 0, w, h); grit(g, w, h, 8000, 0.22);
+    g.strokeStyle = 'rgba(0,0,0,0.3)'; g.lineWidth = 2; for (let i = 0; i <= 8; i++) { g.beginPath(); g.moveTo(i * w / 8, 0); g.lineTo(i * w / 8, h); g.moveTo(0, i * h / 8); g.lineTo(w, i * h / 8); g.stroke(); } }, 256, 256, 12, 12);
+  const plaza = new THREE.Mesh(new THREE.CircleGeometry(CITY.plaza.x, 64).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: plazaTex, roughness: 0.9 }));
+  plaza.position.set(0, 0.02, CITY.plaza.at); plaza.receiveShadow = true; city.add(plaza);
+  const curbs = [], inCross = z => CITY.cross.some(([a, b]) => z > a && z < b);
+  let z = CITY.z0;
+  while (z < CITY.z1) {
+    const cr = CITY.cross.find(([a]) => a > z), end = cr ? cr[0] : CITY.z1;
+    for (const s of [-1, 1]) curbs.push([s > 0 ? CITY.road : -CITY.walk, s > 0 ? CITY.walk : -CITY.road, 0, 0.16, z, end, [0.42, 0.42, 0.44], 0, -99]);
+    z = cr ? cr[1] : CITY.z1;
+  }
+  const walkM = new THREE.MeshStandardMaterial({ color: lin(0x8a8a8e), roughness: 0.9, map: concrete });
+  const walks = new THREE.Mesh(cityBoxes(curbs), walkM); walks.receiveShadow = true; city.add(walks);
+  // the buildings
+  const lots = [], skip = (x0, x1, z0, z1) => CITY_FIXED.some(f => x1 > f[0] - 2 && x0 < f[1] + 2 && z1 > f[2] - 2 && z0 < f[3] + 2)
+    || CITY.cross.some(([a, b]) => z1 > a - 1 && z0 < b + 1) || (z1 > CITY.plaza.z0 && z0 < CITY.plaza.z1 && Math.min(Math.abs(x0), Math.abs(x1)) < CITY.plaza.x);
+  const tone = () => { const v = 0.09 + R() * 0.13, w = R() * 0.03; return [v + w, v + w * 0.5, v + w * 0.2]; };
+  for (const s of [-1, 1]) for (const [xa, xb] of [[CITY.walk + 0.5, 36], [40, 68]]) {
+    let zz = CITY.z0;
+    while (zz < CITY.z1) {
+      const w = 10 + R() * 14, z0 = zz, z1 = zz + w; zz = z1 + 1.5 + R() * 3;
+      const d = (xb - xa) * (0.55 + R() * 0.45), xi = xa + R() * (xb - xa - d) * (xa > 20 ? 1 : 0);
+      const x0 = s > 0 ? xi : -xi - d, x1 = s > 0 ? xi + d : -xi;
+      if (skip(x0, x1, z0, z1)) continue;
+      let h = 14 + R() * 44 + (R() < 0.16 ? 30 + R() * 40 : 0);
+      if (s > 0 && z1 > 104 && z0 < 156) h = 5 + R() * 6;                  // low where the angel stands and the arm comes down
+      if (s < 0 && z1 > 80 && z0 < 126 && xa < 20) h = Math.min(h, 18);       // and round the Moon's roof, so it can be seen
+      if (Math.abs(z0) < 40 && xa < 20) h = Math.max(h, 18);
+      lots.push([x0, x1, 0, h, z0, z1, tone(), R(), 0]);
+      if (h > 40 && R() < 0.6) lots.push([x0 + d * 0.2, x1 - d * 0.2, h, h + 4 + R() * 10, z0 + w * 0.2, z1 - w * 0.2, tone(), R(), 0]);   // a setback crown
+    }
+  }
+  for (const f of CITY_FIXED) lots.push([f[0], f[1], 0, f[4], f[2], f[3], [0.3, 0.29, 0.28], R(), 0]);
+  // far off, all round: the skyline
+  for (let i = 0; i < 90; i++) {
+    const a = R() * TAU, r = 100 + R() * 160, x = Math.sin(a) * r, zc = 80 + Math.cos(a) * r;
+    if (Math.abs(x) < 74) continue;
+    const w = 12 + R() * 20, d = 12 + R() * 20, h = 40 + R() * 110;
+    lots.push([x - w / 2, x + w / 2, 0, h, zc - d / 2, zc + d / 2, tone(), R(), 0]);
+  }
+  // when each comes up: out from where the hero lies, in a wave
+  for (const L of lots) { const cx = (L[0] + L[1]) / 2, cz = (L[4] + L[5]) / 2; L[8] = Math.hypot(cx, cz) / 70 + R() * 0.5; }
+  const blds = new THREE.Mesh(cityBoxes(lots), cityMat); blds.receiveShadow = true; blds.frustumCulled = false; city.add(blds);
+  // street lamps every 22 m down both pavements
+  const poleG = [], headG = [], glows = [];
+  for (let lz = CITY.z0 + 6; lz < CITY.z1; lz += 22) for (const s of [-1, 1]) {
+    if (inCross(lz) || (lz > CITY.plaza.z0 && lz < CITY.plaza.z1)) continue;
+    const x = s * (CITY.road + 0.9);
+    poleG.push(new THREE.CylinderGeometry(0.08, 0.12, 7.2, 8).translate(x, 3.6, lz), new THREE.BoxGeometry(1.8, 0.1, 0.12).translate(x - s * 0.85, 7.1, lz));
+    headG.push(new THREE.BoxGeometry(0.6, 0.12, 0.3).translate(x - s * 1.6, 7.0, lz));
+    glows.push([x - s * 1.6, 6.85, lz]);
+  }
+  const poles = new THREE.Mesh(mergeGeos(poleG), new THREE.MeshStandardMaterial({ color: lin(0x1d1f22), roughness: 0.5, metalness: 0.7 })); city.add(poles);
+  city.add(new THREE.Mesh(mergeGeos(headG), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 1.7, 0.95) })));
+  const glowM = new THREE.SpriteMaterial({ map: wingGlowTex, color: 0xffb070, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false });
+  for (const [x, y, gz] of glows) { const sp = new THREE.Sprite(glowM); sp.position.set(x, y, gz); sp.scale.setScalar(3.2); city.add(sp); }
+  // cars: parked along the kerbs, a few left across the lanes; one lying in the way, for the hero to go over
+  const carGeo = (() => {
+    const b = [new THREE.BoxGeometry(1.8, 0.72, 4.4).translate(0, 0.62, 0), new THREE.BoxGeometry(1.62, 0.6, 2.3).translate(0, 1.26, -0.2)];
+    return mergeGeos(b);
+  })();
+  const wheelG = new THREE.CylinderGeometry(0.34, 0.34, 0.24, 12).rotateZ(Math.PI / 2), wheelM = new THREE.MeshStandardMaterial({ color: lin(0x0c0c0d), roughness: 0.9 });
+  const glassM = new THREE.MeshStandardMaterial({ color: lin(0x0c1216), roughness: 0.1, metalness: 0.6 });
+  const cabinG = new THREE.BoxGeometry(1.7, 0.44, 2.36).translate(0, 1.28, -0.2);
+  const CARS = [[-6.2, 12, 0.02], [5.9, 46, -0.03], [-6.0, 58, 0], [6.1, 88, 0.05], [-6.3, 132, 0.02], [5.8, -18, 0], [-6.1, -36, 0.04], [2.5, 104, 0.9], [-2.8, 64, -0.5],
+    [1.4, 38.5, 1.35], [-5.9, 106, 0.02], [6.0, 112, 0], [-6.2, 24, 0.03]];
+  const sqCars = [];
+  for (const [x, cz, yaw] of CARS) {
+    const g = new THREE.Group(); g.position.set(x, 0, cz); g.rotation.y = yaw;
+    const paint = new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(R(), 0.25 + R() * 0.4, 0.12 + R() * 0.28).convertSRGBToLinear(), roughness: 0.32, metalness: 0.6 });
+    const b = new THREE.Mesh(carGeo, paint); b.castShadow = true; b.receiveShadow = true; g.add(b);
+    g.add(new THREE.Mesh(cabinG, glassM));
+    for (const [wx, wz] of [[0.86, 1.4], [-0.86, 1.4], [0.86, -1.4], [-0.86, -1.4]]) { const w = new THREE.Mesh(wheelG, wheelM); w.position.set(wx, 0.34, wz); g.add(w); }
+    city.add(g); sqCars.push(g);
+  }
+  // the circle he draws on the plaza: rings, an inverted star, a band of letters, all burning
+  const circleTex = (() => {
+    const S = 1024, c = cv(S, S), g = c.getContext('2d'), M = S / 2;
+    g.strokeStyle = '#fff'; g.fillStyle = '#fff'; g.shadowColor = '#fff'; g.shadowBlur = 18; g.lineCap = 'round';
+    const ring = (r, w) => { g.lineWidth = w; g.beginPath(); g.arc(M, M, r, 0, TAU); g.stroke(); };
+    ring(M * 0.97, 10); ring(M * 0.9, 5); ring(M * 0.7, 7); ring(M * 0.64, 3);
+    g.lineWidth = 9; g.beginPath();
+    for (let i = 0; i <= 5; i++) { const a = Math.PI / 2 + i * 2 * TAU / 5, x = M + Math.cos(a) * M * 0.69, y = M + Math.sin(a) * M * 0.69; if (i) g.lineTo(x, y); else g.moveTo(x, y); }
+    g.stroke();
+    const RR = rng(66), u = S * 0.016;
+    g.lineWidth = 4;
+    for (let i = 0; i < 40; i++) {                                       // a band of letters: each a few hard strokes
+      const a = i / 40 * TAU; g.save(); g.translate(M + Math.cos(a) * M * 0.8, M + Math.sin(a) * M * 0.8); g.rotate(a + Math.PI / 2);
+      g.beginPath(); g.moveTo(0, -u * 1.2); g.lineTo(0, u * 1.2);
+      for (let k = 0; k < 2 + (RR() * 2 | 0); k++) { const y = (RR() - 0.5) * 2 * u, s = RR() < 0.5 ? -1 : 1; g.moveTo(0, y); g.lineTo(s * u * 0.9, y + (RR() - 0.5) * u * 1.4); }
+      g.stroke(); g.restore();
+    }
+    const t = new THREE.CanvasTexture(c); return t;
+  })();
+  const circle = new THREE.Mesh(new THREE.PlaneGeometry(56, 56).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: circleTex, color: 0xff3a14, transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  circle.position.set(0, 0.1, CITY.plaza.at); circle.renderOrder = 3; city.add(circle);
+  const pit = new THREE.Mesh(new THREE.CircleGeometry(22, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false }));
+  pit.position.set(0, 0.06, CITY.plaza.at); city.add(pit);
+  city.userData = { circle, pit, cars: sqCars, ground };
+  return city;
+}
+let sqCity = null;
+laterLoad(() => { sqCity = buildCity(); });
+// where fires burn in the city once it is up (x, y, z, size)
+const CITY_FIRES = [[2.5, 0.8, 104, 1.4], [-2.8, 0.8, 64, 1.1], [-17, 18.4, 60, 1.6], [24, 30, 30, 2.2], [-30, 22, 150, 2], [-6.2, 0.9, 132, 0.9]];
+
+/* ───── the titan: his masterpiece ───── */
+// the Devil's own body, twenty times over, burnt black, the magma showing through; eyes like furnace doors, a mouth that glows
+const TITAN_K = 26, TKS = TITAN_K / 20;                              // (TKS: its size against the one the scene was laid out for)
+const TV = {};
+for (const k in DV) TV[k] = DV[k].clone();
+TV.skin.color.copy(lin(0x2c0d0a)); TV.skin.roughness = 0.62; TV.skin.emissive = new THREE.Color(0.06, 0.008, 0.002);
+TV.fur.color.copy(lin(0x0f0908)); TV.hair.color.copy(lin(0x050404)); TV.hoof.color.copy(lin(0x090707)); TV.horn.color.copy(lin(0x0d0a0a));
+TV.eye.color.setRGB(3.4, 2.3, 0.7); TV.teeth.color.copy(lin(0xd5c7a6)); TV.leather.color.copy(lin(0x140b09));
+TV.gold.color.copy(lin(0x5c3f17)); TV.cloth.color.copy(lin(0x200406)); TV.mouth.color.copy(lin(0x5a0a04)); TV.mouth.emissive = new THREE.Color(0.9, 0.14, 0.02);
+TV.wing.color.setRGB(0.16, 0.05, 0.045); TV.wing.emissive && TV.wing.emissive.setRGB(0.12, 0.015, 0.006);
+for (const m of Object.values(TV)) { m.userData.o = m.opacity; m.userData.t = m.transparent; }
+const titanRig = buildDevil(TV);
+titanRig.root.rotation.order = 'YXZ'; titanRig.root.scale.setScalar(TITAN_K); titanRig.root.visible = false; scene.add(titanRig.root);
+titanRig.tridentMesh.visible = false;
+for (const e of titanRig.eyeGlow) { e.material.color.setHex(0xffa030); e.scale.setScalar(0.13); }
+const titanLight = new THREE.PointLight(0xff5a1a, 0, 140, 1.6); scene.add(titanLight);
+// the arm, once it is off: everything on that side's shoulder, elbow and wrist, as it hangs at the moment of the cut,
+// baked into the shoulder's own frame (so it can be dropped from where it was)
+const sqArm = new THREE.Group(); sqArm.visible = false; scene.add(sqArm);
+function bakeTitanArm(R, side) {
+  const a = R.arms[side], keep = new Set([a.sh, a.el, a.wr]);
+  R.root.updateMatrixWorld(true);
+  const inv = new THREE.Matrix4().copy(a.sh.matrixWorld).invert(), nm = new THREE.Matrix3();
+  const buckets = new Map(), v = new V3(), t = new V3(), n = new V3();
+  const under = o => { for (let q = o.parent; q && q !== R.root; q = q.parent) if (keep.has(q)) return true; return false; };
+  const shown = o => { for (let q = o; q && q !== R.root; q = q.parent) if (!q.visible) return false; return true; };
+  R.root.traverse(o => {
+    if (!o.isMesh || !o.geometry.attributes.normal || !shown(o)) return;
+    const g = o.geometry, P = g.attributes.position, N = g.attributes.normal, skinned = !!o.isSkinnedMesh;
+    if (!skinned && !under(o)) return;
+    let ok = null;
+    if (skinned) {
+      const SI = g.attributes.skinIndex, SW = g.attributes.skinWeight, bones = o.skeleton.bones;
+      ok = new Uint8Array(P.count);
+      for (let i = 0; i < P.count; i++) {
+        const w = [SW.getX(i), SW.getY(i), SW.getZ(i), SW.getW(i)], b = [SI.getX(i), SI.getY(i), SI.getZ(i), SI.getW(i)];
+        let k = 0; for (let j = 1; j < 4; j++) if (w[j] > w[k]) k = j;
+        ok[i] = keep.has(bones[b[k]]) ? 1 : 0;
+      }
+    }
+    if (!buckets.has(o.material)) buckets.set(o.material, { pos: [], nor: [], idx: [] });
+    const B = buckets.get(o.material), map = new Int32Array(P.count).fill(-1);
+    nm.getNormalMatrix(o.matrixWorld);
+    const put = i => {
+      if (map[i] >= 0) return map[i];
+      v.fromBufferAttribute(P, i); n.fromBufferAttribute(N, i);
+      if (skinned) { t.copy(v).addScaledVector(n, 0.01); skinPoint(o, i, v, v); skinPoint(o, i, t, t); v.applyMatrix4(o.matrixWorld); t.applyMatrix4(o.matrixWorld); n.subVectors(t, v); }
+      else { v.applyMatrix4(o.matrixWorld); n.applyMatrix3(nm); }
+      v.applyMatrix4(inv); n.transformDirection(inv);
+      map[i] = B.pos.length / 3; B.pos.push(v.x, v.y, v.z); B.nor.push(n.x, n.y, n.z);
+      return map[i];
+    };
+    const I = g.index, nt = (I ? I.count : P.count) / 3;
+    for (let f = 0; f < nt; f++) {
+      const i0 = I ? I.getX(f * 3) : f * 3, i1 = I ? I.getX(f * 3 + 1) : f * 3 + 1, i2 = I ? I.getX(f * 3 + 2) : f * 3 + 2;
+      if (ok && !(ok[i0] && ok[i1] && ok[i2])) continue;
+      B.idx.push(put(i0), put(i1), put(i2));
+    }
+  });
+  for (const c of sqArm.children.splice(0)) { c.geometry.dispose(); c.material.dispose(); }
+  for (const [src, B] of buckets) {
+    if (!B.idx.length) continue;
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(B.pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(B.nor, 3)); geo.setIndex(B.idx);
+    const mat = new THREE.MeshStandardMaterial({ color: src.color ? src.color.clone() : new THREE.Color(0.1, 0.03, 0.02), roughness: src.roughness === undefined ? 0.6 : src.roughness,
+      metalness: src.metalness || 0, emissive: src.emissive ? src.emissive.clone() : new THREE.Color(0, 0, 0), side: THREE.DoubleSide });
+    const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.frustumCulled = false; sqArm.add(m);
+  }
+  a.sh.matrixWorld.decompose(sqArm.position, sqArm.quaternion, sqArm.scale);
+  a.sh.scale.setScalar(0.001);                                          // and off the titan it comes
+}
+
+/* ───── the three of them, each in his own body ───── */
+const sqRig = {};
+for (const h of HERO_ORDER) {
+  const R = buildPlayer(); R.root.rotation.order = 'YXZ'; R.root.visible = false; scene.add(R.root);
+  setOutfit(R, h, false, false); sqRig[h] = R;
+}
+// the Sun in the holy fire: wings of light, a halo, the blade turned to crystal, a gold glow on him and a trail behind
+const SUNK = (() => {
+  const R = sqRig.sun, mat = makeWingMaterial(0xffc865, 0xfff6e0), wings = buildLightWings(R.chest, mat, 0.9);
+  const haloM = new THREE.MeshBasicMaterial({ color: 0xffdc8a, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, opacity: 0, fog: false });
+  const halo = new THREE.Mesh(new THREE.RingGeometry(0.26, 0.33, 56), haloM);
+  halo.position.set(0, 0.34, -0.06); halo.rotation.x = -Math.PI / 2 + 0.28; halo.renderOrder = 9; R.head.add(halo);
+  const auraM = new THREE.SpriteMaterial({ map: wingGlowTex, color: 0xffd27a, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  const aura = new THREE.Sprite(auraM); aura.scale.setScalar(3.4); aura.position.set(0, 0.1, -0.1); R.chest.add(aura);
+  const blade = holySword.clone(true), bladeMats = [];
+  blade.traverse(o => { if (o.isMesh) { o.material = o.material.clone(); bladeMats.push(o.material); } });
+  blade.visible = false; R.sword.add(blade);
+  const light = new THREE.PointLight(0xffd29a, 0, 30, 2); scene.add(light);
+  const trail = new Ribbon(60, 0.55); scene.add(trail.mesh);
+  const comet = new THREE.Sprite(new THREE.SpriteMaterial({ map: wingGlowTex, color: 0xffd890, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, fog: false }));
+  comet.scale.setScalar(7); scene.add(comet);
+  return { R, wings, mat, halo, haloM, aura, auraM, blade, bladeMats, ring: blade.children[blade.children.length - 1], light, trail, comet, k: 0, open: 0 };
+})();
+// the Moon in the moonlight: the crescent on his back, a bow of light, the trigram ring and a great moon behind him,
+// a column of moonlight on him, and the ancestors who draw with him
+const MOONK = (() => {
+  const R = sqRig.moon;
+  const bowMat = makeSpiritMat(0xb4d0ff, 0.6, false), bow = ghostBowGroup();
+  bow.traverse(o => { if (o.isMesh) { o.material = bowMat; o.renderOrder = 7; o.frustumCulled = false; } });
+  bow.position.copy(armyBow.pos); bow.quaternion.copy(armyBow.q); bow.visible = false; R.root.add(bow);
+  const cresM = crescentMat.clone(); cresM.opacity = 0;
+  const cres = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), cresM); cres.position.set(0, 0.28, -0.34); cres.rotation.y = Math.PI; cres.renderOrder = 8; R.chest.add(cres);
+  const halo = new THREE.Group(); halo.visible = false; scene.add(halo);
+  const glowM = haloGlowMat.clone(), ringM = trigramMat.clone(), crM = haloCresMat.clone();
+  for (const [geo, m, z] of [[new THREE.PlaneGeometry(9, 9), glowM, -0.02], [new THREE.PlaneGeometry(7, 7), ringM, 0], [new THREE.PlaneGeometry(5, 5), crM, 0.01]]) {
+    const q = new THREE.Mesh(geo, m); q.position.z = z; q.renderOrder = 5; halo.add(q);
+  }
+  const ring = halo.children[1];
+  const moonM = bigMoonMat.clone(); moonM.opacity = 0; moonM.fog = false; moonM.depthWrite = false;
+  const moon = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), moonM); moon.renderOrder = -6; moon.visible = false; scene.add(moon);
+  const pillar = makeBeam(); pillar.material.uniforms.uColor.value.setRGB(0.7, 0.82, 1.0);
+  const armyM = makeSpiritMat(0x86b4ff, 0.24, false); armyM.uniforms.uFeet.value = 0.02;
+  const light = new THREE.PointLight(0xa8c4ff, 0, 22, 2); scene.add(light);
+  const trail = new Ribbon(60, 0.6); scene.add(trail.mesh);
+  return { R, bow, bowMat, cres, cresM, halo, glowM, ringM, crM, ring, moon, moonM, pillar, armyM, army: [], light, trail, k: 0 };
+})();
+// the ancestors: the archers' own bodies (baked once everyone is sculpted), in a light of their own
+function sqAncestors() {
+  if (MOONK.army.length || !army[0].m.geometry.attributes.position) return;
+  ARMY_AT.forEach(([x, z], i) => {
+    const m = addDepthTwin(new THREE.Mesh(army[i].m.geometry, MOONK.armyM));
+    m.visible = false; scene.add(m);
+    MOONK.army.push({ m, x, z, delay: 0.16 * i });
+  });
+}
+// the archangel that comes with the Sun: one of the Host, the size of a tower
+const ANGEL_K = 9 * TKS;
+const sqAngel = buildAngel();
+sqAngel.root.rotation.order = 'YXZ'; sqAngel.root.scale.setScalar(ANGEL_K); sqAngel.root.visible = false; scene.add(sqAngel.root);
+const sqAngelBeam = makeBeam();
+
+/* ───── how they move ───── */
+function sqActor(R, kind) {
+  return { R, kind, pose: mkPose(P_IDLE, {}), tgt: mkPose(P_IDLE, {}), lp: new V3(), lyaw: 0, pitch: 0, lie: 0, roll: 0, bank: 0, run: 0, ph: 0, runRate: 1,
+    blend: 12, snap: false, on: false, wrist: 0 };
+}
+// a run laid over whatever pose he was given, then the pose eased in, then the body put where it goes in the world
+function sqPlace(A, dt) {
+  const R = A.R, w = A.run, T = A.tgt;
+  R.root.visible = A.on;
+  if (!A.on) return;
+  if (w > 0.02) {
+    A.ph += dt * (8.5 + 5 * w) * A.runRate;
+    const s = Math.sin(A.ph), c = Math.cos(A.ph);
+    T.stepL += 1.0 * s * w; T.stepR -= 1.0 * s * w; T.kneeL += 1.4 * Math.max(0, c) * w; T.kneeR += 1.4 * Math.max(0, -c) * w;
+    T.lean += 0.32 * w; T.cLean += 0.08 * w; T.twist += 0.12 * s * w;
+    T.lax -= 0.7 * s * w; T.rax += 0.7 * s * w; T.lae += 0.5 * w; T.rae += 0.5 * w;
+  }
+  if (A.snap) { Object.assign(A.pose, T); A.snap = false; } else blendPose(A.pose, T, A.blend, dt);
+  applyPose(R, A.pose);
+  if (w > 0.02) R.hips.position.y += Math.abs(Math.sin(A.ph)) * 0.08 * w;
+  if (R.roll) R.roll.rotation.x = A.roll;
+  if (R.sword && A.kind === 'angel') R.sword.rotation.x = A.wrist;
+  sqW(A.lp.x, A.lp.y + A.lie, A.lp.z, R.root.position);
+  R.root.rotation.set(A.pitch, A.lyaw + SQF.yaw, A.bank);
+  R.root.updateMatrixWorld(true);
+}
+function sqShow(A, on) { A.on = on; A.R.root.visible = on; }
+// face a local point (a heading in the frame)
+const sqFace = (A, x, z) => Math.atan2(x - A.lp.x, z - A.lp.z);
+// the arm as a gun: straight out at a world point (as aimArm does for the player)
+function sqAim(A, tgt, at) {
+  const p = sqW(A.lp.x, A.lp.y, A.lp.z, _sqe), dx = at.x - p.x, dz = at.z - p.z, d = Math.max(1, Math.hypot(dx, dz));
+  const pitch = clamp(Math.atan2(at.y - (p.y + 1.42 - tgt.crouch * 0.35), d), -1.0, 1.2), off = clamp(angDiff(A.lyaw + SQF.yaw, Math.atan2(dx, dz)), -0.6, 0.6), body = tgt.twist + tgt.cTwist;
+  tgt.rax = Math.PI / 2 + pitch - tgt.lean - tgt.cLean; tgt.ray = -body + Math.atan2(0.3, d) + off;
+  tgt.hy = -body * 0.9 + off * 0.8; tgt.hx = -pitch * 0.6;
+}
+// the poses only this needs
+const PQ_PINNED = mkPose(PK_LIE, { hx: -0.1, lax: 0.55, laz: 1.3, lae: 0.5, rax: 0.4, raz: 1.2, rae: 0.6, stepL: 0.25, kneeL: 0.5, stepR: 0.1, kneeR: 0.2 });
+const PQ_JOLT = mkPose(PQ_PINNED, { hx: -0.55, lean: -0.2, lax: 0.9, laz: 0.9, rax: 0.9, raz: 0.9, lae: 1.1, rae: 1.1, kneeL: 0.9, kneeR: 0.7 });
+const PQ_GRIP = mkPose(PK_LIE, { hx: -0.45, lean: 0.05, cLean: 0.1, stepL: 0.2, kneeL: 0.7, stepR: 0.3, kneeR: 0.9 });
+const PQ_SIT = mkPose(P_IDLE, { crouch: 1.0, lean: 0.4, cLean: 0.2, hx: 0.2, stepL: 0.9, kneeL: 0.6, stepR: 0.6, kneeR: 0.9, lax: 0.4, laz: 0.6, lae: 0.6, rax: 0.8, raz: 0.4, rae: 0.5 });
+const PQ_TOSS = mkPose(P_IDLE, { crouch: 0.6, lean: 0.25, twist: 0.6, cTwist: 0.4, rax: 1.4, raz: 1.2, ray: -0.8, rae: 0.1, lax: 0.6, laz: 0.6, lae: 0.9, stepL: 0.6, stepR: -0.4 });
+const PQ_SKID = mkPose(P_IDLE, { crouch: 0.55, lean: -0.15, cLean: -0.1, stepL: 0.9, stepR: -0.7, kneeL: 0.2, kneeR: 0.9, lax: 0.9, laz: 0.9, lae: 0.4, rax: 0.7, raz: 0.8, rae: 0.6, spread: 0.3 });
+const PQ_LOOKUP = mkPose(P_IDLE, { hx: -0.6, cLean: -0.12, lean: -0.05 });
+const PQ_FLY = mkPose(P_IDLE_U, { crouch: 0, lean: 0.1, cLean: 0.05, hx: -0.9, lax: 0.4, laz: 0.5, lae: 0.4, rax: 1.6, raz: 0.3, ray: 0.2, rae: 0.15,
+  stepL: -0.3, stepR: -0.1, kneeL: 0.5, kneeR: 0.8, spread: 0.08 });
+const PQ_FLY_RAISE = mkPose(PQ_FLY, { hx: -0.4, rax: 3.0, raz: 0.4, rae: 0.6, lax: 1.2, laz: 0.9, lae: 0.8, lean: -0.3, cLean: -0.2 });
+const PQ_FLY_CUT = mkPose(PQ_FLY, { hx: 0.1, rax: 1.0, raz: 0.1, ray: 1.6, rae: 0.1, twist: 1.1, cTwist: 0.7, lax: 1.0, laz: 1.2, lean: 0.4 });
+const PQ_LIMP = mkPose(P_HIT, { crouch: 0.2, lean: 0.5, cLean: 0.35, hx: 0.6, lax: 0.7, laz: 1.4, lae: 0.4, rax: 0.5, raz: 1.3, rae: 0.6, stepL: 0.4, kneeL: 0.9, stepR: -0.3, kneeR: 1.2 });
+const PQ_CATCH = mkPose(P_IDLE_MOON, { crouch: 0.15, lean: 0.25, cLean: 0.1, hx: 0.25, lax: 1.25, laz: 0.35, lay: 0.6, lae: 1.3, rax: 1.25, raz: 0.35, ray: 0.6, rae: 1.3,
+  stepL: 0.4, kneeL: 0.6, stepR: -0.4, kneeR: 1.0 });
+const PQ_LEAP = mkPose(P_IDLE_MOON, { crouch: 0.1, lean: 0.4, cLean: 0.15, hx: -0.3, lax: 0.4, laz: 1.0, lae: 0.3, rax: 0.4, raz: 1.0, rae: 0.3, stepL: 0.8, kneeL: 1.2, stepR: -0.5, kneeR: 0.4 });
+const PQ_LIFT = mkPose(PK_KNEEL, { hx: 0.2 });
+const PQ_DEVIL_HOVER = mkPose(DV_FLY, { lean: 0.02, hx: 0.05, rax: 0.3, raz: 0.3, rae: 1.2, lax: 0.3, laz: 0.3, lae: 1.2, stepL: 0.1, stepR: -0.25, kneeL: 0.4, kneeR: 0.6 });
+const PQ_DEVIL_CROUCH = mkPose(DV_KNEEL, { lean: 0.55, cLean: 0.2, hx: 0.6, hy: -0.2, lax: 0.4, laz: 0.4, lae: 1.4, rax: 0.7, raz: 0.3, rae: 0.9 });
+const PQ_DEVIL_ARMS = mkPose(DVI, { lean: -0.28, cLean: -0.2, hx: -0.4, jaw: 0.6, lax: 0.5, laz: 1.45, lae: 0.25, rax: 0.5, raz: 1.45, rae: 0.25, spread: 0.2, stepL: 0.1, stepR: -0.1, kneeL: 0.3, kneeR: 0.5 });
+const PQ_DEVIL_SUMMON = mkPose(PQ_DEVIL_ARMS, { lax: 2.9, laz: 0.4, rax: 2.9, raz: 0.4, lae: 0.3, rae: 0.3, hx: -0.15 });
+const PQ_DEVIL_REACH = mkPose(PQ_DEVIL_HOVER, { lax: 1.5, laz: 0.3, lay: 0.1, lae: 0.15, hx: 0.1, twist: -0.2 });
+const PQ_DEVIL_BLOCK = mkPose(PQ_DEVIL_HOVER, { twist: -0.5, cTwist: -0.3, rax: 1.9, raz: 0.5, ray: 0.9, rae: 1.5, hx: 0.05, hy: 0.5, lax: 0.5, laz: 0.8, lae: 0.9 });
+// the titan's: climbing out, the roar, the walk, the pain, the swat (its own right arm is R.arms[1])
+const TI_RISE = mkPose(DVI, { crouch: 0.7, lean: 0.75, cLean: 0.3, hx: 0.6, lax: 2.4, laz: 0.7, lae: 0.9, rax: 2.4, raz: 0.7, rae: 0.9, stepL: 0.5, stepR: -0.3, kneeL: 0.8, kneeR: 0.8, jaw: 0.2 });
+const TI_ROAR = mkPose(DVI, { crouch: 0.3, lean: -0.25, cLean: -0.25, hx: -0.5, jaw: 1.0, lax: 0.7, laz: 1.4, lae: 0.7, rax: 0.7, raz: 1.4, rae: 0.7, stepL: 0.3, stepR: -0.3, spread: 0.28 });
+const TI_WALK = mkPose(DVI, { crouch: 0.22, lean: 0.25, cLean: 0.12, hx: 0.15, lax: 0.4, laz: 0.55, lae: 1.1, rax: 0.4, raz: 0.55, rae: 1.1, spread: 0.2, jaw: 0.25 });
+const TI_PAIN = mkPose(DVI, { crouch: 0.35, lean: -0.35, cLean: -0.3, hx: -0.8, hy: 0.35, jaw: 1.0, twist: 0.35, lax: 1.6, laz: -0.1, lay: 1.05, lae: 1.9, stepL: 0.4, stepR: -0.5, spread: 0.25 });
+const TI_SWAT_UP = mkPose(DVI, { crouch: 0.3, lean: 0.1, twist: 0.7, cTwist: 0.4, hx: -0.4, hy: -0.4, jaw: 0.7, lax: 1.9, laz: 0.2, lay: 1.2, lae: 1.4, stepL: 0.5, stepR: -0.4 });
+const TI_SWAT = mkPose(DVI, { crouch: 0.35, lean: 0.2, twist: -0.8, cTwist: -0.45, hx: -0.3, hy: 0.4, jaw: 0.9, lax: 1.5, laz: 1.45, lay: -0.6, lae: 0.2, stepL: 0.3, stepR: -0.6 });
+const TI_GLARE = mkPose(TI_WALK, { hx: -0.25, jaw: 0.6, lean: 0.1, twist: 0.3, lax: 0.6, laz: 0.8, lae: 0.9 });
+/* ───── what happens when ───── */
+// Seconds from the moment "The End" is up and the spear is on its way. The shot at the end is on its own clock (sqQte).
+const SQT = {
+  spear: 0.25, hit: 0.8, pinned: 1.15,
+  descend: 3.2, land: 7.4, walk: 7.8, l1: 8.2, crouch: 10.9, l2: 11.4, l3: 14.8, twist: 16.2, rise: 18.4, l4: 19.0, snap: 21.6,
+  quake: 21.9, sink: 22.4, up: 23.6, swap: 25.2, city: 28.0,
+  hover: 28.6, l5: 29.2, grab: 30.6, rip: 32.8, toss: 33.1, sit: 33.8, stood: 35.0,
+  lift: 35.8, wind: 37.5, throwB: 38.1, dodge: 38.45, smash: 38.95, still: 40.2,
+  chase: 40.6, hop: 44.2, halt: 47.8,
+  l6: 48.4, circle: 49.8, emerge: 51.2, roar: 57.0, l7: 58.6, walk2: 60.4, stop: 67.4,
+  flash: 65.0, pass: 65.9, angel: 67.4, raise: 68.4, cut: 69.6, scream: 70.3, crash: 71.7, neck: 72.8, swat: 74.0,
+  leap: 74.2, caught: 75.3, roof: 76.7, edge: 77.5, draw: 78.2, moonUp: 79.0, souls: 80.4, turn: 81.2, devil: 82.6, qte: 83.6,
+};
+const SQ_LINES = [
+  [SQT.l1, 'The end? Not yet, little hero.', 2.6],
+  [SQT.l2, 'Fucking Clement was a failed artwork of mine.', 3.1],
+  [SQT.l3, 'A sketch I threw away. And you were so proud to beat him.', 3.4],
+  [SQT.l4, 'Let me show you my real work.', 2.4],
+  [SQT.l5, 'Get up. Entertain me.', 2.4],
+  [SQT.l6, 'Behold. My masterpiece.', 2.4],
+  [SQT.l7, 'It will make this world my paradise.', 3.0],
+];
+// places in the frame the story keeps coming back to
+const SQP = {
+  pin: new V3(0, 0, 2.6), street: new V3(0.5, 0, 70), titan0: new V3(0, 0, CITY.plaza.at), titan1: new V3(0, 0, 146),
+  sunAt: new V3(5.8 * TKS + 11, 40 * TKS, 139), neck: new V3(2.5, 47.5 * TKS, 138.5), catchAt: new V3(-9.5, 31.5, 106), roofLand: new V3(-17.2, 24, 96),
+  sunRest: new V3(-19.6, 24, 95.8), draw: new V3(-16.0, 24, 93.2), star: new V3(14.2, 16, 80.5), devilHang: new V3(-8, 34, 126),
+  strike0: new V3(-22, 38.5, 84.5), strike1: new V3(-17.4, 28.6, 91.2), angelAt: new V3(19 * TKS, 24 * TKS, 146),
+};
+const QTE = { len: 3.4, ring: 2.3 };                                    // the Devil's drop on the Moon, and the ring's close (real seconds)
+const sqCapEl = $('cutCap');
+function sqCap(text) { caption(text); sqCapEl.classList.toggle('devil', !!text); }
+const sqTint = $('sqTint');
+
+G.sq = null;
+// "The End" is up: from here it is this, to the end
+function startSequel() {
+  if (G.sq) return;
+  const p = player;
+  sqFrame(p.pos.x, p.pos.z, Math.atan2(p.pos.x - camera.position.x, p.pos.z - camera.position.z));
+  const S = G.sq = { t: 0, fired: {}, shot: -1, lastShot: -2, camOn: true, cine: true, hero: G.hero, cast: {}, qte: null, end: null, tries: 0,
+    cam0: camera.position.clone(), look0: cam.look.clone(), dWing: 0, tWing: 0, sunK: 0, moonK: 0, angelK: 0, tint: 0, grip: 0, dGrip: false,
+    spearA: new V3(), spearB: new V3(), spearD: new V3(), pinAt: new V3(), city: false, arenaSave: null, steps: 0, armV: null, wrecked: false };
+  G.state = 'sequel';
+  for (const h of HERO_ORDER) { S.cast[h] = sqActor(sqRig[h], h); sqShow(S.cast[h], false); setOutfit(sqRig[h], h, false, h === 'moon'); }
+  S.cast.hero = S.cast[G.hero];
+  S.cast.devil = sqActor(devilRig, 'devil'); S.cast.titan = sqActor(titanRig, 'titan'); S.cast.angel = sqActor(sqAngel, 'angel');
+  for (const a of titanRig.arms) a.sh.scale.setScalar(1);
+  // the spear: from just in front of the lens to his chest
+  playerRig.root.updateMatrixWorld(true); playerRig.chest.getWorldPosition(S.spearB);
+  {
+    const dx = S.spearB.x - camera.position.x, dz = S.spearB.z - camera.position.z, h = Math.hypot(dx, dz) || 1, L = camera.position.distanceTo(S.spearB);
+    const pitch = Math.max(Math.atan2(camera.position.y - S.spearB.y, h), 0.68);
+    S.spearD.set(dx / h * Math.cos(pitch), -Math.sin(pitch), dz / h * Math.cos(pitch));
+    S.spearA.copy(S.spearB).addScaledVector(S.spearD, -(L - 0.7));
+  }
+  sqSpear.visible = false;
+  // the Devil, hidden for now; the Devil's fight is open on the title from here on
+  G.opponent = 'devil'; setOpponent('devil'); resetDevilMats();
+  const b = boss;
+  b.state = 'scripted'; b.t = 0; b.inv = true; b.atk = null; b.air = 0; b.hidden = true; b.wingOpen = 0; b.orb = false; b.phase = 1;
+  devilRig.tridentMesh.visible = false; devilRig.root.visible = false;
+  store.set('devilSeen', true); store.set('sequelSeen', true);
+  $('pickDevil').textContent = '5 · The Devil';
+  $('cine').classList.add('on'); $('hud').classList.remove('on'); $('boss').classList.remove('on'); $('exec').classList.remove('on');
+  Snd.fallWhistle(); Snd.duck(0.5);
+}
+function sqHit(S) {
+  const p = player, f = G.finale, A = S.cast.hero;
+  // the player's own body gives way to the hero's copy (dressed as he was), and the light goes out
+  setOutfit(A.R, G.hero, p.ultOn, G.hero === 'moon' ? bow.sheathed || !!p.iaiSheath : G.hero === 'star' && star.holstered);
+  Object.assign(A.pose, p.pose); Object.assign(A.tgt, p.pose);
+  A.lp.set(0, 0, 0); A.lyaw = Math.PI; sqShow(A, true);
+  if (p.ultOn) endUlt(true);
+  p.state = 'sequel'; p.t = 0; p.iframes = 999; p.vel.set(0, 0, 0); p.air = 0;
+  playerRig.root.visible = false;
+  if (f) { f.heartK = 0; f.heartBurst = 0; }
+  if (heaven.on) heaven.out = true;
+  redMoon.want = 1; redMoon.pulse = 1;
+  Snd.mode('off'); Snd.duck(0);
+  const at = S.spearB;
+  Snd.stab(); Snd.slam(at); Snd.hellfire(at); Snd.godImpact(); Snd.hurt();
+  Haptics.pulse(1, 1, 700);
+  G.hitStop = Math.max(G.hitStop, 0.16); G.shake = 1.5; G.fovKick = 1.6; S.tint = 1;
+  if (G.blood) bloodSpray(at.x, at.y, at.z, 26, { speed: 4, up: 1 }); else sparks(at.x, at.y, at.z, 30, { speed: 7, color: [1, 0.4, 0.2] });
+  fireBurst(at.x, at.y, at.z, 40, { hell: 1, speed: 6, size: 1.3, up: 3 });
+}
+
+/* ───── the hero, until the light behind him (then each of the three has his own part) ───── */
+const sqBase = h => (h === 'moon' ? P_IDLE_MOON : h === 'star' ? P_IDLE_STAR : P_IDLE);
+const sqGuard = h => (h === 'moon' ? P_GUARD_MOON : h === 'star' ? P_IDLE_STAR_U : P_GUARD);
+const CHASE = [[SQT.chase, 3.8, 0, 1.4], [SQT.chase + 1.0, 3.2, 0, 9], [SQT.hop - 0.6, 1.3, 0, 32.5], [SQT.hop, 1.2, 0, 36.6, 'l'], [SQT.hop + 0.62, 1.1, 0, 42.4, 'l'],
+  [SQT.halt - 1.4, 0.8, 0, 60.5], [SQT.halt, SQP.street.x, 0, SQP.street.z, 'o']];
+function sqHeroDo(S, t, dt) {
+  const A = S.cast.hero, T = A.tgt, h = S.hero;
+  if (t < SQT.hit || t >= SQT.flash) return;
+  A.on = true; A.run = 0; A.blend = 12; A.roll = 0; A.bank = 0; A.pitch = 0; A.lie = 0; A.lp.y = 0; S.grip = 0;
+  if (t < SQT.pinned) {                                                 // thrown back off his feet, the spear through him
+    const u = sqK(t, SQT.hit, SQT.pinned), e = 1 - (1 - u) * (1 - u);
+    A.lp.set(0, 0.45 * Math.sin(Math.PI * u), SQP.pin.z * e); A.lyaw = Math.PI; A.pitch = -1.45 * e; A.lie = 0.16 * e;
+    Object.assign(T, PQ_PINNED); A.blend = 26;
+  } else if (t < SQT.grab) {                                            // nailed to the floor
+    A.lp.copy(SQP.pin); A.lyaw = Math.PI; A.pitch = -1.45; A.lie = 0.16;
+    Object.assign(T, PQ_PINNED);
+    T.hx += Math.sin(t * 1.6) * 0.03;
+    if (t > SQT.twist && t < SQT.twist + 1.3) { Object.assign(T, PQ_JOLT); T.hx += Math.sin(t * 43) * 0.1; T.lean += Math.sin(t * 37) * 0.05; A.blend = 24; }
+    if (t > SQT.l5) T.hx = lerp(T.hx, -0.5, sqK(t, SQT.l5, SQT.grab));
+  } else if (t < SQT.toss) {                                            // both hands on it, and out it comes
+    const u = sqK(t, SQT.grab, SQT.rip);
+    A.lp.copy(SQP.pin); A.lyaw = Math.PI; A.pitch = -1.45 + 0.35 * u + (t > SQT.rip ? 0.3 * sqK(t, SQT.rip, SQT.toss) : 0); A.lie = 0.16;
+    Object.assign(T, PQ_GRIP); T.hx += Math.sin(t * 29) * 0.04 * u; T.lean += Math.sin(t * 23) * 0.03 * u;
+    S.grip = 2;
+  } else if (t < SQT.sit) {                                             // and away
+    A.lp.copy(SQP.pin); A.lyaw = Math.PI; A.pitch = -0.8; A.lie = 0.12;
+    Object.assign(T, PQ_TOSS); A.blend = 22;
+  } else if (t < SQT.stood) {                                           // up, turning to face him
+    const u = smooth(sqK(t, SQT.sit, SQT.stood));
+    A.lp.copy(SQP.pin); A.pitch = lerp(-0.8, 0, u); A.lie = 0.12 * (1 - u); A.lyaw = lerp(Math.PI, TAU, smooth(sqK(t, SQT.sit + 0.4, SQT.stood)));
+    Object.assign(T, u < 0.55 ? PQ_SIT : PK_KNEEL_UP); A.blend = 9;
+  } else if (t < SQT.dodge) {                                           // on his feet
+    A.lp.copy(SQP.pin); A.lyaw = 0;
+    Object.assign(T, sqGuard(h)); T.hx -= t > SQT.lift ? 0.45 : 0.25;
+  } else if (t < SQT.smash) {                                           // the roll, out from under it
+    const u = sqK(t, SQT.dodge, SQT.smash);
+    A.lp.set(lerp(0, 3.8, u), 0, lerp(SQP.pin.z, 1.4, u)); A.lyaw = Math.atan2(3.8, -1.2); Object.assign(T, P_ROLL); A.roll = smooth(u) * TAU; A.blend = 30;
+  } else if (t < SQT.chase) {                                           // up out of it, looking back at what is left of it
+    A.lp.set(3.8, 0, 1.4); A.lyaw = t < SQT.still ? Math.PI * 1.15 : lerp(Math.PI * 1.15, TAU, smooth(sqK(t, SQT.still, SQT.chase)));
+    Object.assign(T, sqGuard(h)); A.blend = 10;
+  } else if (t < SQT.halt) {                                            // after him
+    sqPath(CHASE, t, A.lp); sqPath(CHASE, t + 0.08, _sqa);
+    A.lyaw = Math.atan2(_sqa.x - A.lp.x, _sqa.z - A.lp.z);
+    Object.assign(T, sqBase(h)); A.run = 1 - sqK(t, SQT.halt - 0.45, SQT.halt);
+    const hu = sqK(t, SQT.hop, SQT.hop + 0.62);
+    if (hu > 0 && hu < 1) { A.lp.y = 1.75 * Math.sin(Math.PI * hu); Object.assign(T, mkPose(P_ROLL, { crouch: 0.5, lean: 0.4, hx: -0.4 })); A.run = 0; A.blend = 18; }
+    if (t > SQT.halt - 0.5) { Object.assign(T, PQ_SKID); A.run = 0; A.blend = 14; }
+  } else {                                                              // at the end of the avenue
+    A.lp.copy(SQP.street); A.lyaw = 0;
+    Object.assign(T, t < SQT.halt + 0.5 ? PQ_SKID : sqGuard(h));
+    T.hx -= t > SQT.emerge ? lerp(0.3, 0.75, sqK(t, SQT.emerge, SQT.roar)) : 0.35;
+  }
+}
+// his hands on the shaft (and, while it is twisted, the Devil's)
+function sqGrips(S) {
+  if (!sqSpear.visible) return;
+  const d = S.spearD, base = S.pinAt;
+  if (S.grip) {
+    const R = S.cast.hero.R;
+    armTo(1, _sqa.copy(base).addScaledVector(d, -0.42), S.cast.hero.pose, 14, R);
+    armTo(0, _sqb.copy(base).addScaledVector(d, -0.72), S.cast.hero.pose, 14, R);
+  }
+  if (S.dGrip) armTo(1, _sqa.copy(base).addScaledVector(d, -0.85), S.cast.devil.pose, 14, devilRig);
+}
+
+/* ───── the Sun ───── */
+function sqSunDo(S, t, dt) {
+  const A = S.cast.sun, T = A.tgt, me = S.hero === 'sun';
+  if (t < SQT.flash) { if (!me) sqShow(A, false); S.sunK = 0; return; }
+  A.on = true; A.run = 0; A.roll = 0; A.bank = 0; A.lie = 0; A.blend = 12;
+  S.sunK = me ? smooth(sqK(t, SQT.flash + 0.2, SQT.flash + 0.9)) : 1;
+  if (t < SQT.pass) {                                                   // the light behind the hero, and out of it, the Sun
+    if (me) {
+      const u = sqK(t, SQT.flash + 0.55, SQT.pass);
+      A.lp.set(SQP.street.x, 2.5 * u * u, SQP.street.z + 3 * u * u); A.lyaw = 0; A.pitch = 0.9 * u;
+      Object.assign(T, u > 0 ? PQ_FLY : P_ULT);
+    } else {
+      sqPath([[SQT.flash, -1.6, 1.8, 50], [SQT.pass, 1.8, 2.7, 71.5, 'l']], t, A.lp);
+      A.lyaw = Math.atan2(3.4, 21.5); A.pitch = 1.15; Object.assign(T, PQ_FLY);
+    }
+  } else if (t < SQT.angel) {                                           // up to its shoulder
+    const u = sqK(t, SQT.pass, SQT.angel), a = me ? _sqa.set(SQP.street.x, 2.5, SQP.street.z + 3) : _sqa.set(1.8, 2.7, 71.5);
+    sqBez(a, _sqb.set(7, 16 * TKS, 108), SQP.sunAt, smooth(u), A.lp);
+    sqBez(a, _sqb, SQP.sunAt, Math.min(1, smooth(u) + 0.02), _sqc);
+    A.lyaw = Math.atan2(_sqc.x - A.lp.x, _sqc.z - A.lp.z); A.pitch = lerp(1.15, 0.2, u); Object.assign(T, PQ_FLY); A.blend = 8;
+  } else if (t < SQT.cut) {                                             // the blade up, with the angel
+    A.lp.copy(SQP.sunAt); A.lp.y += Math.sin(t * 2.2) * 0.25;
+    A.lyaw = Math.atan2(5.8 * TKS - A.lp.x, 145 - A.lp.z); A.pitch = 0.1;
+    Object.assign(T, t > SQT.raise ? PQ_FLY_RAISE : PQ_FLY); A.blend = 7;
+  } else if (t < SQT.cut + 0.3) {                                       // through the shoulder
+    const u = sqK(t, SQT.cut, SQT.cut + 0.3);
+    A.lp.set(lerp(SQP.sunAt.x, 4.5, u), lerp(SQP.sunAt.y, 43.5 * TKS, u), lerp(SQP.sunAt.z, 137, u));
+    A.lyaw = Math.atan2(-13.5, -1.5); A.pitch = 0.5; Object.assign(T, PQ_FLY_CUT); A.blend = 30;
+  } else if (t < SQT.swat) {                                            // round, and for the neck
+    const u = smooth(sqK(t, SQT.neck - 0.4, SQT.swat));
+    A.lp.set(lerp(4.5, SQP.neck.x, u), lerp(43.5 * TKS, SQP.neck.y, u) + Math.sin(t * 2.4) * 0.2, lerp(137, SQP.neck.z, u));
+    A.lyaw = lerp(Math.atan2(-1, 1), Math.atan2(-0.5, 1), u); A.pitch = 0.15;
+    Object.assign(T, t > SQT.neck ? PQ_FLY_RAISE : PQ_FLY); A.blend = 9;
+  } else if (t < SQT.caught) {                                          // swatted out of the sky
+    const u = sqK(t, SQT.swat, SQT.caught);
+    sqBez(SQP.neck, _sqa.set(-3, 45 * TKS, 124), SQP.catchAt, u, A.lp);
+    A.lyaw = Math.atan2(-12, -32) + u * 2.2; A.pitch = -0.5 - u * 2.8; A.bank = Math.sin(u * 9) * 0.4;
+    Object.assign(T, PQ_LIMP); A.blend = 16;
+  } else if (t < SQT.roof) {                                            // caught
+    const M = S.cast.moon, fx = Math.sin(M.lyaw), fz = Math.cos(M.lyaw);
+    A.lp.set(M.lp.x + fx * 0.55 - fz * 0.1, M.lp.y + 0.95, M.lp.z + fz * 0.55 + fx * 0.1);
+    A.lyaw = M.lyaw + Math.PI / 2; A.pitch = 0; A.bank = 1.25; A.lie = 0;
+    Object.assign(T, PQ_LIMP); A.blend = 10;
+  } else {                                                              // down on the roof, on one knee
+    A.lp.copy(SQP.sunRest); A.lyaw = Math.atan2(-SQP.sunRest.x, SQP.titan1.z - SQP.sunRest.z); A.pitch = 0;
+    Object.assign(T, PK_KNEEL); T.hx = -0.3; A.blend = t < SQT.roof + 0.4 ? 20 : 8;
+  }
+}
+/* ───── the Moon ───── */
+function sqMoonDo(S, t, dt) {
+  const A = S.cast.moon, T = A.tgt, me = S.hero === 'moon';
+  if (me && t < SQT.flash) return;
+  if (!me && t < SQT.leap - 0.9) { sqShow(A, false); S.moonK = 0; return; }
+  A.on = true; A.run = 0; A.roll = 0; A.bank = 0; A.lie = 0; A.blend = 12; A.pitch = 0;
+  const from = me ? _sqd.copy(SQP.street) : _sqd.set(TOWER.x, TOWER.y, TOWER.z);
+  if (t < SQT.leap) {                                                   // watching (or, on his tower, about to go)
+    A.lp.copy(from); A.lyaw = me ? 0 : Math.atan2(SQP.catchAt.x - from.x, SQP.catchAt.z - from.z);
+    Object.assign(T, me ? P_GUARD_MOON : mkPose(PQ_LEAP, { crouch: 0.6, lean: 0.5 })); T.hx -= me ? 0.6 : 0.2;
+  } else if (t < SQT.caught) {                                          // the leap, on the moonlight
+    const u = sqK(t, SQT.leap, SQT.caught), apex = me ? _sqa.set(-5, 30, 86) : _sqa.set(-19, 46, 110);
+    sqBez(from, apex, SQP.catchAt, u * (0.75 + 0.25 * u), A.lp);
+    A.lyaw = Math.atan2(SQP.catchAt.x - from.x, SQP.catchAt.z - from.z); A.pitch = 0.35;
+    Object.assign(T, u < 0.7 ? PQ_LEAP : PQ_CATCH); A.blend = 14;
+  } else if (t < SQT.roof) {                                            // and the glide down with him in his arms
+    const u = 1 - Math.pow(1 - sqK(t, SQT.caught, SQT.roof), 2);
+    A.lp.lerpVectors(SQP.catchAt, SQP.roofLand, u);
+    A.lyaw = Math.atan2(SQP.roofLand.x - SQP.catchAt.x, SQP.roofLand.z - SQP.catchAt.z); A.pitch = 0.18 * (1 - u);
+    Object.assign(T, PQ_CATCH); A.blend = 12;
+  } else if (t < SQT.edge) {                                            // he sets him down
+    A.lp.copy(SQP.roofLand); A.lyaw = Math.atan2(SQP.sunRest.x - SQP.roofLand.x, SQP.sunRest.z - SQP.roofLand.z);
+    Object.assign(T, PK_KNEEL); A.blend = 8;
+  } else {                                                              // to the edge, and the ancestors' bow
+    const u = smooth(sqK(t, SQT.edge, SQT.draw)), aim = sqMoonAim();
+    A.lp.lerpVectors(SQP.roofLand, SQP.draw, u);
+    A.lyaw = lerp(Math.atan2(SQP.sunRest.x - SQP.roofLand.x, SQP.sunRest.z - SQP.roofLand.z), aim + BOW_YAW, u);
+    if (t < SQT.draw) { Object.assign(T, P_IDLE_MOON); A.run = 0.35 * Math.sin(Math.PI * u); }
+    else {
+      const d = t - SQT.draw;
+      Object.assign(T, d < 0.35 ? P_BOW_NOCK : d < 0.9 ? P_BOW_FULL : P_BOW_DEEP); A.blend = 9;
+      if (d > 1.2) { T.rae += Math.sin(t * 34) * 0.012; T.lax += Math.sin(t * 29) * 0.008; }
+    }
+  }
+}
+const sqMoonAim = () => Math.atan2(SQP.titan1.x - SQP.draw.x, SQP.titan1.z - SQP.draw.z);
+/* ───── the Star ───── */
+function sqStarDo(S, t, dt) {
+  const A = S.cast.star, T = A.tgt, me = S.hero === 'star';
+  if (me && t < SQT.flash) return;
+  if (!me && t < SQT.devil) { sqShow(A, false); return; }
+  A.on = true; A.run = 0; A.roll = 0; A.bank = 0; A.lie = 0; A.pitch = 0; A.blend = 12;
+  if (me && t < SQT.devil) {
+    A.lp.copy(SQP.street); A.lyaw = 0; Object.assign(T, P_IDLE_STAR_U); T.hx -= 0.6;
+    return;
+  }
+  A.lp.copy(SQP.star);
+  devilRig.head.getWorldPosition(_sqa);
+  const at = sqL(_sqa, _sqb);
+  A.lyaw = Math.atan2(at.x - A.lp.x, at.z - A.lp.z);
+  Object.assign(T, P_AIM); sqAim(A, T, _sqa); A.blend = 14;
+  const Q = S.qte;
+  if (Q && Q.shotT !== undefined) {                                     // the kick of it, then the barrel up
+    const k = Q.t - Q.shotT;
+    if (k < 0.18) T.rax += 0.35 * (1 - k / 0.18);
+    else if (k > 0.7) { T.rax -= 0.4 * smooth(sqK(k, 0.7, 1.4)); T.rae += 1.2 * smooth(sqK(k, 0.7, 1.4)); }
+  }
+}
+/* ───── the Devil ───── */
+function sqDevilDo(S, t, dt) {
+  const A = S.cast.devil, T = A.tgt, b = boss;
+  b.twWant = TW_UP; b.orb = false; b.wingOpen = 0; A.blend = 9; A.run = 0; A.pitch = 0; A.bank = 0; A.lie = 0; S.dGrip = false;
+  if (t < SQT.descend) { A.on = false; b.hidden = true; return; }
+  A.on = true; b.hidden = false;
+  const faceHero = () => sqFace(A, SQP.pin.x, SQP.pin.z + 0.6);
+  if (t < SQT.land) {                                                   // down out of the red sky, slowly
+    sqPath([[SQT.descend, -4.5, 34, 18], [SQT.land, -1.6, 0, 6.4, 'o']], t, A.lp);
+    A.lyaw = faceHero(); b.wingOpen = t < SQT.land - 0.9 ? 1 : 0.55;
+    Object.assign(T, t < SQT.land - 0.7 ? DV_FLY : mkPose(DV_LAND, { crouch: 0.6 }));
+  } else if (t < SQT.crouch) {                                          // and walks up to him
+    const u = sqK(t, SQT.walk, SQT.crouch - 0.4);
+    A.lp.set(lerp(-1.6, -0.7, smooth(u)), 0, lerp(6.4, 3.4, smooth(u))); A.lyaw = faceHero();
+    Object.assign(T, DVI); A.run = u > 0 && u < 1 ? 0.28 : 0; A.runRate = 0.55;
+    if (t > SQT.l1) { T.hx += 0.15; T.hy -= 0.1; }
+  } else if (t < SQT.rise) {                                            // down beside him
+    A.lp.set(-0.7, 0, 3.4); A.lyaw = sqFace(A, 0, 2.5);
+    Object.assign(T, PQ_DEVIL_CROUCH); A.blend = 6;
+    if (t > SQT.l2 - 0.3 && t < SQT.l3) { T.hx = -0.3; T.hy = 0.3; T.lean = 0.4; }
+    if (t > SQT.twist - 0.4 && t < SQT.twist + 1.4) { S.dGrip = true; T.rax = 1.1; T.rae = 0.4; }
+  } else if (t < SQT.quake) {                                           // up off the floor, arms open
+    const u = sqK(t, SQT.rise, SQT.l4 + 1.4);
+    sqPath([[SQT.rise, -0.7, 0, 3.4], [SQT.l4 + 1.4, -0.4, 3.4, 7.2]], t, A.lp);
+    A.lyaw = faceHero(); b.wingOpen = u > 0.2 ? 1 : 0.3;
+    Object.assign(T, t > SQT.snap && t < SQT.snap + 0.5 ? DV_SNAP : u < 0.25 ? DVI : PQ_DEVIL_ARMS);
+  } else if (t < SQT.hover) {                                           // over it all as it goes
+    sqPath([[SQT.quake, -0.4, 3.4, 7.2], [SQT.city, 0, 9, 9]], t, A.lp);
+    A.lyaw = faceHero(); b.wingOpen = 1;
+    Object.assign(T, t < SQT.up + 1.5 ? DV_LAUGH : PQ_DEVIL_ARMS);
+  } else if (t < SQT.lift) {                                            // off to where the bus is
+    sqPath([[SQT.hover, 0, 9, 9], [SQT.hover + 1.6, 2, 11.5, 27]], t, A.lp);
+    A.lyaw = sqFace(A, SQP.pin.x, SQP.pin.z); b.wingOpen = 1;
+    Object.assign(T, PQ_DEVIL_HOVER);
+  } else if (t < SQT.chase) {                                           // the bus
+    A.lp.set(2, 11.5 + Math.sin(t * 2) * 0.2, 27); A.lyaw = sqFace(A, 1, 2); b.wingOpen = 1;
+    Object.assign(T, t < SQT.wind ? PQ_DEVIL_REACH : t < SQT.throwB ? mkPose(DV_THROW_BACK, { kneeL: 0.4, kneeR: 0.6 }) : t < SQT.smash + 0.4 ? mkPose(DV_THROW, { kneeL: 0.4, kneeR: 0.6 })
+      : mkPose(DV_LAUGH, { kneeL: 0.4, kneeR: 0.6 }));
+    A.blend = t > SQT.throwB && t < SQT.throwB + 0.3 ? 24 : 10;
+  } else if (t < SQT.halt) {                                            // away down the avenue, laughing
+    sqPath([[SQT.chase, 2, 11.5, 27], [SQT.chase + 1.2, 1, 12.5, 36], [SQT.halt, 0, 20, 122]], t, A.lp);
+    A.lyaw = t > SQT.hop + 0.8 && t < SQT.hop + 2.2 ? Math.PI * 0.85 : 0; A.pitch = A.lyaw ? 0 : 0.5; b.wingOpen = 1;
+    Object.assign(T, A.lyaw ? DV_LAUGH : DV_FLY);
+  } else if (t < SQT.walk2 + 0.4) {                                     // the summoning
+    A.lp.set(0, 20 + Math.sin(t * 1.5) * 0.3, 122); A.lyaw = Math.PI; b.wingOpen = 1;
+    Object.assign(T, t < SQT.circle ? PQ_DEVIL_ARMS : t < SQT.roar ? PQ_DEVIL_SUMMON : t < SQT.roar + 1.6 ? DV_LAUGH : PQ_DEVIL_ARMS);
+  } else if (t < SQT.devil) {                                           // aside, to watch his work
+    sqPath([[SQT.walk2 + 0.4, 0, 20, 122], [SQT.walk2 + 3, SQP.devilHang.x, SQP.devilHang.y, SQP.devilHang.z]], t, A.lp);
+    A.lp.y += Math.sin(t * 1.3) * 0.3;
+    A.lyaw = t < SQT.swat ? sqFace(A, 8, 140) : sqFace(A, SQP.draw.x, SQP.draw.z); b.wingOpen = 1;
+    Object.assign(T, PQ_DEVIL_HOVER); if (t > SQT.cut && t < SQT.cut + 1.4) T.hy -= 0.4;
+  } else {                                                              // gone in a burst of fire, and above the Moon, trident up
+    const k = S.qte ? S.qte.k : 0, Q = S.qte;
+    A.lp.lerpVectors(SQP.strike0, SQP.strike1, k * k);
+    A.lyaw = sqFace(A, SQP.draw.x, SQP.draw.z); A.pitch = 0.25 + 0.35 * k; b.wingOpen = 1;
+    b.hidden = t < SQT.devil + 0.35;
+    devilRig.tridentMesh.visible = t > SQT.devil + 0.5;
+    b.twWant = TW_UP;
+    Object.assign(T, k < 0.85 ? DV_SLAM_UP : DV_SLAM);
+    if (Q && Q.shotT !== undefined) {                                   // the bullet: knocked away with the trident, without looking
+      const s = Q.t - Q.shotT;
+      A.lp.lerpVectors(SQP.strike0, SQP.strike1, Q.kAt * Q.kAt);
+      Object.assign(T, s < 0.9 ? PQ_DEVIL_BLOCK : PQ_DEVIL_HOVER);
+      A.blend = s < 0.3 ? 40 : 6;
+      if (s > 1.2) { T.hy = 0; A.lyaw = lerp(A.lyaw, sqFace(A, SQP.star.x, SQP.star.z), smooth(sqK(s, 1.2, 2.2))); A.pitch = lerp(A.pitch, 0, sqK(s, 1.2, 2.2)); }
+    }
+  }
+}
+/* ───── the titan ───── */
+function sqTitanDo(S, t, dt) {
+  const A = S.cast.titan, T = A.tgt;
+  if (t < SQT.emerge) { A.on = false; S.tWing = 0; return; }
+  A.on = true; A.lyaw = Math.PI; A.blend = 3.5; A.run = 0; A.runRate = 0.2; A.pitch = 0;
+  S.tWing = smooth(sqK(t, SQT.roar - 1.5, SQT.roar));
+  if (t < SQT.roar) {                                                   // up out of the circle
+    const u = sqK(t, SQT.emerge, SQT.roar - 0.5);
+    A.lp.set(0, -2.8 * TITAN_K * (1 - sqEase(u, 'o')), SQP.titan0.z);
+    Object.assign(T, u < 0.75 ? TI_RISE : TI_ROAR);
+  } else if (t < SQT.walk2) {
+    A.lp.copy(SQP.titan0); Object.assign(T, TI_ROAR); T.jaw = 1;
+  } else if (t < SQT.stop) {                                            // and it walks
+    const u = sqK(t, SQT.walk2, SQT.stop);
+    A.lp.set(0, 0, lerp(SQP.titan0.z, SQP.titan1.z, u)); Object.assign(T, TI_WALK); A.run = 0.6 * (1 - sqK(t, SQT.stop - 0.8, SQT.stop));
+  } else if (t < SQT.cut) {
+    A.lp.copy(SQP.titan1); Object.assign(T, TI_GLARE); T.hy = -0.35;
+  } else if (t < SQT.neck) {                                            // the pain of it
+    A.lp.copy(SQP.titan1); Object.assign(T, TI_PAIN); A.blend = 6; T.hx += Math.sin(t * 11) * 0.03;
+  } else if (t < SQT.swat) {
+    A.lp.copy(SQP.titan1); Object.assign(T, TI_SWAT_UP); A.blend = 5;
+  } else if (t < SQT.swat + 1.2) {
+    A.lp.copy(SQP.titan1); Object.assign(T, TI_SWAT); A.blend = 14;
+  } else if (t < SQT.turn) {
+    A.lp.copy(SQP.titan1); Object.assign(T, TI_GLARE); A.blend = 3;
+  } else {                                                              // toward the roof where the bow is drawn
+    A.lp.copy(SQP.titan1); A.lyaw = lerp(Math.PI, Math.atan2(SQP.draw.x, SQP.draw.z - SQP.titan1.z), smooth(sqK(t, SQT.turn, SQT.turn + 2)));
+    Object.assign(T, TI_ROAR); T.hx = -0.1;
+  }
+}
+// its tail, its wings, its eyes, the fire on it, the ground under each foot
+function titanBody(S, dt) {
+  const A = S.cast.titan, R = A.R;
+  if (!A.on) { titanLight.intensity = 0; return; }
+  for (let i = 0; i < R.tail.length; i++) { const tl = R.tail[i], ph = G.t * 1.1 - i * 0.55; tl.rotation.y = Math.sin(ph) * (0.15 + i * 0.04); tl.rotation.x = (i ? 0.16 : 0.95) + Math.sin(ph * 0.7 + 1) * 0.05; }
+  const k = S.tWing;
+  for (const w of R.wings) {
+    w.g.visible = k > 0.02;
+    const flap = Math.sin(G.t * 1.4 + (w.s > 0 ? 0 : 0.2)) * 0.14 * k;
+    w.g.rotation.set(0.15 + 0.15 * (1 - k), w.s * lerp(1.42, 0.3, k), w.s * (lerp(-0.6, 0.25, k) + flap)); w.g.scale.setScalar(Math.max(0.05, lerp(0.5, 1.2, k)));
+  }
+  const flick = 0.8 + 0.2 * Math.sin(G.t * 7);
+  for (const e of R.eyeGlow) e.material.opacity = flick;
+  TV.skin.emissive.setRGB(0.05 + 0.03 * Math.sin(G.t * 2.3), 0.007, 0.002);
+  R.chest.getWorldPosition(_sqa);
+  const fy = A.lyaw + SQF.yaw;
+  titanLight.position.set(_sqa.x + Math.sin(fy) * 16, _sqa.y - 10, _sqa.z + Math.cos(fy) * 16); titanLight.intensity = 1.4;
+  if (Math.random() < 0.6) { const a = rand(TAU); sqFire.emit(_sqa.x + Math.sin(a) * 6, rand(_sqa.y - 30, _sqa.y + 6), _sqa.z + Math.cos(a) * 6, rand(-1, 1), rand(3, 8), rand(-1, 1), rand(0.8, 1.4), rand(2.5, 5), 0, 1.1, -2, 0.6, 0.7, 1); }
+  // a footfall: the street shakes
+  if (A.run > 0.05) {
+    const s = Math.sign(Math.sin(A.ph));
+    if (s !== S.steps) {
+      S.steps = s;
+      const leg = R.legs[s > 0 ? 1 : 0]; leg.ankle.getWorldPosition(_sqb);
+      G.shake = Math.min(1.5, G.shake + 0.8); Haptics.pulse(0.7, 0.5, 220); Snd.slam(_sqb); Snd.stomp && Snd.stomp(_sqb);
+      sqBillow(_sqb.x, 0.5, _sqb.z, 14, 6, 9, 0.15);
+      addRing(_sqb.x, _sqb.z, { r0: 2, rMax: 30, speed: 30, color: 0xff7a40, opacity: 0.5 });
+    }
+  }
+  // the stump, once the arm is off
+  if (S.armV) {
+    R.arms[1].sh.getWorldPosition(_sqa);
+    for (let i = 0; i < 2; i++) sqFire.emit(_sqa.x + rand(-1, 1), _sqa.y + rand(-1, 1), _sqa.z + rand(-1, 1), rand(-3, 3), rand(1, 5), rand(-3, 3), rand(0.6, 1.1), rand(2, 3.5), 0, 1.2, -1.5, 0.8, 0.7, 1);
+    if (Math.random() < 0.4) sqSpark.emit(_sqa.x, _sqa.y, _sqa.z, rand(-8, 8), rand(-2, 8), rand(-8, 8), rand(0.6, 1.2), rand(0.3, 0.6), 1, 0.4, 0.1, 9, 0.3);
+  }
+}
+/* ───── the archangel ───── */
+function sqAngelDo(S, t, dt) {
+  const A = S.cast.angel, T = A.tgt, R = A.R;
+  const out = sqK(t, SQT.swat, SQT.swat + 0.45);
+  if (t < SQT.angel || out >= 1) { A.on = false; S.angelK = 0; sqAngelBeam.visible = false; return; }
+  A.on = true; A.blend = 8; A.lyaw = -Math.PI / 2; A.pitch = 0;
+  S.angelK = smooth(sqK(t, SQT.angel, SQT.angel + 0.6)) * (1 - out);
+  const P = SQP.angelAt;
+  if (t < SQT.raise) {
+    const u = sqK(t, SQT.angel, SQT.raise);
+    A.lp.set(P.x, lerp(P.y + 20 * TKS, P.y, sqEase(u, 'o')), P.z); Object.assign(T, u < 0.7 ? A_DESCEND : A_HOVER); A.wrist = 0;
+  } else if (t < SQT.cut) {
+    A.lp.copy(P); A.lp.y += Math.sin(t * 2) * 0.4; Object.assign(T, A_RAISE); A.wrist = 0;
+  } else if (t < SQT.cut + 0.35) {                                      // and down through it, with him
+    const u = sqK(t, SQT.cut, SQT.cut + 0.35);
+    A.lp.set(lerp(P.x, P.x - 3.5 * TKS, u), P.y, P.z); Object.assign(T, A_CHOP); A.blend = 30;
+  } else if (t < SQT.neck) {
+    A.lp.set(P.x - 3.5 * TKS * (1 - sqK(t, SQT.cut + 0.35, SQT.neck)), P.y + Math.sin(t * 2) * 0.4, P.z); Object.assign(T, A_HOVER);
+  } else {
+    const u = smooth(sqK(t, SQT.neck, SQT.swat));
+    A.lp.set(lerp(P.x, P.x - 4 * TKS, u), lerp(P.y, P.y + 4 * TKS, u), lerp(P.z, P.z - 2, u)); A.lyaw = lerp(-Math.PI / 2, -Math.PI * 0.62, u);
+    Object.assign(T, A_RAISE);
+  }
+  // the wings, and the column it came down in
+  const flap = G.t * 2.4, amp = t < SQT.raise ? 0.22 : 0.08;
+  for (const w of R.wings) { w.g.rotation.set(0, w.s * 0.6, w.s * (-0.05 + Math.sin(flap) * amp)); w.g.scale.set(w.s, 1, 1); }
+  const bt = t - SQT.angel;
+  sqAngelBeam.visible = bt < 2.2;
+  if (sqAngelBeam.visible) {
+    sqW(P.x, 60, P.z, sqAngelBeam.position); sqAngelBeam.scale.set(7, 120, 7);
+    sqAngelBeam.material.uniforms.uOpacity.value = clamp(bt < 0.2 ? bt / 0.2 : 1 - (bt - 0.9) / 1.3, 0, 1) * 0.75;
+  }
+}
+
+/* ───── the props ───── */
+function sqSpearDo(S, t, dt) {
+  const sp = sqSpear, d = S.spearD;
+  if (t < SQT.spear) { sp.visible = false; return; }
+  sp.visible = true;
+  const H = S.cast.hero;
+  if (t < SQT.hit) {                                                    // in flight, burning
+    const u = sqK(t, SQT.spear, SQT.hit);
+    _sqa.lerpVectors(S.spearA, S.spearB, u);
+    sp.position.copy(_sqa).addScaledVector(d, -SPEAR_TIP);
+    for (let i = 0; i < 4; i++) { const k = rand(-3.5, 0.5); sqFire.emit(sp.position.x + d.x * k, sp.position.y + d.y * k, sp.position.z + d.z * k, rand(-0.4, 0.4), rand(0, 0.8), rand(-0.4, 0.4), rand(0.25, 0.5), rand(0.4, 0.8), 0, 1.2, -0.5, 1.5, 0.6, 1); }
+  } else if (t < SQT.rip) {                                             // through him and into the floor
+    if (t < SQT.pinned + 0.05 || !S.pinned) { H.R.chest.getWorldPosition(S.pinAt); S.pinAt.addScaledVector(d, -0.05); }
+    sp.position.copy(S.pinAt).addScaledVector(d, -0.85);
+  } else if (t < SQT.toss) {                                            // torn out of him
+    const u = sqK(t, SQT.rip, SQT.toss);
+    H.R.chest.getWorldPosition(_sqa);
+    sp.position.copy(_sqa).addScaledVector(d, -0.85 - 2.2 * u * u);
+  } else {                                                              // thrown away: it stands in the road
+    const u = sqK(t, SQT.toss, SQT.toss + 0.55);
+    if (!S.tossFrom) { S.tossFrom = sp.position.clone(); S.tossQ = sp.quaternion.clone(); }
+    const end = sqW(-7.5, 1.6, 1.8, _sqa);
+    sp.position.set(lerp(S.tossFrom.x, end.x, u), lerp(S.tossFrom.y, end.y, u) + 3 * u * (1 - u), lerp(S.tossFrom.z, end.z, u));
+    _sqq.setFromUnitVectors(_sqb.set(0, 0, 1), _sqc.set(-0.55 * SQF.c + 0.15 * SQF.s, -0.8, 0.55 * SQF.s + 0.15 * SQF.c).normalize());
+    sp.quaternion.copy(S.tossQ).slerp(_sqq, u);
+    if (u >= 1 && !S.stuck) { S.stuck = true; Snd.stab(); Snd.crack(sp.position); dust(sp.position.x, sp.position.z, 8, 1, { speed: 2 }); }
+    return;
+  }
+  sp.quaternion.setFromUnitVectors(_sqb.set(0, 0, 1), d);
+  if (t > SQT.twist && t < SQT.twist + 1.3) sp.rotateZ(Math.sin((t - SQT.twist) * 9) * 0.6);
+  sp.children[sp.children.length - 1].material.opacity = 0.45 + 0.2 * Math.sin(G.t * 7);
+}
+function sqBusDo(S, t, dt) {
+  const B = sqBus, ud = B.userData;
+  B.visible = S.city;
+  if (!B.visible) return;
+  let roll = 0, yaw = 0, pitch = 0;
+  if (t < SQT.lift) sqW(5.6, BUS_Y, 30, B.position);
+  else if (t < SQT.throwB) {                                            // up in his fist of fire
+    const u = sqEase(sqK(t, SQT.lift, SQT.wind), 'o'), w = sqK(t, SQT.wind, SQT.throwB);
+    sqW(lerp(5.6, 2.6, u) + w * 0.8, lerp(BUS_Y, 6.2, u) + w * 0.8 + Math.sin(t * 5) * 0.15, lerp(30, 21.5, u) + w * 2.0, B.position);
+    yaw = lerp(0, Math.PI / 2, u) + Math.sin(t * 3.1) * 0.05; roll = Math.sin(t * 4.3) * 0.08 * u; pitch = -0.25 * w;
+  } else if (t < SQT.smash) {                                           // at the hero, turning over
+    const u = sqK(t, SQT.throwB, SQT.smash);
+    sqBez(_sqa.set(3.4, 7.0, 23.5), _sqb.set(2.2, 6.6, 12), _sqc.set(-0.3, 1.7, 1.6), u, _sqd);
+    sqW(_sqd.x, _sqd.y, _sqd.z, B.position);
+    yaw = Math.PI / 2; roll = -u * Math.PI; pitch = -0.25 * (1 - u);
+  } else {                                                              // and down the road behind him, on its side
+    const u = 1 - Math.pow(1 - sqK(t, SQT.smash, SQT.still), 2.2);
+    sqW(lerp(-0.3, -3.2, u), lerp(1.7, BUS.W / 2, u) + Math.abs(Math.sin(u * Math.PI * 2.2)) * 1.4 * (1 - u), lerp(1.6, -24, u), B.position);
+    yaw = Math.PI / 2 + 0.35 * u; roll = -Math.PI - u * (TAU + Math.PI / 2);
+  }
+  B.rotation.set(pitch, yaw + SQF.yaw, roll, 'YXZ');
+  const held = t > SQT.lift && t < SQT.throwB + 0.3;
+  ud.aura.material.opacity = damp(ud.aura.material.opacity, held ? 0.85 : 0, 8, dt);
+  if (held && Math.random() < 0.9) { sqBlaze(B.position.x + rand(-5, 5), B.position.y + rand(-1.5, 1.5), B.position.z + rand(-5, 5), 1, 1.6, 0.5, 1, 1.5); }
+  if (t > SQT.smash) {                                                  // a wreck, burning
+    if (Math.random() < 0.8) sqFire.emit(B.position.x + rand(-4, 4), B.position.y + rand(0, 1.5), B.position.z + rand(-1.5, 1.5), rand(-0.3, 0.3), rand(1.5, 3.5), rand(-0.3, 0.3), rand(0.6, 1.2), rand(1, 2.2), 0, 1.2, -1.4, 1, 0.7, 0);
+    if (Math.random() < 0.2) fxSmoke.emit(B.position.x + rand(-3, 3), B.position.y + 2, B.position.z + rand(-1, 1), rand(-0.3, 0.3), rand(1, 2), rand(-0.3, 0.3), rand(2, 3), rand(1.5, 2.5), 0.08, 0.07, 0.07, -0.2, 0.5, 1.5);
+  }
+}
+// the arena goes down into the ground; the city comes up out of it
+function sqCityDo(S, t, dt) {
+  if (t >= SQT.quake && !S.arenaSave) {
+    S.arenaSave = arena.children.map(c => ({ c, y: c.position.y, rx: c.rotation.x, rz: c.rotation.z, d: c === floor ? -1 : rand(0, 1.3), tx: rand(-0.14, 0.14), tz: rand(-0.14, 0.14) }));
+  }
+  if (S.arenaSave && arena.visible) {
+    for (const q of S.arenaSave) {
+      if (q.d < 0) continue;
+      const u = smooth(sqK(t, SQT.sink + q.d, SQT.sink + q.d + 3.0));
+      q.c.position.y = q.y - 16 * u; q.c.rotation.x = q.rx + q.tx * u; q.c.rotation.z = q.rz + q.tz * u;
+    }
+    if (t > SQT.sink && t < SQT.swap + 1) for (let i = 0; i < 3; i++) {   // the dust off the falling wall, all the way round
+      const a = rand(TAU), r = ARENA.wall + rand(-1, 2);
+      sqDust.emit(Math.sin(a) * r, rand(0, 6), Math.cos(a) * r, rand(-2, 2), rand(1, 4), rand(-2, 2), rand(2.5, 4.5), rand(4, 9), 0.14, 0.12, 0.11, -0.1, 0.6, 1.4);
+    }
+    if (t > SQT.sink && t < SQT.swap && Math.random() < 0.4) { const a = rand(TAU), r = ARENA.wall - 1; throwRock(Math.sin(a) * r, rand(6, 11), Math.cos(a) * r, rand(4, 9)); }
+  }
+  if (!S.city && t >= SQT.up) sqEnterCity(S);
+  if (S.city && arena.visible && t >= SQT.swap) arena.visible = false;
+  if (!sqCity) return;
+  CITY_U.uRise.value = (t - SQT.up) * 1.25 - 0.4;
+  CITY_U.uTime.value = G.t;
+  const C = sqCity.userData;
+  // the circle on the plaza, and the fire that comes up out of it
+  const ck = sqK(t, SQT.circle, SQT.circle + 1.2) * (1 - 0.6 * sqK(t, SQT.walk2, SQT.walk2 + 4));
+  C.circle.material.opacity = ck * (0.75 + 0.25 * Math.sin(G.t * 5));
+  C.pit.material.opacity = ck * 0.85;
+  const sc = 0.2 + 0.8 * sqEase(sqK(t, SQT.circle, SQT.circle + 1.2), 'o'); C.circle.scale.setScalar(sc);
+  if (ck > 0.05 && t < SQT.walk2 + 2) {
+    for (let i = 0; i < 3; i++) { const a = rand(TAU), r = rand(18, 26) * sc; sqW(Math.sin(a) * r, 0.3, CITY.plaza.at + Math.cos(a) * r, _sqa); sqFire.emit(_sqa.x, 0.3, _sqa.z, 0, rand(4, 12), 0, rand(0.6, 1.2), rand(2, 4), 0, 1.2, -1, 0.5, 0.6, 1); }
+  }
+  // fires about the place
+  if (S.city) for (const [x, y, z, s] of CITY_FIRES) if (Math.random() < 0.35 * s) { sqW(x + rand(-0.6, 0.6) * s, y, z + rand(-0.6, 0.6) * s, _sqa); sqFire.emit(_sqa.x, _sqa.y, _sqa.z, rand(-0.2, 0.2), rand(1, 2.5) * s, rand(-0.2, 0.2), rand(0.5, 1), rand(0.6, 1.2) * s, 0, 1.1, -1.2, 1, 0.6, 0); }
+  // the arm, falling
+  if (S.armV) {
+    sqArm.visible = true;
+    if (!S.armDown) {
+      S.armV.y -= 30 * dt; sqArm.position.addScaledVector(S.armV, dt);
+      sqArm.rotateOnWorldAxis(S.armAxis, S.armSpin * dt);
+      if (Math.random() < 0.8) sqFire.emit(sqArm.position.x, sqArm.position.y, sqArm.position.z, rand(-2, 2), rand(2, 5), rand(-2, 2), rand(0.5, 1), rand(2, 3.5), 0, 1.2, -1, 0.6, 0.7, 1);
+      if (sqArm.position.y < 7) {
+        S.armDown = true; Snd.godImpact(); Snd.slam(sqArm.position); G.shake = 1.5; Haptics.pulse(1, 0.8, 600);
+        sqBillow(sqArm.position.x, 1, sqArm.position.z, 40, 9, 14, 0.15);
+        for (let i = 0; i < 16; i++) throwRock(sqArm.position.x + rand(-6, 6), 2, sqArm.position.z + rand(-6, 6), rand(8, 16));
+        addRing(sqArm.position.x, sqArm.position.z, { r0: 3, rMax: 46, speed: 40, color: 0xffa060, opacity: 0.6 });
+      }
+    }
+  }
+}
+// at a cut: the city is there; the arena is going, the finale's leavings cleared away, the night made red and clear
+function sqEnterCity(S) {
+  S.city = true;
+  if (!sqCity) sqCity = buildCity();
+  sqCity.position.set(SQF.ox, 0, SQF.oz); sqCity.rotation.y = SQF.yaw; sqCity.visible = true;
+  ruins.visible = false; mist.visible = false;
+  if (G.finale) { resetFinale(); G.finale = null; }
+  resetWrath();
+  finEl.dim.style.opacity = '0'; finEl.glory.style.opacity = '0'; canvas.style.filter = '';
+  scene.fog.density = 0.0042;
+  Object.assign(moon.shadow.camera, { left: -38, right: 38, top: 38, bottom: -38, far: 160 }); moon.shadow.camera.updateProjectionMatrix();
+  Snd.mode('calm');
+}
+
+/* ───── their light ───── */
+function sqKits(S, t, dt) {
+  // the Sun's: wings, halo, crystal blade, a gold glow on him and behind him
+  const K = SUNK, A = S.cast.sun, k = A.on ? S.sunK : 0;
+  K.k = damp(K.k, k * (t > SQT.swat ? 0.4 + 0.2 * Math.sin(t * 13) : 1), 6, dt);
+  K.open = damp(K.open, k > 0.3 ? (t > SQT.swat ? 0.25 : 1) : 0, 4, dt);
+  const show = K.k > 0.02;
+  for (const w of K.wings) w.g.visible = show;
+  if (show) poseLightWings(K.wings, K.open, Math.sin(G.t * (t > SQT.pass && t < SQT.angel ? 7 : 2.4)) * 0.08 * K.open, 0, G.t, 0.9);
+  K.mat.uniforms.uOpacity.value = K.k; K.mat.uniforms.uTime.value = G.t;
+  K.halo.visible = show; K.haloM.opacity = K.k * 0.9; K.auraM.opacity = K.k * 0.55;
+  K.blade.visible = show; K.ring.rotation.z = G.t * 2.4;
+  for (const m of K.bladeMats) { if (m.uniforms && m.uniforms.uOpacity) m.uniforms.uOpacity.value = K.k; else m.opacity = K.k; }
+  if (show) {
+    A.R.chest.getWorldPosition(_sqa); K.light.position.copy(_sqa); K.light.intensity = 2.6 * K.k;
+    A.R.tip.getWorldPosition(_sqb); A.R.hilt.getWorldPosition(_sqc);
+    const fast = t > SQT.flash && t < SQT.angel || t > SQT.cut && t < SQT.cut + 0.35;
+    if (fast || (t > SQT.swat && t < SQT.caught)) K.trail.push(_sqb, _sqa);
+    K.comet.position.copy(_sqa); K.comet.material.opacity = damp(K.comet.material.opacity, fast ? 0.85 : 0.15, 6, dt);
+    if (fast && Math.random() < 0.9) sqSpark.emit(_sqa.x, _sqa.y, _sqa.z, rand(-1, 1), rand(-1, 1), rand(-1, 1), rand(0.4, 0.8), rand(0.12, 0.25), 1, 0.85, 0.45, 0, 1.2);
+    if (Math.random() < 0.7) { const s = Math.random(); sqFire.emit(lerp(_sqc.x, _sqb.x, s), lerp(_sqc.y, _sqb.y, s), lerp(_sqc.z, _sqb.z, s), rand(-0.3, 0.3), rand(0.4, 1.4), rand(-0.3, 0.3), rand(0.3, 0.6), rand(0.3, 0.6), 1, 0.9, -1.6, 1.4, 0.6, 0); }
+  } else { K.light.intensity = 0; K.comet.material.opacity = 0; }
+  K.trail.update(dt, G.t, 1, 0);
+  // the Moon's: the crescent on his back, the bow of light, the great moon, the ring, the column, the ancestors
+  const M = MOONK, MA = S.cast.moon, drawing = MA.on && t >= SQT.draw;
+  const lit = MA.on && t >= SQT.leap ? 1 : 0;
+  M.k = damp(M.k, lit, 4, dt);
+  M.cresM.opacity = M.k * (0.75 + 0.25 * Math.sin(G.t * 3));
+  M.bow.visible = drawing; M.bowMat.uniforms.uOpacity.value = drawing ? Math.min(1, (t - SQT.draw) * 3) : 0; M.bowMat.uniforms.uTime.value = G.t;
+  MA.R.chest.getWorldPosition(_sqa);
+  M.light.position.copy(_sqa); M.light.intensity = M.k * (drawing ? 3 : 1.4);
+  if (MA.on && t > SQT.leap && t < SQT.roof) { MA.R.root.getWorldPosition(_sqb); _sqb.y += 0.3; M.trail.push(_sqa, _sqb); }
+  M.trail.mat.uniforms.uMoon.value = 1; M.trail.update(dt, G.t, 0, 1);
+  if (MA.on && t > SQT.leap && t < SQT.roof && Math.random() < 0.8) sqSpark.emit(_sqa.x + rand(-0.5, 0.5), _sqa.y + rand(-0.5, 0.5), _sqa.z + rand(-0.5, 0.5), rand(-0.5, 0.5), rand(-0.5, 0.5), rand(-0.5, 0.5), rand(0.6, 1.2), rand(0.08, 0.16), 0.75, 0.86, 1, -0.3, 0.5);
+  const up = drawing ? sqK(t, SQT.moonUp, SQT.moonUp + 2.2) : 0;
+  M.moon.visible = up > 0.001; M.halo.visible = drawing; M.pillar.visible = drawing;
+  if (drawing) {
+    // the moon, behind him from where the camera is
+    _sqb.subVectors(_sqa, camera.position).normalize();
+    M.moon.position.copy(camera.position).addScaledVector(_sqb, 200); M.moon.position.y = camera.position.y + lerp(5, 72, sqEase(up, 'o'));
+    M.moon.scale.setScalar(110); M.moon.lookAt(camera.position); M.moonM.opacity = up;
+    M.halo.position.copy(_sqa).addScaledVector(_sqb, 1.3); M.halo.lookAt(camera.position); M.halo.scale.setScalar(0.55 + 0.1 * up);
+    const hk = smooth(sqK(t, SQT.draw + 0.5, SQT.draw + 1.6));
+    M.glowM.opacity = 0.5 * hk; M.ringM.opacity = 0.8 * hk; M.crM.opacity = 0.9 * hk; M.ring.rotation.z = G.t * 0.5;
+    sqW(SQP.draw.x, SQP.draw.y + 40, SQP.draw.z, M.pillar.position); M.pillar.scale.set(0.85, 80, 0.85);
+    M.pillar.material.uniforms.uOpacity.value = 0.26 * smooth(sqK(t, SQT.moonUp, SQT.moonUp + 1));
+    if (Math.random() < 0.7) sqSpark.emit(_sqa.x + rand(-2, 2), SQP.draw.y + rand(0, 0.3), _sqa.z + rand(-2, 2), 0, rand(1.5, 4), 0, rand(0.8, 1.4), rand(0.06, 0.12), 0.75, 0.86, 1, -0.3, 0.5);
+  }
+  // the ancestors: up out of the roof one after another, drawing with him
+  sqAncestors();
+  const ak = drawing ? sqK(t, SQT.souls, SQT.souls + 0.6) : 0;
+  M.armyM.uniforms.uOpacity.value = 0.85 * ak; M.armyM.uniforms.uTime.value = G.t;
+  const aim = sqMoonAim(), c = Math.cos(aim), s = Math.sin(aim);
+  for (const q of M.army) {
+    const u = drawing ? clamp((t - SQT.souls - q.delay) / 0.55, 0, 1) : 0;
+    q.m.visible = u > 0;
+    if (!q.m.visible) continue;
+    sqW(SQP.draw.x + q.x * c + q.z * s, SQP.draw.y - 1.9 * (1 - smooth(u)), SQP.draw.z - q.x * s + q.z * c, q.m.position);
+    q.m.rotation.set(0, aim + SQF.yaw + BOW_YAW, 0);
+    if (u < 1 && Math.random() < 0.5) sqSpark.emit(q.m.position.x + rand(-0.4, 0.4), SQP.draw.y + 0.1, q.m.position.z + rand(-0.4, 0.4), 0, rand(2, 4), 0, rand(0.5, 0.9), rand(0.06, 0.1), 0.75, 0.86, 1, -0.3, 0.5);
+  }
+}
+
+/* ───── the moments ───── */
+function sqEvents(S, t) {
+  const F = S.fired, once = (k, at) => (!F[k] && t >= at ? (F[k] = true) : false);
+  const H = S.cast.hero, D = S.cast.devil;
+  for (let i = 0; i < SQ_LINES.length; i++) {
+    const [at, text, len] = SQ_LINES[i];
+    if (once('l' + i, at)) sqCap(text);
+    if (once('l' + i + 'x', at + len)) sqCap(null);
+  }
+  if (once('spear', SQT.spear)) { shatterEnd(); Snd.glass(); Snd.crack(); G.shake = Math.min(1.5, G.shake + 0.6); S.tint = 0.5; Haptics.pulse(0.6, 0.4, 160); }
+  if (once('hit', SQT.hit)) sqHit(S);
+  if (once('pinned', SQT.pinned)) {
+    S.pinned = true;
+    Snd.slam(S.pinAt); G.shake = Math.min(1.5, G.shake + 0.8);
+    dust(S.pinAt.x, S.pinAt.z, 20, 2, { speed: 4 }); addRing(S.pinAt.x, S.pinAt.z, { r0: 0.4, rMax: 9, speed: 12, color: 0xff3a14, opacity: 0.8 });
+  }
+  if (once('descend', SQT.descend)) { Snd.demonWings(); Snd.chuckle(D.R.root.position); }
+  if (once('land', SQT.land)) { Snd.devilStep(D.R.root.position); dust(D.R.root.position.x, D.R.root.position.z, 10, 1.2, { speed: 2 }); }
+  if (once('compile', SQT.land + 0.2)) sqWarm();
+  if (once('twist', SQT.twist)) { Snd.stab(); Snd.hurt(); Snd.chuckle(D.R.root.position); if (G.blood) bloodSpray(S.pinAt.x, S.pinAt.y, S.pinAt.z, 12, { speed: 2, up: 0.5 }); else sparks(S.pinAt.x, S.pinAt.y, S.pinAt.z, 16, { speed: 4, color: [1, 0.4, 0.2] }); Haptics.pulse(0.8, 0.6, 400); }
+  if (once('rise', SQT.rise + 0.6)) Snd.demonWings();
+  if (once('snap', SQT.snap)) { Snd.snap(D.R.root.position); Snd.thunder(); redMoon.pulse = 1; S.tint = 0.9; G.flash = Math.max(G.flash, 0.3); }
+  if (once('quake', SQT.quake)) { Snd.quake(); Snd.laugh(D.R.root.position); G.shake = 1.5; Haptics.pulse(1, 0.6, 1800); }
+  if (once('quake2', SQT.up)) { Snd.quake(); Snd.hellWave(); G.shake = 1.5; S.tint = 0.7; }
+  if (once('quake3', SQT.swap)) { Snd.thunder(); Haptics.pulse(0.8, 0.5, 900); }
+  if (t > SQT.quake && t < SQT.city) G.shake = Math.max(G.shake, 0.55);
+  if (once('grab', SQT.grab)) { Snd.hurt(); }
+  if (once('rip', SQT.rip)) { Snd.bloodSpurt(); Snd.stab(); Snd.hurt(); Haptics.pulse(1, 0.8, 300); G.shake = Math.min(1.5, G.shake + 0.5);
+    if (G.blood) bloodSpray(S.pinAt.x, S.pinAt.y + 0.2, S.pinAt.z, 22, { speed: 3, up: 1.2 }); else sparks(S.pinAt.x, S.pinAt.y, S.pinAt.z, 24, { speed: 6, color: [1, 0.5, 0.2] }); }
+  if (once('toss', SQT.toss)) Snd.whoosh(H.R.root.position);
+  if (once('lift', SQT.lift)) { Snd.hellfire(sqBus.position); Snd.clang(); }
+  if (once('glass', SQT.lift + 0.6)) { Snd.glass(sqBus.position); sqSparks(sqBus.position.x, sqBus.position.y, sqBus.position.z, 40, 6, [0.8, 0.9, 1], 1.2, 0.1); }
+  if (once('throw', SQT.throwB)) { Snd.whoosh(D.R.root.position); Snd.devilRoar(D.R.root.position); }
+  if (once('dodge', SQT.dodge)) { Snd.roll(); G.slow = Math.max(G.slow, 0.9); }
+  if (once('smash', SQT.smash)) {
+    const P = sqBus.position;
+    Snd.godImpact(); Snd.slam(P); Snd.glass(P); Snd.clang(); G.shake = 1.5; G.flash = Math.max(G.flash, 0.5); Haptics.pulse(1, 1, 800);
+    fireBurst(P.x, 1, P.z, 70, { speed: 9, size: 2.2, up: 6 }); sqBlaze(P.x, 1, P.z, 50, 3, 7, 0, 7);
+    sqBillow(P.x, 0.5, P.z, 30, 5, 8, 0.1);
+    for (let i = 0; i < 14; i++) throwRock(P.x + rand(-2, 2), 1, P.z + rand(-2, 2), rand(6, 12));
+    sqSparks(P.x, 1.5, P.z, 60, 12, [1, 0.7, 0.3], 1.2);
+    addRing(P.x, P.z, { r0: 1, rMax: 22, speed: 26, color: 0xffa040, opacity: 0.8 });
+  }
+  if (once('laugh2', SQT.still)) Snd.laugh(D.R.root.position);
+  if (once('chase', SQT.chase)) { Snd.mode('fight'); Snd.demonWings(); }
+  if (once('hop', SQT.hop)) Snd.whoosh(H.R.root.position);
+  if (once('halt', SQT.halt - 0.45)) { Snd.skid(); dust(H.R.root.position.x, H.R.root.position.z, 12, 1, { speed: 3 }); }
+  if (once('circle', SQT.circle)) { Snd.hellWave(); Snd.hellfire(sqW(0, 0, CITY.plaza.at, _sqa).clone()); S.tint = 0.6; }
+  if (once('emerge', SQT.emerge)) { Snd.quake(); Snd.demonRoar(); G.shake = 1.5; }
+  if (once('roar', SQT.roar)) {
+    Snd.megaRoar(sqW(0, 30, CITY.plaza.at, _sqa).clone()); Snd.devilRoar(_sqa); G.shake = 1.5; Haptics.pulse(1, 1, 1600); S.tint = 0.8;
+    addRing(_sqa.x, _sqa.z, { r0: 4, rMax: 120, speed: 60, color: 0xff5020, opacity: 0.7 });
+    Snd.mode('rage');
+  }
+  if (once('flash', SQT.flash)) {
+    G.flash = 1.4; Snd.heavenChord(); Snd.ultimate(); Haptics.pulse(0.9, 0.9, 600);
+    const at = S.hero === 'sun' ? sqW(SQP.street.x, 1, SQP.street.z, _sqa) : sqW(-1.6, 1.8, 50, _sqa);
+    fireBurst(at.x, at.y, at.z, 70, { holy: 1, speed: 8, size: 1.5, up: 5 });
+    addRing(at.x, at.z, { r0: 0.6, rMax: 24, speed: 30, color: 0xffe3a0, opacity: 0.95 });
+  }
+  if (once('pass', SQT.pass - 0.15)) Snd.whoosh(S.cast.sun.R.root.position);
+  if (once('angel', SQT.angel)) { Snd.host(); setHostFade(0); }
+  if (once('raise', SQT.raise)) { Snd.swordAwake(); }
+  if (once('cut', SQT.cut)) sqCut(S);
+  if (once('scream', SQT.scream)) { Snd.megaRoar(S.cast.titan.R.head.getWorldPosition(_sqa).clone()); Snd.demonRoar(); G.shake = 1.5; Haptics.pulse(1, 0.9, 1200); }
+  if (once('swat', SQT.swat)) {
+    const P = S.cast.sun.R.root.position;
+    Snd.punch(P); Snd.godImpact(); Snd.glass(P); G.shake = 1.5; G.flash = Math.max(G.flash, 0.6); G.hitStop = Math.max(G.hitStop, 0.12); Haptics.pulse(1, 1, 500);
+    sqSparks(P.x, P.y, P.z, 80, 16, [1, 0.9, 0.55], 1.4, 0.2);
+    sqAngel.root.getWorldPosition(_sqa); _sqa.y += 10; for (let i = 0; i < 6; i++) fireBurst(_sqa.x + rand(-6, 6), _sqa.y + rand(-8, 8), _sqa.z + rand(-4, 4), 14, { holy: 1, speed: 6, size: 2.4, up: 3 });
+  }
+  if (once('leap', SQT.leap)) { Snd.moonUlt(); Snd.whoosh(S.cast.moon.R.root.position); }
+  if (once('caught', SQT.caught)) { Snd.dragonSlash && Snd.dragonSlash(); G.slow = Math.max(G.slow, 0.8); G.flash = Math.max(G.flash, 0.25); document.body.classList.add('moon'); later(0.6, () => document.body.classList.toggle('moon', G.hero === 'moon')); }
+  if (once('roof', SQT.roof)) { Snd.devilStep(S.cast.moon.R.root.position); }
+  if (once('edge', SQT.edge)) { setOutfit(sqRig.moon, 'moon', true, true); Snd.moonUlt(); const P = S.cast.moon.R.root.position; sqSparks(P.x, P.y + 1, P.z, 50, 4, [0.75, 0.86, 1], 1.2, 0.1); }
+  if (once('draw', SQT.draw)) { Snd.bowDraw(); }
+  if (once('moonUp', SQT.moonUp)) { Snd.drawTier(3); Snd.swell(); }
+  if (once('souls', SQT.souls)) Snd.ancestors();
+  if (once('turn', SQT.turn)) { Snd.megaRoar(S.cast.titan.R.head.getWorldPosition(_sqa).clone()); G.shake = 1.2; }
+  if (once('devil', SQT.devil)) { Snd.teleport(D.R.root.position); const P = sqW(SQP.strike0.x, SQP.strike0.y, SQP.strike0.z, _sqa); fireBurst(P.x, P.y + 1, P.z, 40, { hell: 1, speed: 5, size: 1.4, up: 2 }); }
+  if (once('trident', SQT.devil + 0.5)) { devilRig.arms[1].wr.getWorldPosition(_sqa); fireBurst(_sqa.x, _sqa.y, _sqa.z, 30, { hell: 1, speed: 3, size: 1, up: 2 }); Snd.hellfire(_sqa); }
+  if (once('qte', SQT.qte)) startQte(S);
+}
+// the cut: the angel's sword and the Sun's blade down through the shoulder, and the arm comes away
+function sqCut(S) {
+  const R = titanRig;
+  R.arms[1].sh.getWorldPosition(_sqa);
+  const P = _sqa.clone();
+  bakeTitanArm(R, 1);
+  S.armV = new V3(9 * SQF.c - 2 * SQF.s, 4, -9 * SQF.s - 2 * SQF.c);
+  S.armAxis = new V3(SQF.s, 0, SQF.c).normalize(); S.armSpin = -0.9; S.armDown = false;
+  Snd.angelSlash(P); Snd.cleanCut(); Snd.smite(); Snd.bloodSpurt();
+  G.flash = Math.max(G.flash, 0.9); G.shake = 1.5; G.hitStop = Math.max(G.hitStop, 0.2); Haptics.pulse(1, 1, 700);
+  const yaw = SQF.yaw - Math.PI / 2;
+  slashArc(P.x, P.y + 2, P.z, yaw, -1.15, 26, 1, 0.7, 0);
+  slashArc(P.x, P.y + 1, P.z, yaw + 0.2, -0.9, 18, 1, 0.55, 0);
+  fireBurst(P.x, P.y, P.z, 60, { hell: 1, speed: 14, size: 3, up: 4 });
+  sqSparks(P.x, P.y, P.z, 90, 22, [1, 0.6, 0.25], 1.5, 0.35);
+  if (G.blood) bloodSpray(P.x, P.y, P.z, 30, { speed: 12, up: 2 });
+}
+// everything that has not been drawn yet, compiled while he talks (so the first frame of it does not stall)
+function sqWarm() {
+  const list = [sqCity, titanRig.root, sqAngel.root, sqBus, sqRig.sun.root, sqRig.moon.root, sqRig.star.root, MOONK.moon, MOONK.halo].filter(Boolean);
+  const was = list.map(o => o.visible);
+  list.forEach(o => { o.visible = true; });
+  try { renderer.compile(scene, camera); } catch (e) { /* not fatal */ }
+  list.forEach((o, i) => { o.visible = was[i]; });
+}
+
+/* ───── every frame ───── */
+function updateSequel(dt) {
+  const S = G.sq;
+  if (!S) return;
+  fireStyle.moon = false;
+  if (S.end) { updateTbc(S, dt); return; }
+  if (S.qte) updateQte(S, dt); else S.t += dt;
+  const t = S.t;
+  sqEvents(S, t);
+  if (!G.sq) return;
+  sqHeroDo(S, t, dt); sqSunDo(S, t, dt); sqMoonDo(S, t, dt); sqStarDo(S, t, dt);
+  sqDevilDo(S, t, dt); sqTitanDo(S, t, dt); sqAngelDo(S, t, dt);
+  for (const k of ['sun', 'moon', 'star', 'titan', 'angel']) sqPlace(S.cast[k], dt);
+  sqPlace(S.cast.devil, dt); devilBody(dt);
+  if (S.cast.devil.on) { devilRig.root.updateMatrixWorld(true); bossLight.color.setRGB(1, 0.2, 0.06); bossLight.intensity = 1.8; devilRig.chest.getWorldPosition(bossLight.position); bossLight.position.y += 1.5; }
+  else bossLight.intensity = 0;
+  if (S.angelK !== S.angelShown) { S.angelShown = S.angelK; setHostFade(S.angelK); }
+  titanBody(S, dt);
+  sqSpearDo(S, t, dt); sqGrips(S);
+  sqBusDo(S, t, dt); sqCityDo(S, t, dt); sqKits(S, t, dt);
+  sqDust.update(dt); sqSpark.update(dt); sqFire.update(dt);
+  S.tint = Math.max(0, S.tint - dt * 1.3);
+  sqTint.style.opacity = Math.min(1, S.tint).toFixed(2);
+  playerRig.root.visible = t < SQT.hit;
+  if (S.city) {                                                         // the torches went down with the walls
+    for (const l of torchLights) l.intensity = 0;
+    gateLight.intensity = 0;
+  }
+}
+
+/* ───── the shot: the Devil drops on the Moon, and the Star has one ───── */
+// The world goes slow and the colour of an old photograph. A ring closes on the Devil's head; once it has closed, shoot
+// (light or heavy attack) before the trident comes down. Too soon or too late and it is all to do again from the top
+// of his dive. Shoot in time, and he knocks the bullet away.
+function startQte(S) {
+  S.qte = { t: 0, k: 0, locked: false, shotT: undefined, fail: 0, why: '' };
+  S.tries++;
+  western(true);
+  noonEl.classList.add('on'); noonRing.classList.remove('lock');
+  $('qte').classList.add('on'); $('qteWhy').textContent = '';
+  Snd.duck(1); Snd.noonIn(); Snd.spurs();
+  Haptics.pulse(0.8, 0.3, 450);
+  for (const k in tap) delete tap[k];
+}
+function updateQte(S, dt) {
+  const Q = S.qte, rdt = G.lastRaw || dt;
+  Q.t += rdt;
+  if (Q.fail > 0) {                                                     // the moment it went wrong, held; then again from the top
+    Q.fail -= rdt;
+    if (Q.fail <= 0) { Q.t = 0; Q.k = 0; Q.locked = false; Q.shotT = undefined; noonRing.classList.remove('lock'); $('qteWhy').textContent = ''; $('qte').classList.remove('fail'); western(true); Snd.duck(1); Snd.noonBell(); }
+    else { Q.t -= rdt; return; }
+  }
+  if (Q.shotT === undefined) {
+    Q.k = clamp(Q.t / QTE.len, 0, 1);
+    const ringK = clamp(Q.t / QTE.ring, 0, 1);
+    devilRig.head.getWorldPosition(_sqa);
+    noonRingAt(_sqa, ringK);
+    if (!Q.locked && ringK >= 1) { Q.locked = true; noonRing.classList.add('lock'); Snd.noonLock(); Haptics.pulse(0.6, 1, 140); }
+    const fire = tap.MouseL || tap.KeyJ || tap.MouseR || tap.KeyK || tap.KeyE || Q.tapped;
+    Q.tapped = false;
+    if (fire) { if (Q.locked) sqShoot(S); else sqMiss(S, 'Too soon.'); }
+    else if (Q.k >= 1) sqMiss(S, 'Too slow.');
+  } else {
+    const s = Q.t - Q.shotT;
+    if (s > 0.22 && !Q.deflected) sqDeflect(S);
+    if (s > 1.4 && !Q.line) { Q.line = true; sqCap('Your power is pathetic.'); }
+    if (s > 4.4) { sqCap(null); startTbc(S); }
+  }
+}
+function sqMiss(S, why) {
+  const Q = S.qte;
+  Q.fail = 1.6; $('qteWhy').textContent = why; $('qte').classList.add('fail');
+  noonEl.classList.remove('on'); western(false);
+  S.tint = 1; Snd.duck(0); Snd.dryFire && Snd.dryFire(); Snd.devilRoar(devilRig.root.position);
+  G.shake = 1.2; Haptics.pulse(0.9, 0.9, 400);
+  noonEl.classList.add('on');
+}
+function sqShoot(S) {
+  const Q = S.qte, R = sqRig.star;
+  Q.shotT = Q.t; Q.kAt = Q.k;
+  R.root.updateMatrixWorld(true); R.muzzle.getWorldPosition(_sqa); devilRig.head.getWorldPosition(_sqb);
+  _sqc.subVectors(_sqb, _sqa).normalize();
+  muzzleFlash(_sqa, _sqc, 1.8);
+  addTracer(_sqa, _sqb, 0.055, 0.2, TR_HOT);
+  Snd.noonShot(_sqa); Snd.duck(0);
+  Haptics.pulse(0.9, 1, 220); G.shake = Math.min(1.5, G.shake + 0.5);
+  noonRing.classList.add('lock');
+  later(0.25, () => noonEl.classList.remove('on'));
+  $('qte').classList.remove('on');
+}
+function sqDeflect(S) {
+  const Q = S.qte;
+  Q.deflected = true;
+  devilRig.tridentMesh.getWorldPosition(_sqa); devilRig.head.getWorldPosition(_sqb);
+  _sqa.lerp(_sqb, 0.4);
+  Snd.ricochet(_sqa); Snd.clang(); Snd.chuckle(_sqb);
+  sqSparks(_sqa.x, _sqa.y, _sqa.z, 50, 10, [1, 0.85, 0.5], 0.8, 0.12);
+  impactStar(_sqa, 1.2, [1, 0.88, 0.55]);
+  const away = sqW(40, 18, 70, _sqc);
+  addTracer(_sqa, away, 0.05, 0.3, TR_HOT);
+  later(0.15, () => { sqBlaze(away.x, away.y, away.z, 20, 2, 4, 0, 2); });
+  western(false);
+  G.hitStop = Math.max(G.hitStop, 0.1);
+}
+
+/* ───── to be continued ───── */
+function startTbc(S) {
+  S.end = { t: 0, prompt: false };
+  G.state = 'end'; S.canReturn = false;
+  canvas.style.transition = 'filter .25s';
+  canvas.style.filter = 'sepia(0.75) saturate(1.35) contrast(1.1) brightness(0.92)';
+  $('tbc').classList.add('on');
+  Snd.mode('off'); Snd.titleSlam(); Haptics.pulse(0.6, 0.5, 500);
+}
+function updateTbc(S, dt) {
+  const E = S.end;
+  E.t += G.lastRaw || dt;
+  if (!E.prompt && E.t >= 2.2) {
+    E.prompt = true; S.canReturn = true;
+    $('tbcSub').innerHTML = `Deaths: <b>${G.deaths}</b> &nbsp;·&nbsp; ${CONFIRM_HTML} to return to the title`;
+    $('tbcSub').classList.add('on');
+  }
+}
+// everything put back (on the way to the title)
+function resetSequel() {
+  const S = G.sq;
+  G.sq = null;
+  for (const h of HERO_ORDER) { sqRig[h].root.visible = false; for (const a of sqRig[h].arms) a.sh.scale.setScalar(1); }
+  titanRig.root.visible = false; for (const a of titanRig.arms) a.sh.scale.setScalar(1);
+  sqAngel.root.visible = false; sqAngelBeam.visible = false; setHostFade(1);
+  sqArm.visible = false; sqSpear.visible = false; sqBus.visible = false; sqBus.userData.aura.material.opacity = 0;
+  for (const w of SUNK.wings) w.g.visible = false; SUNK.halo.visible = false; SUNK.comet.material.opacity = 0; SUNK.blade.visible = false; SUNK.auraM.opacity = 0; SUNK.light.intensity = 0; SUNK.k = 0; SUNK.open = 0; SUNK.trail.clear();
+  MOONK.bow.visible = false; MOONK.halo.visible = false; MOONK.moon.visible = false; MOONK.pillar.visible = false; MOONK.cresM.opacity = 0; MOONK.light.intensity = 0; MOONK.k = 0; MOONK.trail.clear();
+  for (const q of MOONK.army) q.m.visible = false;
+  titanLight.intensity = 0;
+  if (sqCity) sqCity.visible = false;
+  if (S && S.arenaSave) for (const q of S.arenaSave) { q.c.position.y = q.y; q.c.rotation.x = q.rx; q.c.rotation.z = q.rz; }
+  arena.visible = true; ruins.visible = true; mist.visible = true;
+  scene.fog.density = 0.0113;
+  Object.assign(moon.shadow.camera, { left: -19, right: 19, top: 19, bottom: -19, far: 90 }); moon.shadow.camera.updateProjectionMatrix();
+  setOutfit(sqRig.moon, 'moon', false, true);
+  sqCap(null); sqTint.style.opacity = '0';
+  $('shards').classList.remove('on'); $('shards').innerHTML = '';
+  $('qte').classList.remove('on', 'fail'); $('tbc').classList.remove('on'); $('tbcSub').classList.remove('on'); $('tbcSub').innerHTML = '';
+  noonEl.classList.remove('on'); noonRing.classList.remove('lock');
+  if (S) { western(false); canvas.style.filter = ''; }
+  boss.hidden = false;
+  playerRig.root.visible = true;
+}
+/* ───── the cameras ───── */
+// (local points through sqW; the shot number changes at each hard cut)
+function sqCam() {
+  const S = G.sq, t = S.t, H = S.cast.hero, D = S.cast.devil, Ti = S.cast.titan;
+  const want = (x, y, z) => sqW(x, y, z, _want), look = (x, y, z) => sqW(x, y, z, _lookT);
+  const wantOff = (A, x, y, z) => sqW(A.lp.x + x, A.lp.y + y, A.lp.z + z, _want);
+  const boneAt = (bone, out = _lookT) => bone.getWorldPosition(out);
+  let shot = 0;
+  S.fov = 0;
+  if (S.end || S.qte) {
+    const Q = S.qte, St = S.cast.star;
+    const s = Q && Q.shotT !== undefined ? Q.t - Q.shotT : -1;
+    if (s > 1.2 || S.end) {                                             // his face, turned on the one who shot at him
+      devilRig.head.getWorldPosition(_sqa);
+      if (!S.faceCam) { sqW(SQP.star.x, SQP.star.y + 1.6, SQP.star.z, _sqb); S.faceCam = _sqa.clone().add(_sqb.sub(_sqa).normalize().multiplyScalar(2.6)); S.faceCam.y -= 0.35; }
+      _want.copy(S.faceCam); _lookT.set(_sqa.x, _sqa.y + 0.05, _sqa.z); shot = 41;
+    } else {                                                            // over the Star's shoulder, up at the Devil
+      devilRig.head.getWorldPosition(_sqa);
+      sqW(SQP.star.x, SQP.star.y, SQP.star.z, _sqb);
+      let fx = _sqa.x - _sqb.x, fz = _sqa.z - _sqb.z; const l = Math.hypot(fx, fz) || 1; fx /= l; fz /= l;
+      const push = s > 0 ? 0.3 * smooth(clamp(s / 1.2, 0, 1)) : 0;
+      _want.set(_sqb.x - fx * (1.7 - push) - fz * 0.5, _sqb.y + 1.85, _sqb.z - fz * (1.7 - push) + fx * 0.5);
+      S.cast.moon.R.chest.getWorldPosition(_sqc); _lookT.lerpVectors(_sqa, _sqc, 0.5); shot = 40; S.fov = 38;
+    }
+  } else if (t < SQT.hit) {                                             // "The End", as it was
+    _want.copy(S.cam0); _lookT.copy(S.look0); shot = 0;
+  } else if (t < 2.2) {                                                 // the impact, low and side on
+    want(3.1, 0.95, 0.9); boneAt(H.R.chest); _lookT.y += 0.1; shot = 1;
+  } else if (t < SQT.descend) {                                         // from above: pinned
+    const u = sqK(t, 2.2, SQT.descend);
+    want(0.8, 5.2 + u * 1.2, 1.0); look(0, 0.2, 2.5); shot = 2;
+  } else if (t < SQT.land) {                                            // by his head, looking up at what comes down
+    want(-0.25, 0.8, 4.7); boneAt(D.R.chest); shot = 3;
+  } else if (t < SQT.crouch) {                                          // the two of them
+    want(4.7, 1.7, 1.4); look(-0.6, 1.0, 4.0); shot = 4;
+  } else if (t < SQT.l3) {                                              // his face, close
+    devilRig.head.getWorldPosition(_sqa);                               // (from in front of it, a little below)
+    const fy = D.lyaw + SQF.yaw, fx = Math.sin(fy), fz = Math.cos(fy);
+    _want.set(_sqa.x + fx * 1.25 + fz * 0.45, _sqa.y - 0.2, _sqa.z + fz * 1.25 - fx * 0.45); _lookT.copy(_sqa); _lookT.y += 0.02; shot = 5;
+  } else if (t < SQT.rise) {                                            // his hand on the spear
+    want(2.2, 1.35, 0.6); look(-0.2, 0.75, 2.9); shot = 6;
+  } else if (t < SQT.quake) {                                           // up he goes, arms open, over the hero
+    want(1.3, 0.45, 1.6); boneAt(D.R.chest); shot = 7;
+  } else if (t < SQT.up) {                                              // high and wide: the whole arena shaking
+    want(16, 30, -50); look(0, 4, 12); shot = 8;
+  } else if (t < SQT.swap + 0.8) {                                      // at his side as the walls go down and the towers come up
+    want(2.4, 1.1, -0.4); look(-5, 9, 40); shot = 9;
+  } else if (t < SQT.hover) {                                           // up and back over the new city
+    const u = smooth(sqK(t, SQT.swap + 0.8, SQT.hover));
+    want(lerp(2.5, 3.5, u), lerp(4, 30, u), lerp(-12, -36, u)); look(0, 2, lerp(6, 18, u)); shot = 10;
+  } else if (t < SQT.grab) {                                            // the Devil, off to the bus
+    want(-2.7, 1.15, 0.9); boneAt(D.R.chest); shot = 11;
+  } else if (t < SQT.stood) {                                           // the spear coming out
+    boneAt(H.R.chest, _sqa);
+    sqL(_sqa, _sqb); want(_sqb.x + 2.3, Math.max(0.8, _sqb.y + 0.5), _sqb.z - 1.0); _lookT.copy(_sqa); shot = 12;
+  } else if (t < SQT.lift) {                                            // on his feet: low, from in front
+    want(0.9, 0.55, 6.0); boneAt(H.R.head); shot = 13;
+  } else if (t < SQT.throwB) {                                          // over his shoulder: the bus going up
+    want(-1.7, 2.3, -1.4); _lookT.copy(sqBus.position); shot = 14;
+  } else if (t < SQT.smash) {                                           // side on as it comes
+    want(2.8, 1.2, -6.5); look(0.5, 3.5, 12); shot = 15;
+  } else if (t < SQT.chase) {                                           // and behind him, the fire
+    want(7.8, 1.6, 7.2); look(1.5, 2.0, -9); shot = 16;
+  } else if (t < 42.9) {                                                // running at us
+    wantOff(H, 1.1, 1.2, 6.6); boneAt(H.R.chest); shot = 17;
+  } else if (t < 45.6) {                                                // side on, over the car
+    wantOff(H, 7.6, 1.3, 1.0); boneAt(H.R.chest); shot = 18;
+  } else if (t < SQT.l6) {                                              // after him, down the avenue
+    wantOff(H, 1.1, 2.0, -4.6); H.R.chest.getWorldPosition(_sqa); D.R.chest.getWorldPosition(_sqb); _lookT.lerpVectors(_sqa, _sqb, 0.4); shot = 19;
+  } else if (t < SQT.circle) {                                          // up at him
+    want(-1.8, 1.4, 66.4); boneAt(D.R.chest); shot = 20;
+  } else if (t < SQT.emerge + 1.2) {                                    // the plaza, as the circle burns into it
+    want(34, 16, 128); look(0, 3, CITY.plaza.at); shot = 21;
+  } else if (t < SQT.roar - 0.6) {                                      // from the street, the thing coming up
+    want(-5, 2.2, 112); Ti.R.head.getWorldPosition(_sqa); Ti.R.hips.getWorldPosition(_sqb); _lookT.lerpVectors(_sqb, _sqa, 0.6); shot = 22;
+  } else if (t < SQT.l7 + 1.4) {                                        // the roar
+    want(3, 3.5, 118); boneAt(Ti.R.head); shot = 23;
+  } else if (t < SQT.flash) {                                           // behind the hero, as it walks at him
+    wantOff(H, -1.4, 1.7, -4.8); boneAt(Ti.R.chest); _lookT.y -= 6; shot = 24;
+  } else if (t < SQT.pass + 0.1) {                                      // in front of him, the light behind
+    want(1.8, 1.6, 75.5); look(0, 2.4, 58); shot = 25;
+  } else if (t < SQT.angel) {                                           // after the Sun, to the titan
+    const sun = S.cast.sun, fy = sun.lyaw + SQF.yaw;                   // behind him as he goes
+    sun.R.chest.getWorldPosition(_sqa); Ti.R.chest.getWorldPosition(_sqb);
+    _want.set(_sqa.x - Math.sin(fy) * 6.5, _sqa.y + 1.7, _sqa.z - Math.cos(fy) * 6.5); _lookT.lerpVectors(_sqa, _sqb, 0.3); shot = 26;
+  } else if (t < SQT.raise + 0.6) {                                     // the angel comes down by its shoulder
+    want(-3, 30, 100); look(12, 48, 146); shot = 27;
+  } else if (t < SQT.cut + 0.6) {                                       // the cut
+    want(2, 50, 112); if (!S.shoulder) S.shoulder = titanRig.arms[1].sh.getWorldPosition(new V3()); _lookT.copy(S.shoulder); shot = 28;
+  } else if (t < SQT.crash + 0.6) {                                     // the arm coming down on the street
+    want(-2, 2.5, 116); look(12, 30, 146); if (S.armV) _lookT.lerp(sqArm.position, 0.5); shot = 29;
+  } else if (t < SQT.neck + 0.6) {                                      // its face, screaming
+    want(-4, 34, 104); boneAt(Ti.R.head); shot = 30;
+  } else if (t < SQT.swat + 0.15) {                                     // the Sun for the neck, and the hand coming
+    want(-6, 54, 104); look(2, 58, 140); shot = 31;
+  } else if (t < SQT.caught) {                                          // swatted toward the towers
+    want(6, 36, 94); S.cast.sun.R.chest.getWorldPosition(_lookT); shot = 32;
+  } else if (t < SQT.roof) {                                            // caught, and down
+    want(-2.5, 31, 96); S.cast.moon.R.chest.getWorldPosition(_lookT); shot = 33;
+  } else if (t < SQT.draw) {                                            // on the roof
+    want(-10.5, 25.9, 88); look(-17.2, 24.9, 95); shot = 34;
+  } else if (t < SQT.souls + 0.4) {                                     // the draw, the moon behind him
+    want(-12.0, 25.4, 99.4); S.cast.moon.R.chest.getWorldPosition(_lookT); shot = 35;
+  } else if (t < SQT.devil) {                                           // the ancestors with him, the titan beyond
+    want(-24, 30, 84); look(-6, 28, 122); shot = 36;
+  } else {                                                              // and above him, the Devil
+    want(-11.5, 25.6, 99.5); D.R.chest.getWorldPosition(_lookT); shot = 37;
+  }
+  S.shot = shot;
+  S.focus = _lookT;
+}
+
 /* ───── the end, for real this time ───── */
 G.devilEnd = null;
 function startDevilEnd() {
@@ -18091,7 +19792,9 @@ function placeCamera(snap, dt) {
   }
   if (G.finale && G.finale.snapCam) { snap = true; G.finale.snapCam = false; }
   const finCam = G.finale && G.finale.camOn;
-  if (G.dcut && G.dcut.camOn) {
+  if (G.sq && G.sq.camOn) {
+    sqCam();
+  } else if (G.dcut && G.dcut.camOn) {
     devilCutCam();
   } else if (G.cut) {
     cutCam();
@@ -18141,18 +19844,18 @@ function placeCamera(snap, dt) {
     _lookT.set(p.pos.x, 1.5 + p.air, p.pos.z);
   }
   look.dx = 0; look.dy = 0;
-  // keep the lens inside the walls, clear of the gate
+  // keep the lens inside the walls, clear of the gate (not once there are no walls)
   const r = Math.hypot(_want.x, _want.z), rmax = ARENA.wall - 2.3;
-  if (r > rmax) { _want.x *= rmax / r; _want.z *= rmax / r; }
+  if (r > rmax && !G.sq) { _want.x *= rmax / r; _want.z *= rmax / r; }
   // and never inside one of the columns round the edge: slide in toward the middle until it is clear of the stone
-  for (const c of columns) {
+  for (const c of G.sq ? [] : columns) {
     const cx = c.col.position.x, cz = c.col.position.z, M = 2.3;
     if (_want.y > c.h + 1 || Math.hypot(_want.x - cx, _want.z - cz) >= M) continue;
     const rw = Math.hypot(_want.x, _want.z) || 1, ux = _want.x / rw, uz = _want.z / rw, Rc = Math.hypot(cx, cz);
     const along = (cx * ux + cz * uz), off2 = Rc * Rc - along * along, s = along - Math.sqrt(Math.max(0, M * M - off2));
     if (s < rw) { _want.x = ux * s; _want.z = uz * s; }
   }
-  const cin = G.dcut && G.dcut.camOn ? G.dcut : finCam ? G.finale : (G.moonfall && G.moonfall.camOn ? G.moonfall : null) || (G.barrage && G.barrage.camOn ? G.barrage : null) || G.exec || G.assault || G.cut || G.descent;
+  const cin = G.sq && G.sq.camOn ? G.sq : G.dcut && G.dcut.camOn ? G.dcut : finCam ? G.finale : (G.moonfall && G.moonfall.camOn ? G.moonfall : null) || (G.barrage && G.barrage.camOn ? G.barrage : null) || G.exec || G.assault || G.cut || G.descent;
   const hardCut = !!(cin && cin.shot !== cin.lastShot);
   if (cin) cin.lastShot = cin.shot;
   if (snap || hardCut) { camera.position.copy(_want); cam.look.copy(_lookT); }
@@ -18161,7 +19864,7 @@ function placeCamera(snap, dt) {
     cam.look.lerp(_lookT, 1 - Math.exp(-11 * dt));
   }
   camera.lookAt(cam.look);
-  const fovWant = camBaseFov + G.fovKick * 7;
+  const fovWant = G.sq && G.sq.fov ? G.sq.fov : camBaseFov + G.fovKick * 7;
   if (Math.abs(camera.fov - fovWant) > 0.02) { camera.fov = fovWant; camera.updateProjectionMatrix(); }
   G.fovKick *= Math.exp(-5.5 * dt);
   if (G.shake > 0.001) {
@@ -18171,7 +19874,7 @@ function placeCamera(snap, dt) {
   }
   G.shake *= Math.exp(-5.5 * dt);
   // keep the shadow frustum on the action
-  const mx = (p.pos.x + b.pos.x) * 0.5, mz = (p.pos.z + b.pos.z) * 0.5;
+  const fo = G.sq && G.sq.focus, mx = fo ? fo.x : (p.pos.x + b.pos.x) * 0.5, mz = fo ? fo.z : (p.pos.z + b.pos.z) * 0.5;
   moon.target.position.set(mx, 0, mz);
   moon.position.set(mx - 16, 30, mz + 12);
   rimLight.target.position.set(mx, 2, mz);
@@ -18258,7 +19961,7 @@ function updateHUD(dt) {
   else el.bossDmg.style.opacity = 0;
 
   // lock-on reticle
-  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
+  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || G.sq || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
   if (cineNow !== hud.cine) { hud.cine = cineNow; document.body.classList.toggle('cine', cineNow); }
   const lockOk = G.lockOn && !cineNow && (G.state === 'explore' || G.state === 'fight') && b.state !== 'dead' && b.state !== 'dying';
   if (lockOk) {
@@ -18280,6 +19983,7 @@ function updateHUD(dt) {
 
 /* ═══════════════════════════ flow ═══════════════════════════ */
 function resetFight(first) {
+  resetSequel();
   G.dcut = null; G.devilEnd = null; caption(null);
   redMoon.want = G.opponent === 'devil' ? 1 : 0; redMoon.k = redMoon.want; redMoon.pulse = 0;
   resetFinale();
@@ -18412,7 +20116,7 @@ function systemKeys() {
   if (tap.KeyM) { const m = Snd.toggle(); showToast(m ? 'Sound off' : 'Sound on', 1.2); }
   if (tap.KeyB) { G.blood = !G.blood; store.set('blood', G.blood); showToast('Blood: ' + (G.blood ? 'on' : 'off'), 1.4); }
   if (tap.KeyV) { const on = Haptics.toggle(); showToast('Vibration ' + (on ? 'on' : 'off'), 1.4); }
-  if (G.finale && !G.paused && tap.Enter && G.state === 'end') { returnToTitle(); for (const k in tap) delete tap[k]; return; }
+  if ((G.finale || G.sq) && !G.paused && tap.Enter && G.state === 'end') { returnToTitle(); for (const k in tap) delete tap[k]; return; }
   if ((tap.Escape || tap.KeyP) && G.state !== 'won' && G.state !== 'dying') setPaused(!G.paused);
   if (tap.KeyF) {
     try {
@@ -18444,6 +20148,7 @@ function systemKeys() {
 /* ═══════════════════════════ main loop ═══════════════════════════ */
 function frame(rawDt) {
   rawDt = Math.min(rawDt, 0.05);
+  G.lastRaw = rawDt;
   pollPad();
   systemKeys();
   if (G.paused) { for (const k in tap) delete tap[k]; if (!G.noRender) draw(); return; }
@@ -18468,6 +20173,7 @@ function frame(rawDt) {
   if (boss.kind === 'saleem' || boss.kind === 'mega') plantFists(bossRig, boss.kind === 'mega' ? 1.06 : 1);
   checkWake();
   updateWorld(dt, G.t);
+  if (G.sq) updateSequel(dt);
   placeCamera(false, dt);
   updateHUD(rawDt);
   updateHitFlash(rawDt);
@@ -18532,7 +20238,7 @@ function pollPad() {
   padPrev.sLf = lfNow; padPrev.sRt = rtNow;
   const ok = edge[0] || edge[9];                           // A or Start confirms anywhere a menu is showing
   if (G.cut) { /* the story plays out: nothing skips it */ }
-  else if ((G.finale || G.devilEnd) && G.state === 'end') { if (ok) returnToTitle(); }
+  else if ((G.finale || G.devilEnd || G.sq) && G.state === 'end') { if (ok) returnToTitle(); }
   else if (G.state === 'title') {
     if (edge[12] || edge[4]) setMenu(menuIdx - 1);
     if (edge[13] || edge[5]) setMenu(menuIdx + 1);
@@ -18588,7 +20294,8 @@ if (store.get('devilSeen', false)) $('pickDevil').textContent = '5 · The Devil'
 // anywhere on screen counts as "continue" once a fight is over
 app.addEventListener('pointerdown', () => {
   if (G.cut) return;
-  if ((G.finale || G.devilEnd) && G.state === 'end') { returnToTitle(); return; }
+  if (G.sq && G.sq.qte && !G.sq.end) { G.sq.qte.tapped = true; return; }      // (a tap anywhere is the shot)
+  if ((G.finale || G.devilEnd || G.sq) && G.state === 'end') { returnToTitle(); return; }
   if (G.state === 'won' && G.canRestart) nextFight(nextBoss(G.opponent));
   else if (G.state === 'dying' && player.t > 2.0) skipDeath();
 });
@@ -18628,13 +20335,14 @@ whenSculpted(() => {
 });
 
 // handle for tests and tinkering
-window.__saleem = { Snd, draw, SC_GEO, SC_POOL, whenSculpted, rigs: { saleem: saleemRig, clement: clementRig, chan: chanRig, mega: megaRig },
+window.__saleem = { Snd, draw, frame, SC_GEO, SC_POOL, whenSculpted, rigs: { saleem: saleemRig, clement: clementRig, chan: chanRig, mega: megaRig },
   poses: { SLAM_UP, M_THROW_BACK, M_FLY, CHEST_BEAT, P_ULT, CL_WAKE: mkPose(CI, { lax: 2.5, rax: 2.5, laz: 0.6, raz: 0.6, lay: 0, ray: 0, lae: 0.4, rae: 0.4, hx: -0.4, jaw: 0.9, crouch: 0.02, lean: -0.3 }), CH_UP: mkPose(CHI, CH_UP) }, G, player, boss, cam, keys, tap, ATK, PATK, frame, press, release, shocks, camera, scene, renderer,
   beginGame, resetFight, wakeBoss, setOpponent, nextFight, downBoss, startExecution, finish, charge, angels, CHARGE_TIERS, startChargeP, aura, bladeFx, wrath, columns, slabs, megaRig, MATK, startMegaAttack, startCutscene, skipCutscene, startDescent, heaven, bolt, MIGHT, fxBlood, KNEEL, chanRig, CHA, projs, clouds, strikes, startChanAttack, fxFire, swordRibbon, arcPool, holyCross, crossLight, swordLight, crossMat, pillar, floorTex, moon, hemi, rimLight, torchLights, startAttack, damageBoss, hurtPlayer, applyPose, evalKeys, bossRig, playerRig, hud, TRUMPET, FT, FIN_DESC, DEMON, hell, catchBlade, returnToTitle, effOffset, megaEFF: EFF, DATK, startDemonAttack,
   Haptics, DS5, TRIG, holySword, horns, dWings, ritual, hellSky, heartGlow, wrathCracks: () => cracks, wrathRocks: () => rocks.filter(r => r.live && r.m.visible).length,
   bow, souls, army, stuck, beams, bowG, setHero, setOutfit, activateUlt, hitReact, white, kb, MOON_TIERS, dragon, haloG, bigMoon, holes, IAI, startIai, dragons, swordDragons,
   star, STAR, ARS, ARS_TIERS, QD, tracers, startQuickDraw, startArsenalP, startGunP, startFanP, ST,
-  devilRig, DVA, startDevilAttack, startDevilCut, redMoon, killDevil, DC, DVI };
+  devilRig, DVA, startDevilAttack, startDevilCut, redMoon, killDevil, DC, DVI,
+  startSequel, shatterEnd, SQT, QTE, sqRig, titanRig, sqAngel, sqBus, sqSpear, sqFrame, sqW, get sqCity() { return sqCity; } };
 })();
 </script>
 </body>
