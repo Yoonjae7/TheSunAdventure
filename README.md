@@ -40,7 +40,7 @@ The gauntlet runs Fucking Clement, Saleem the Antonio, Fucking Chan, then Fuckin
 
 What follows plays out on its own until the last moment: a city, a titan, and the other two heroes. Then the Star has one shot. A ring closes on the Devil's head; once it has closed, shoot (light or heavy attack) before his trident comes down. Too soon or too late and you try it again from the top of his dive. For now it ends there: to be continued.
 
-Once you have met the Devil, he is pick 5 on the title screen, and you can fight him there.
+Once you have met the Devil, he is pick 5 on the title screen, and you can fight him there. Pick 6 plays the ending on its own, from "The End" on.
 
 ## Controls
 

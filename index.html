@@ -538,6 +538,7 @@ body.finhp #hud .flasks, body.finhp #hud .bar.st, body.finhp #hud .bar.ult { vis
         <button class="cta alt" data-boss="chan">3 · Fucking Chan</button>
         <button class="cta alt" data-boss="mega" id="pickMega">4 · ???</button>
         <button class="cta alt" data-boss="devil" id="pickDevil">5 · ???</button>
+        <button class="cta alt" data-boss="sequel" id="pickSequel">6 · ???</button>
       </div>
       <p class="hw ds5row" hidden><button class="cta alt ds5btn" type="button">Connect DualSense triggers</button><button class="cta alt ds5test" type="button">Test R2</button><button class="cta alt ds5bt" type="button" hidden>Use Bluetooth anyway</button><span class="note ds5note"></span><span class="note ds5pads"></span></p>
       <ul class="keys">
@@ -8493,7 +8494,7 @@ function updatePlayer(dt) {
       break;
     }
     case 'cut': devilCutPlayer(dt, tgt); break;
-    case 'sequel': p.vel.set(0, 0, 0); break;
+    case 'sequel': p.vel.set(0, 0, 0); if (G.sqPre) Object.assign(tgt, PK_SKY); break;
     case 'gun': updateGunState(dt, tgt, m); break;
     case 'fan': updateFanState(dt, tgt); break;
     case 'reload': updateReloadState(dt, tgt, m, facingLock, lockYaw); break;
@@ -16746,6 +16747,7 @@ function returnToTitle() {
     $('deaths').textContent = G.deaths ? `Fallen ${G.deaths} time${G.deaths === 1 ? '' : 's'}` : '';
     $('pickMega').textContent = '4 · Fucking Clement, Perfected';
     if (store.get('devilSeen', false)) $('pickDevil').textContent = '5 · The Devil';
+    if (store.get('sequelSeen', false)) $('pickSequel').textContent = '6 · To Be Continued';
     $('fade').classList.add('out');
   });
 }
@@ -18808,7 +18810,7 @@ function startSequel() {
   b.state = 'scripted'; b.t = 0; b.inv = true; b.atk = null; b.air = 0; b.hidden = true; b.wingOpen = 0; b.orb = false; b.phase = 1;
   devilRig.tridentMesh.visible = false; devilRig.root.visible = false;
   store.set('devilSeen', true); store.set('sequelSeen', true);
-  $('pickDevil').textContent = '5 · The Devil';
+  $('pickDevil').textContent = '5 · The Devil'; $('pickSequel').textContent = '6 · To Be Continued';
   $('cine').classList.add('on'); $('hud').classList.remove('on'); $('boss').classList.remove('on'); $('exec').classList.remove('on');
   Snd.fallWhistle(); Snd.duck(0.5);
 }
@@ -19594,7 +19596,7 @@ function updateTbc(S, dt) {
 // everything put back (on the way to the title)
 function resetSequel() {
   const S = G.sq;
-  G.sq = null;
+  G.sq = null; G.sqPre = null;
   for (const h of HERO_ORDER) { sqRig[h].root.visible = false; for (const a of sqRig[h].arms) a.sh.scale.setScalar(1); }
   titanRig.root.visible = false; for (const a of titanRig.arms) a.sh.scale.setScalar(1);
   sqAngel.root.visible = false; sqAngelBeam.visible = false; setHostFade(1);
@@ -19617,6 +19619,21 @@ function resetSequel() {
   boss.hidden = false;
   playerRig.root.visible = true;
 }
+// picked from the title: the hero in the light with "The End" over him, as the finale leaves it, and then the spear
+G.sqPre = null;
+function sequelPrelude() {
+  const p = player, b = boss;
+  G.state = 'sequel'; G.sqPre = { t0: G.t, a: rand(TAU) };
+  p.pos.set(0, 0, 6); p.yaw = Math.PI; p.vel.set(0, 0, 0); p.state = 'sequel'; p.t = 0; p.iframes = 999;
+  b.state = 'scripted'; b.hidden = true; b.inv = true; devilRig.root.visible = false;
+  redMoon.want = 0; redMoon.k = 0;
+  heavenify(p.pos.x, p.pos.z, G.hero === 'moon');
+  $('cine').classList.add('on'); $('hud').classList.remove('on'); $('boss').classList.remove('on');
+  Snd.mode('off');
+  later(0.6, () => { finEl.end.classList.add('on'); Snd.endChord(); });
+  later(4.6, () => { G.sqPre = null; startSequel(); });
+}
+
 /* ───── the cameras ───── */
 // (local points through sqW; the shot number changes at each hard cut)
 function sqCam() {
@@ -19794,6 +19811,9 @@ function placeCamera(snap, dt) {
   const finCam = G.finale && G.finale.camOn;
   if (G.sq && G.sq.camOn) {
     sqCam();
+  } else if (G.sqPre) {                     // (picked from the title) wide and high round the hero in the light
+    const P = G.sqPre, a = P.a + (G.t - P.t0) * 0.06;
+    _want.set(p.pos.x + Math.sin(a) * 15, 9.5, p.pos.z + Math.cos(a) * 15); _lookT.set(p.pos.x, 2.6, p.pos.z);
   } else if (G.dcut && G.dcut.camOn) {
     devilCutCam();
   } else if (G.cut) {
@@ -19961,7 +19981,7 @@ function updateHUD(dt) {
   else el.bossDmg.style.opacity = 0;
 
   // lock-on reticle
-  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || G.sq || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
+  const cineNow = !!(G.exec || G.assault || G.cut || G.descent || G.moonfall || G.dcut || G.devilEnd || G.sq || G.sqPre || (G.barrage && G.barrage.camOn) || (G.finale && G.finale.cine));
   if (cineNow !== hud.cine) { hud.cine = cineNow; document.body.classList.toggle('cine', cineNow); }
   const lockOk = G.lockOn && !cineNow && (G.state === 'explore' || G.state === 'fight') && b.state !== 'dead' && b.state !== 'dying';
   if (lockOk) {
@@ -20002,6 +20022,7 @@ function resetFight(first) {
   timers.length = 0;
   if (!first) { $('fade').classList.add('out'); showToast('You wake at the bonfire.'); }
   if (G.opponent === 'mega' && G.megaIntro) { G.megaIntro = false; startCutscene(); }
+  if (G.sequelIntro) { G.sequelIntro = false; G.devilIntro = false; sequelPrelude(); }
   if (G.opponent === 'devil' && G.devilIntro) { G.devilIntro = false; startDevilCut('title'); }
   placeCamera(true, 0.016);
 }
@@ -20020,7 +20041,7 @@ function beginGame() {
   $('hud').classList.add('on');
   resetFight(true);
   applyView();
-  showToast(APPROACH[G.opponent] || 'Approach.', 3.2);
+  if (!G.sqPre) showToast(APPROACH[G.opponent] || 'Approach.', 3.2);
 }
 const ORDER = ['clement', 'saleem', 'chan', 'mega'];
 const APPROACH = { clement: 'Approach Fucking Clement.', saleem: 'Approach the colossus.', chan: 'Approach Fucking Chan.', mega: 'He is waiting for you.', devil: 'He is waiting for you.' };
@@ -20072,7 +20093,7 @@ function switchHero(d) {
 }
 let heroShowT = 0;
 // controller-friendly title menu
-const MENU = ['gauntlet', 'clement', 'saleem', 'chan', 'mega', 'devil'];
+const MENU = ['gauntlet', 'clement', 'saleem', 'chan', 'mega', 'devil', 'sequel'];
 let menuIdx = 0;
 function setMenu(i) {
   menuIdx = (i + MENU.length) % MENU.length;
@@ -20085,6 +20106,7 @@ function confirmMenu() {
   G.opponent = menuIdx === 0 ? ORDER[0] : MENU[menuIdx];
   if (G.opponent === 'mega') G.megaIntro = true;
   if (G.opponent === 'devil') G.devilIntro = true;
+  if (G.opponent === 'sequel') { G.opponent = 'devil'; G.sequelIntro = true; }   // (the Devil is who it ends with)
   beginGame();
 }
 // after a death, don't make anyone wait out the whole fade
@@ -20288,9 +20310,11 @@ if ((window.matchMedia && matchMedia('(pointer: coarse)').matches) || 'ontouchst
 }
 
 $('begin').addEventListener('click', () => { G.opponent = ORDER[0]; beginGame(); });
-for (const b of document.querySelectorAll('.picks button')) b.addEventListener('click', () => { G.opponent = b.dataset.boss; if (G.opponent === 'mega') G.megaIntro = true; if (G.opponent === 'devil') G.devilIntro = true; beginGame(); });
+for (const b of document.querySelectorAll('.picks button')) b.addEventListener('click', () => { G.opponent = b.dataset.boss; if (G.opponent === 'mega') G.megaIntro = true; if (G.opponent === 'devil') G.devilIntro = true;
+  if (G.opponent === 'sequel') { G.opponent = 'devil'; G.sequelIntro = true; } beginGame(); });
 if (store.get('megaSeen', false)) $('pickMega').textContent = '4 · Fucking Clement, Perfected';
 if (store.get('devilSeen', false)) $('pickDevil').textContent = '5 · The Devil';
+if (store.get('sequelSeen', false)) $('pickSequel').textContent = '6 · To Be Continued';
 // anywhere on screen counts as "continue" once a fight is over
 app.addEventListener('pointerdown', () => {
   if (G.cut) return;
